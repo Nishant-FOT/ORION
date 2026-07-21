@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#030b14" />
+  <title>ORION Terminal</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "tertiary-fixed": "#ffdadb",
+            "tertiary": "#ffd6d8",
+            "surface-container-low": "#0d1c2d",
+            "inverse-primary": "#006d36",
+            "on-secondary": "#002e6a",
+            "inverse-on-surface": "#233143",
+            "on-error-container": "#ffdad6",
+            "outline-variant": "#3d4a3e",
+            "primary": "#6bfb9a",
+            "primary-container": "#4ade80",
+            "on-secondary-fixed-variant": "#004395",
+            "tertiary-fixed-dim": "#ffb2b7",
+            "on-error": "#690005",
+            "surface-container-lowest": "#010f1f",
+            "surface-container-highest": "#273647",
+            "on-background": "#d4e4fa",
+            "primary-fixed": "#6dfe9c",
+            "surface-dim": "#051424",
+            "secondary": "#adc6ff",
+            "on-primary-fixed": "#00210c",
+            "surface-bright": "#2c3a4c",
+            "secondary-container": "#0566d9",
+            "error": "#ffb4ab",
+            "outline": "#869486",
+            "on-secondary-container": "#e6ecff",
+            "surface": "#051424",
+            "on-tertiary-container": "#a50031",
+            "secondary-fixed-dim": "#adc6ff",
+            "on-primary": "#003919",
+            "tertiary-container": "#ffafb4",
+            "on-tertiary-fixed-variant": "#92002a",
+            "secondary-fixed": "#d8e2ff",
+            "surface-container": "#122131",
+            "on-surface": "#d4e4fa",
+            "error-container": "#93000a",
+            "on-tertiary": "#67001b",
+            "surface-container-high": "#1c2b3c",
+            "on-tertiary-fixed": "#40000d",
+            "background": "#051424",
+            "inverse-surface": "#d4e4fa",
+            "on-primary-fixed-variant": "#005227",
+            "surface-variant": "#273647",
+            "surface-tint": "#4de082",
+            "primary-fixed-dim": "#4de082",
+            "on-secondary-fixed": "#001a42",
+            "on-primary-container": "#005e2d",
+            "on-surface-variant": "#bccabb"
+          },
+          borderRadius: {
+            DEFAULT: "0.125rem",
+            lg: "0.25rem",
+            xl: "0.5rem",
+            full: "0.75rem",
+            "2xl": "1rem",
+            "3xl": "1.5rem"
+          },
+          spacing: {
+            "component-padding-y": "8px",
+            unit: "4px",
+            "grid-gutter": "12px",
+            "component-padding-x": "12px",
+            "container-margin": "24px"
+          },
+          fontFamily: {
+            "display-lg": ["Hanken Grotesk"],
+            "data-lg": ["JetBrains Mono"],
+            "headline-sm": ["Hanken Grotesk"],
+            "body-md": ["Hanken Grotesk"],
+            "data-md": ["JetBrains Mono"],
+            "headline-md": ["Hanken Grotesk"],
+            "body-sm": ["Hanken Grotesk"],
+            "label-caps": ["JetBrains Mono"]
+          },
+          fontSize: {
+            "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "data-lg": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "500" }],
+            "headline-sm": ["18px", { lineHeight: "24px", fontWeight: "600" }],
+            "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "data-md": ["14px", { lineHeight: "20px", fontWeight: "500" }],
+            "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+            "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+            "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.06em", fontWeight: "700" }]
+          },
+          boxShadow: {
+            card: "0 8px 32px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.1)",
+            glow: "0 0 20px 4px rgba(74, 222, 128, 0.15)",
+            "glow-hover": "0 0 30px 8px rgba(74, 222, 128, 0.25)"
+          },
+          animation: {
+            "fade-in-up": "fadeInUp 0.6s ease-out forwards",
+            "slide-in-right": "slideInRight 0.4s ease-out forwards",
+            "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            shimmer: "shimmer 2.5s infinite linear"
+          },
+          keyframes: {
+            fadeInUp: {
+              "0%": { opacity: "0", transform: "translateY(20px)" },
+              "100%": { opacity: "1", transform: "translateY(0)" }
+            },
+            slideInRight: {
+              "0%": { opacity: "0", transform: "translateX(-20px)" },
+              "100%": { opacity: "1", transform: "translateX(0)" }
+            },
+            shimmer: {
+              "0%": { backgroundPosition: "-1000px 0" },
+              "100%": { backgroundPosition: "1000px 0" }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Base Styles -->
+  <style>
+    body {
+      background-color: #030b14;
+      background-image:
+        radial-gradient(circle at 15% 50%, rgba(5, 20, 36, 0.8) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(13, 28, 45, 0.8) 0%, transparent 50%);
+      background-attachment: fixed;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+    .glow-active {
+      box-shadow: 0 0 20px 4px rgba(74, 222, 128, 0.15);
+      border-color: rgba(74, 222, 128, 0.3);
+    }
+    .glass-panel {
+      background: rgba(18, 33, 49, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Map Popups */
+    .maplibregl-popup-content {
+      background: rgba(10, 26, 46, 0.95) !important;
+      backdrop-filter: blur(12px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      border-radius: 12px !important;
+      padding: 0 !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+      color: #e2e8f0 !important;
+      font-family: inherit !important;
+    }
+    .maplibregl-popup-content b {
+      color: #f1f5f9 !important;
+    }
+    .maplibregl-popup-tip {
+      border-top-color: rgba(10, 26, 46, 0.95) !important;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+    .maplibregl-popup-close-button {
+      color: rgba(255, 255, 255, 0.4) !important;
+      font-size: 16px !important;
+      padding: 4px 8px !important;
+      right: 4px !important;
+      top: 4px !important;
+    }
+    .maplibregl-popup-close-button:hover {
+      color: #f1f5f9 !important;
+      background: rgba(255, 255, 255, 0.1) !important;
+      border-radius: 6px !important;
+    }
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .card-hover {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 0 0 20px rgba(107, 251, 154, 0.05);
+    }
+    .flow-line {
+      position: relative;
+      overflow: hidden;
+    }
+    .flow-line::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(107, 251, 154, 0.4), transparent);
+      animation: flow 2s infinite linear;
+    }
+    @keyframes flow {
+      100% { left: 200%; }
+    }
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInRight {
+      0% { opacity: 0; transform: translateX(-20px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    .shimmer-bg {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+      background-size: 1000px 100%;
+      animation: shimmer 3s infinite linear;
+    }
+    .tab-underline {
+      position: relative;
+    }
+    .tab-underline::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background-color: theme('colors.primary');
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+    .tab-underline:hover::after {
+      width: 100%;
+    }
+
+    /* ═══ Panel Grid ═══ */
+    .panel-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: minmax(280px, auto);
+      grid-auto-flow: dense;
+      gap: 24px;
+      padding-bottom: 24px;
+    }
+
+    /* ═══ Responsive column reduction ═══ */
+    @media (max-width: 1600px) {
+      .panel-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 1200px) {
+      .panel-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 800px) {
+      .panel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ═══ Resizable Panel ═══ */
+    .panel-grid > * {
+      min-width: 0;
+      min-height: 0;
+      overflow: visible;
+      transition: grid-column 0.25s ease, grid-row 0.25s ease, box-shadow 0.3s ease, opacity 0.2s ease;
+    }
+
+    .resize-handle {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: nwse-resize;
+      color: rgba(255,255,255,0.2);
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      z-index: 50;
+      opacity: 0;
+    }
+
+    .panel-grid > *:hover .resize-handle {
+      opacity: 1;
+    }
+
+    .resize-handle:hover {
+      color: rgba(107, 251, 154, 0.8);
+      background: rgba(107, 251, 154, 0.1);
+      transform: scale(1.15);
+    }
+
+    .is-resizing {
+      z-index: 100 !important;
+      box-shadow: 0 0 40px rgba(107, 251, 154, 0.2), 0 16px 48px rgba(0, 0, 0, 0.4) !important;
+      border-color: rgba(107, 251, 154, 0.3) !important;
+    }
+
+    .is-resizing .resize-handle {
+      opacity: 1;
+      color: rgba(107, 251, 154, 1);
+    }
+
+    /* ═══ Drag-and-Drop States ═══ */
+    .is-dragging {
+      opacity: 0.3 !important;
+      transform: scale(0.96) !important;
+      z-index: 90 !important;
+      border: 2px dashed rgba(107, 251, 154, 0.5) !important;
+      box-shadow: 0 0 30px rgba(107, 251, 154, 0.15) !important;
+    }
+
+    .drop-before {
+      position: relative;
+    }
+    .drop-before::before {
+      content: '';
+      position: absolute;
+      top: -14px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: rgba(107, 251, 154, 0.9);
+      border-radius: 2px;
+      box-shadow: 0 0 12px rgba(107, 251, 154, 0.5);
+      z-index: 100;
+    }
+
+    .drop-after {
+      position: relative;
+    }
+    .drop-after::after {
+      content: '';
+      position: absolute;
+      bottom: -14px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: rgba(107, 251, 154, 0.9);
+      border-radius: 2px;
+      box-shadow: 0 0 12px rgba(107, 251, 154, 0.5);
+      z-index: 100;
+    }
+
+    .just-dropped {
+      animation: dropFlash 0.3s ease-out;
+    }
+    @keyframes dropFlash {
+      0% { box-shadow: 0 0 30px rgba(107, 251, 154, 0.4); border-color: rgba(107, 251, 154, 0.6); }
+      100% { box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.3); border-color: rgba(255, 255, 255, 0.05); }
+    }
+
+    /* ═══ Panel Size Responsive Classes ═══ */
+    .panel-sm .panel-header { font-size: 0.75rem; }
+    .panel-sm .panel-body { font-size: 0.875rem; }
+    .panel-sm .panel-stat { font-size: 1rem; }
+    .panel-sm .panel-stat-lg { font-size: 1.25rem; }
+
+    .panel-lg { padding: 24px !important; }
+    .panel-lg .panel-header { font-size: 0.875rem; }
+    .panel-lg .panel-body { font-size: 1rem; }
+    .panel-lg .panel-stat { font-size: 1.25rem; }
+    .panel-lg .panel-stat-lg { font-size: 1.75rem; }
+    .panel-lg .panel-grid-inner { grid-template-columns: repeat(2, 1fr); }
+
+    .panel-xl { padding: 32px !important; }
+    .panel-xl .panel-header { font-size: 1rem; }
+    .panel-xl .panel-body { font-size: 1.125rem; }
+    .panel-xl .panel-stat { font-size: 1.5rem; }
+    .panel-xl .panel-stat-lg { font-size: 2.25rem; }
+    .panel-xl .panel-grid-inner { grid-template-columns: repeat(3, 1fr); }
+    .panel-xl .panel-list { max-height: 600px; }
+
+    /* Map panel: zero padding, no border, no hover effect */
+    [data-panel-id="map-container"] {
+      padding: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    [data-panel-id="map-container"].card-hover:hover {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Inner grid for stats/sections */
+    .panel-grid-inner {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    /* Panel list overflow */
+    .panel-list {
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+
+    .panel-list::-webkit-scrollbar { width: 4px; }
+    .panel-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    /* ═══ Ticker Scroll ═══ */
+    #intel-ticker {
+      overflow: hidden;
+      white-space: nowrap;
+      mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+      position: relative;
+    }
+    .ticker-track {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      white-space: nowrap;
+      width: max-content;
+      will-change: transform;
+      animation: tickerScroll 90s linear infinite;
+    }
+    .ticker-track:hover {
+      animation-play-state: paused;
+    }
+    @keyframes tickerScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body class="text-on-background font-body-md min-h-screen flex flex-col md:flex-row overflow-hidden">
+  <!-- SideNavBar -->
+  <nav class="hidden md:flex flex-col z-40 docked left-0 h-screen w-20 bg-surface-container-lowest/80 backdrop-blur-md border-r border-white/5 text-primary">
+    <div class="flex flex-col items-center py-6">
+      <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-2 animate-pulse-slow">
+        <span class="material-symbols-outlined text-2xl">radar</span>
+      </div>
+      <span class="font-label-caps text-[10px] text-center px-1 tracking-widest text-on-surface-variant">ORION</span>
+    </div>
+    <div class="flex-grow mt-6 flex flex-col gap-2 px-2">
+      <a aria-current="page" class="nav-item group flex flex-col items-center justify-center text-primary bg-primary/10 rounded-xl py-3 transition-all relative" href="#" data-category="map" style="animation: slideInRight 0.4s ease-out 0.1s both;">
+        <span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">map</span>
+        <span class="font-label-caps text-[10px]">Map</span>
+      </a>
+      <a class="nav-item group flex flex-col items-center justify-center text-on-surface-variant py-3 rounded-xl hover:text-primary hover:bg-surface-container transition-all" href="#" data-category="signals" style="animation: slideInRight 0.4s ease-out 0.2s both;">
+        <span class="material-symbols-outlined mb-1 transition-transform group-hover:scale-110">sensors</span>
+        <span class="font-label-caps text-[10px]">Signals</span>
+      </a>
+      <a class="nav-item group flex flex-col items-center justify-center text-on-surface-variant py-3 rounded-xl hover:text-primary hover:bg-surface-container transition-all" href="#" data-category="markets" style="animation: slideInRight 0.4s ease-out 0.3s both;">
+        <span class="material-symbols-outlined mb-1 transition-transform group-hover:scale-110">candlestick_chart</span>
+        <span class="font-label-caps text-[10px]">Markets</span>
+      </a>
+      <a class="nav-item group flex flex-col items-center justify-center text-on-surface-variant py-3 rounded-xl hover:text-primary hover:bg-surface-container transition-all" href="#" data-category="energy" style="animation: slideInRight 0.4s ease-out 0.4s both;">
+        <span class="material-symbols-outlined mb-1 transition-transform group-hover:scale-110">local_gas_station</span>
+        <span class="font-label-caps text-[10px]">Energy</span>
+      </a>
+      <a class="nav-item group flex flex-col items-center justify-center text-on-surface-variant py-3 rounded-xl hover:text-primary hover:bg-surface-container transition-all" href="#" data-category="defense" style="animation: slideInRight 0.4s ease-out 0.5s both;">
+        <span class="material-symbols-outlined mb-1 transition-transform group-hover:scale-110">shield</span>
+        <span class="font-label-caps text-[10px]">Defense</span>
+      </a>
+      <a class="nav-item group flex flex-col items-center justify-center text-on-surface-variant py-3 rounded-xl hover:text-primary hover:bg-surface-container transition-all" href="#" data-category="climate" style="animation: slideInRight 0.4s ease-out 0.6s both;">
+        <span class="material-symbols-outlined mb-1 transition-transform group-hover:scale-110">earthquake</span>
+        <span class="font-label-caps text-[10px]">Climate</span>
+      </a>
+      <a class="nav-item group flex flex-col items-center justify-center text-on-surface-variant py-3 rounded-xl hover:text-primary hover:bg-surface-container transition-all" href="#" data-category="analysis" style="animation: slideInRight 0.4s ease-out 0.7s both;">
+        <span class="material-symbols-outlined mb-1 transition-transform group-hover:scale-110">analytics</span>
+        <span class="font-label-caps text-[10px]">Analysis</span>
+      </a>
+      <a class="nav-item group flex flex-col items-center justify-center text-on-surface-variant py-3 rounded-xl hover:text-primary hover:bg-surface-container transition-all" href="#" data-category="reports" style="animation: slideInRight 0.4s ease-out 0.8s both;">
+        <span class="material-symbols-outlined mb-1 transition-transform group-hover:scale-110">description</span>
+        <span class="font-label-caps text-[10px]">Reports</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Content Wrapper -->
+  <div class="flex-grow flex flex-col h-screen overflow-hidden relative">
+    <!-- Header -->
+    <header class="docked full-width top-0 bg-transparent flex flex-col w-full z-30 pt-4 px-6" style="animation: fadeInUp 0.6s ease-out both;">
+      <div class="glass-panel rounded-2xl flex justify-between items-center px-6 py-3 mb-4">
+        <div class="flex items-center gap-6">
+          <button class="text-on-surface-variant hover:text-primary p-2 rounded-lg transition-colors flex items-center bg-white/5 hover:bg-white/10 hover:scale-105 active:scale-95">
+            <span class="material-symbols-outlined text-sm">grid_view</span>
+          </button>
+          <div class="text-headline-md font-headline-md font-semibold text-primary flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center animate-pulse-slow">
+              <span class="material-symbols-outlined text-lg">radar</span>
+            </div>
+            ORION
+          </div>
+        </div>
+
+        <!-- Intel Ticker -->
+        <div id="intel-ticker" class="flex-1 mx-8 text-sm">
+          <!-- Populated by IntelTicker component -->
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 bg-white/5 hover:bg-white/10 transition-colors rounded-lg px-3 py-2 cursor-pointer hover:scale-105">
+            <span class="text-on-surface-variant text-sm material-symbols-outlined">public</span>
+            <select class="bg-transparent border-none text-on-surface text-sm focus:ring-0 p-0 pr-4 w-24 appearance-none font-data-md cursor-pointer outline-none">
+              <option>GLOBAL</option>
+              <option>MENA</option>
+              <option>APAC</option>
+            </select>
+            <span class="material-symbols-outlined text-on-surface-variant text-sm">expand_more</span>
+          </div>
+          <button class="bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded-lg font-label-caps text-label-caps flex items-center gap-2 hover:bg-primary/40 hover:border-primary transition-all shadow-glow hover:shadow-glow-hover hover:-translate-y-0.5 active:translate-y-0">
+            <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            LIVE
+          </button>
+          <button class="text-on-surface-variant hover:text-primary bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-all hover:scale-105 active:scale-95">
+            <span class="material-symbols-outlined">account_circle</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Canvas -->
+    <main class="flex-grow overflow-y-auto px-6 pb-6 relative scroll-smooth">
+      <!-- Category views render here -->
+      <div id="main-content">
+      </div>
+    </main>
+  </div>
+
+  <!-- App Entry Point -->
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
