@@ -156,6 +156,7 @@ const PANEL_CLUSTER: Record<string, PanelChunkName> = {
 };
 
 const PANEL_SUPPORT_CLUSTER: Record<string, PanelSupportChunkName> = {
+  Resizable: 'panel-support',
   Status: 'panel-support',
 };
 
