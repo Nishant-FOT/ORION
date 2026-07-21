@@ -12,6 +12,8 @@ const PRODUCTION_PATTERNS: RegExp[] = [
   //   orion-<hash>-eliewm.vercel.app        (deployment URL)
   // Tight on purpose: never a bare *.vercel.app (this is a security allowlist).
   /^https:\/\/orion-[a-z0-9-]+-eliewm\.vercel\.app$/,
+  // Railway deployments — *.railway.app
+  /^https:\/\/[a-z0-9-]+\.railway\.app$/,
   /^asset:\/\/localhost$/,
 ];
 

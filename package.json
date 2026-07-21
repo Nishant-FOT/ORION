@@ -46,6 +46,7 @@
     "audit:convex-string-calls": "node scripts/audit-convex-string-calls.cjs",
     "audit:dodo-catalog": "node scripts/audit-dodo-catalog.cjs",
 
+    "start": "tsx server/railway.ts",
     "preview": "vite preview",
     "test:e2e:full": "cross-env VITE_VARIANT=full playwright test",
     "test:e2e:tech": "cross-env VITE_VARIANT=tech playwright test",

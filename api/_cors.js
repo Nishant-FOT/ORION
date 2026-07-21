@@ -5,6 +5,8 @@ const ALLOWED_ORIGIN_PATTERNS = [
   //   orion-<hash>-eliewm.vercel.app        (deployment URL)
   // Tight on purpose: never a bare *.vercel.app (this is a security allowlist).
   /^https:\/\/orion-[a-z0-9-]+-eliewm\.vercel\.app$/,
+  // Railway deployments — *.railway.app
+  /^https:\/\/[a-z0-9-]+\.railway\.app$/,
   /^asset:\/\/localhost$/,
   // Only allow bare localhost/127.0.0.1 in non-production (matches server/cors.ts)
   ...(process.env.NODE_ENV === 'production' ? [] : [
