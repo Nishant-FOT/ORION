@@ -75,7 +75,7 @@ export const PANEL_REGISTRY: PanelConfig[] = [
   // ═══════════════════════════════════════════════════════════════
   // MAP (1 panel)
   // ═══════════════════════════════════════════════════════════════
-  { id: 'map-container', name: 'Interactive Map', category: 'map', icon: 'map', description: 'Geospatial visualization with 56 toggleable data layers', defaultEnabled: true, priority: 1, defaultWidth: 4, defaultHeight: 4 },
+  { id: 'map-container', name: 'Interactive Map', category: 'map', icon: 'map', description: 'Geospatial visualization with 56 toggleable data layers', defaultEnabled: true, priority: 1, defaultWidth: 4, defaultHeight: 2 },
 
   // ═══════════════════════════════════════════════════════════════
   // SIGNALS (13 panels)

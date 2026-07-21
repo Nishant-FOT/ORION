@@ -64,11 +64,11 @@ export class ResizablePanel {
   private loadSize(): PanelSize {
     try {
       const stored = JSON.parse(localStorage.getItem(SIZE_STORAGE_KEY) || '{}');
-      // Force map panel to max size on every load
+      // Keep the world map visible above the fold while preserving its full width.
       if (this.panelId === 'map-container') {
         delete stored[this.panelId];
         localStorage.setItem(SIZE_STORAGE_KEY, JSON.stringify(stored));
-        return { width: 4, height: 4 };
+        return { width: 4, height: 2 };
       }
       const saved = stored[this.panelId];
       if (saved && typeof saved.width === 'number' && typeof saved.height === 'number') {
