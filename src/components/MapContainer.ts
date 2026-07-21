@@ -692,10 +692,6 @@ export class MapContainer {
     if (newMode === this.mode) return;
 
     // Destroy old
-    if (this.mode === 'globe' && this.globe) {
-      this.globe._destructor?.();
-      this.globe = null;
-    }
     if (this.mode === 'deckgl' && this.deckOverlay) {
       this.deckOverlay = null;
     }
@@ -707,25 +703,36 @@ export class MapContainer {
       flatEl.classList.remove('hidden');
       globeEl.classList.add('hidden');
       if (!this.map) await this.initFlatMap();
-      else this.map.resize();
-      this.map?.easeTo({ pitch: 0, bearing: 0, duration: 800 });
+      if (this.map) {
+        this.map.setProjection({ name: 'mercator' });
+        this.map.resize();
+        this.map.easeTo({ pitch: 0, bearing: 0, duration: 800 });
+      }
     } else if (newMode === 'deckgl') {
       flatEl.classList.remove('hidden');
       globeEl.classList.add('hidden');
       if (!this.map) await this.initFlatMap();
-      else this.map.resize();
-      if (this.deckOverlay) {
-        try { this.map?.removeControl(this.deckOverlay); } catch {}
-        this.deckOverlay = null;
+      if (this.map) {
+        this.map.setProjection({ name: 'mercator' });
+        this.map.resize();
+        if (this.deckOverlay) {
+          try { this.map.removeControl(this.deckOverlay); } catch {}
+          this.deckOverlay = null;
+        }
+        this.map.easeTo({ pitch: 60, bearing: -20, duration: 1200 });
+        await new Promise<void>(r => this.map?.once('moveend', () => r()));
+        await this.initDeckGLOverlay();
       }
-      this.map?.easeTo({ pitch: 60, bearing: -20, duration: 1200 });
-      await new Promise<void>(r => this.map?.once('moveend', () => r()));
-      await this.initDeckGLOverlay();
     } else if (newMode === 'globe') {
       flatEl.classList.add('hidden');
       globeEl.classList.remove('hidden');
       this.popup?.remove();
-      await this.initGlobe(globeEl);
+      if (!this.map) await this.initFlatMap();
+      if (this.map) {
+        this.map.setProjection({ name: 'globe' });
+        this.map.resize();
+        this.map.easeTo({ pitch: 45, bearing: -20, duration: 1200 });
+      }
     }
 
     this.mode = newMode;
@@ -817,132 +824,9 @@ export class MapContainer {
     return layers;
   }
 
-  private async initGlobe(containerEl: HTMLElement): Promise<void> {
-    if (this.globe) return;
-
-    // Check WebGL support first
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-    if (!gl) {
-      containerEl.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-on-surface-variant text-sm gap-2">
-        <span class="material-symbols-outlined text-2xl">3d_rotation</span>
-        WebGL not supported
-      </div>`;
-      return;
-    }
-
-    try {
-      const Globe = (await import('globe.gl')).default;
-      const g = new (Globe as any)(containerEl)
-        .globeImageUrl('/textures/earth-blue-marble.jpg')
-        .bumpImageUrl('/textures/earth-topo-bathy.jpg')
-        .backgroundImageUrl('/textures/night-sky.png')
-        .atmosphereColor('#6bfb9a')
-        .atmosphereAltitude(0.25)
-        .pointAltitude((d: any) => {
-          if (d.type === 'chokepoint') return 0.06;
-          if (d.type === 'conflict') return 0.08;
-          if (d.type === 'military') return 0.04;
-          return 0.02;
-        })
-        .pointRadius((d: any) => d.type === 'chokepoint' ? 0.5 : d.type === 'conflict' ? 0.6 : 0.3)
-        .pointColor((d: any) => {
-          if (d.type === 'chokepoint') return '#6bfb9a';
-          if (d.type === 'conflict') return '#ef4444';
-          if (d.type === 'military') return '#3b82f6';
-          if (d.type === 'nuclear') return '#a855f7';
-          if (d.type === 'hotspot') return '#f97316';
-          return '#eab308';
-        })
-        .pointLabel((d: any) => `<div style="background:#0a1a2e;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);font-size:11px;color:#e2e8f0;">${d.name}</div>`)
-        .onGlobeClick((coords: any) => this.showGlobePopup(`${coords.lat.toFixed(2)}°, ${coords.lng.toFixed(2)}°`, coords));
-
-      const allPoints = [
-        ...(this.geoData['chokepoints'] || []).map(c => ({ ...c, lat: c.lat, lng: c.lon, type: 'chokepoint' })),
-        ...(this.geoData['conflict-zones'] || []).map(c => ({ ...c, lat: c.lat, lng: c.lon, type: 'conflict' })),
-        ...(this.geoData['military-bases'] || []).slice(0, 30).map(b => ({ ...b, lat: b.lat, lng: b.lon, type: 'military' })),
-        ...(this.geoData['nuclear'] || []).slice(0, 20).map(n => ({ ...n, lat: n.lat, lng: n.lon, type: 'nuclear' })),
-        ...(this.geoData['intel-hotspots'] || []).map(h => ({ ...h, lat: h.lat, lng: h.lon, type: 'hotspot' })),
-        ...(this.geoData['spaceports'] || []).map(s => ({ ...s, lat: s.lat, lng: s.lon, type: 'spaceport' })),
-        ...(this.geoData['exchanges'] || []).map(e => ({ ...e, lat: e.lat, lng: e.lon, type: 'exchange' })),
-      ];
-      g.pointsData(allPoints);
-
-      // Arcs for cables
-      const arcData = (this.geoData['cables'] || [])
-        .filter(c => c.points?.length >= 2)
-        .slice(0, 20)
-        .map(c => ({ startLat: c.points![0]![1], startLng: c.points![0]![0], endLat: c.points![c.points!.length - 1]![1], endLng: c.points![c.points!.length - 1]![0] }));
-      g.arcsData(arcData)
-        .arcColor(() => '#06b6d4')
-        .arcDashLength(0.4)
-        .arcDashGap(0.2)
-        .arcDashAnimateGap(2000)
-        .arcStroke(0.5);
-
-      g.pointOfView({ lat: 25, lng: 35, altitude: 2.5 }, 1000);
-      this.globe = g;
-    } catch (err) {
-      console.warn('[Map] Globe.gl unavailable:', err);
-      containerEl.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-on-surface-variant text-sm gap-2">
-        <span class="material-symbols-outlined text-2xl">3d_rotation</span>
-        Globe unavailable
-        <button id="globe-retry-btn" class="px-3 py-1 mt-2 rounded-lg bg-primary/20 text-primary text-xs hover:bg-primary/30 transition-colors cursor-pointer">Retry</button>
-      </div>`;
-      // Wire up retry
-      setTimeout(() => {
-        const retryBtn = document.getElementById('globe-retry-btn');
-        retryBtn?.addEventListener('click', () => {
-          containerEl.innerHTML = '';
-          this.globe = null;
-          this.initGlobe(containerEl);
-        });
-      }, 0);
-    }
-  }
-
-  private showGlobePopup(label: string, coords?: { lat: number; lng: number }): void {
-    const globeEl = this.container.querySelector('#map-container-globe');
-    if (!globeEl) return;
-    let tip = globeEl.querySelector('.globe-popup') as HTMLElement;
-    if (!tip) {
-      tip = document.createElement('div');
-      tip.className = 'globe-popup absolute pointer-events-none z-30 px-2.5 py-1.5 rounded-lg bg-[#0a1a2e]/90 backdrop-blur-sm border border-white/10 text-xs text-on-surface font-body-sm';
-      globeEl.appendChild(tip);
-    }
-    tip.textContent = label;
-    if (coords) {
-      const rect = globeEl.getBoundingClientRect();
-      const scale = (this.globe as any)?.width?.() || rect.width;
-      const cx = rect.width / 2;
-      const cy = rect.height / 2;
-      const lambda = coords.lng * Math.PI / 180;
-      const phi = coords.lat * Math.PI / 180;
-      const rotY = (this.globe as any)?.pointOfView?.().lng || 0;
-      const rotX = (this.globe as any)?.pointOfView?.().lat || 0;
-      const alt = (this.globe as any)?.pointOfView?.().altitude || 2.5;
-      const lambdaRad = (rotY) * Math.PI / 180;
-      const phiRad = (rotX) * Math.PI / 180;
-      const x3d = Math.cos(phi) * Math.sin(lambda - lambdaRad);
-      const y3d = Math.cos(phiRad) * Math.sin(phi) - Math.sin(phiRad) * Math.cos(phi) * Math.cos(lambda - lambdaRad);
-      const z3d = Math.sin(phiRad) * Math.sin(phi) + Math.cos(phiRad) * Math.cos(phi) * Math.cos(lambda - lambdaRad);
-      if (z3d > 0) {
-        const projScale = scale / (2 * Math.PI * alt);
-        tip.style.left = `${cx + x3d * projScale}px`;
-        tip.style.top = `${cy - y3d * projScale}px`;
-        tip.style.transform = 'translate(-50%, -120%)';
-      } else {
-        tip.style.left = '50%';
-        tip.style.top = '10px';
-        tip.style.transform = 'translateX(-50%)';
-      }
-    } else {
-      tip.style.left = '50%';
-      tip.style.top = '10px';
-      tip.style.transform = 'translateX(-50%)';
-    }
-    clearTimeout((tip as any)._hideTimer);
-    (tip as any)._hideTimer = setTimeout(() => tip.remove(), 4000);
+  private initGlobe(_containerEl: HTMLElement): void {
+    // Globe is now handled by MapLibre's native 'globe' projection
+    // No separate globe.gl instance needed
   }
 
   private updateModeButtons(): void {
