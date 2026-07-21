@@ -221,6 +221,9 @@ export class MapContainer {
   private activeLayers = new Set(LAYERS.map(l => l.id));
   private layerPanelOpen = false;
   private geoData: Record<string, any[]> = {};
+  private cargoAnimationFrame: number | null = null;
+  private lastCargoUpdateAt = 0;
+  private autoGlobeSwitching = false;
 
   constructor(container: HTMLElement) { this.container = container; }
 
@@ -424,6 +427,10 @@ export class MapContainer {
   }
 
   private renderShell(): void {
+    // The dashboard makes whole panels draggable for reordering. The map needs
+    // pointer drags for pan/rotate, so opt its complete surface out of that
+    // outer drag handler.
+    this.container.setAttribute('data-no-drag', '');
     this.container.style.padding = '0';
     this.container.style.position = 'relative';
     this.container.style.overflow = 'hidden';
@@ -497,8 +504,8 @@ export class MapContainer {
     this.map = new maplibregl.Map({
       container: el,
       style: style as any,
-      center: [35, 30],
-      zoom: 2.5,
+      center: [0, 20],
+      zoom: 1.2,
       minZoom: 0,
       maxZoom: 18,
       pitch: 0,
@@ -529,6 +536,15 @@ export class MapContainer {
         requestAnimationFrame(animateDashes);
       };
       requestAnimationFrame(animateDashes);
+      this.startCargoAnimation();
+    });
+
+    // At the edge of the 2D world's useful zoom range, transition into the
+    // globe instead of leaving the user on an increasingly empty flat canvas.
+    this.map.on('zoomend', () => {
+      if (this.mode !== 'flat' || this.autoGlobeSwitching || (this.map?.getZoom() ?? 1) > 0.85) return;
+      this.autoGlobeSwitching = true;
+      void this.switchMode('globe').finally(() => { this.autoGlobeSwitching = false; });
     });
 
     this.mapResizeObserver?.disconnect();
@@ -559,6 +575,7 @@ export class MapContainer {
       }
     }
     this.map.addSource('trade-routes', { type: 'geojson', data: { type: 'FeatureCollection', features: tradeRouteFeatures } });
+    this.map.addSource('cargo-vessels', { type: 'geojson', data: this.getCargoFeatureCollection(Date.now()) });
 
     // GPS jamming zones as polygon circles
     const gpsJamFeatures = (this.geoData['gps-jamming'] || []).map((j: any) => {
@@ -630,6 +647,8 @@ export class MapContainer {
     // Trade routes - animated dashes
     this.map.addLayer({ id: 'trade-routes-line', type: 'line', source: 'trade-routes', paint: { 'line-color': '#22d3ee', 'line-width': 2, 'line-opacity': 0.6 } });
     this.map.addLayer({ id: 'trade-routes-dash', type: 'line', source: 'trade-routes', paint: { 'line-color': '#67e8f9', 'line-width': 1, 'line-opacity': 0.8, 'line-dasharray': [0, 4, 3] } });
+    this.map.addLayer({ id: 'cargo-vessels-glow', type: 'circle', source: 'cargo-vessels', paint: { 'circle-radius': 8, 'circle-color': '#38bdf8', 'circle-opacity': 0.18 } });
+    this.map.addLayer({ id: 'cargo-vessels', type: 'circle', source: 'cargo-vessels', paint: { 'circle-radius': 3.5, 'circle-color': '#e0f2fe', 'circle-stroke-color': '#38bdf8', 'circle-stroke-width': 1.5 } });
 
     // Point layers
     const circleConfigs: Record<string, { color: string; radius: number; glow?: boolean }> = {
@@ -704,16 +723,16 @@ export class MapContainer {
       globeEl.classList.add('hidden');
       if (!this.map) await this.initFlatMap();
       if (this.map) {
-        this.map.setProjection({ name: 'mercator' });
+        this.map.setProjection({ type: 'mercator' });
         this.map.resize();
-        this.map.easeTo({ pitch: 0, bearing: 0, duration: 800 });
+        this.map.easeTo({ center: [0, 20], zoom: 1.2, pitch: 0, bearing: 0, duration: 800 });
       }
     } else if (newMode === 'deckgl') {
       flatEl.classList.remove('hidden');
       globeEl.classList.add('hidden');
       if (!this.map) await this.initFlatMap();
       if (this.map) {
-        this.map.setProjection({ name: 'mercator' });
+        this.map.setProjection({ type: 'mercator' });
         this.map.resize();
         if (this.deckOverlay) {
           try { this.map.removeControl(this.deckOverlay); } catch {}
@@ -724,14 +743,19 @@ export class MapContainer {
         await this.initDeckGLOverlay();
       }
     } else if (newMode === 'globe') {
-      flatEl.classList.add('hidden');
-      globeEl.classList.remove('hidden');
+      // Globe mode uses MapLibre's native projection on the existing map
+      // canvas. The separate globe element is intentionally not a renderer;
+      // showing it here hid the only rendered canvas and produced a black panel.
+      flatEl.classList.remove('hidden');
+      globeEl.classList.add('hidden');
       this.popup?.remove();
       if (!this.map) await this.initFlatMap();
       if (this.map) {
-        this.map.setProjection({ name: 'globe' });
+        this.map.setProjection({ type: 'globe' });
         this.map.resize();
-        this.map.easeTo({ pitch: 45, bearing: -20, duration: 1200 });
+        // A level, minimum-zoom camera keeps the complete sphere centred in
+        // the shorter two-row panel.
+        this.map.easeTo({ center: [0, 0], zoom: 0, pitch: 0, bearing: 0, duration: 900 });
       }
     }
 
@@ -762,7 +786,32 @@ export class MapContainer {
 
   private buildDeckGLLayers(layersModule: any): any[] {
     const layers: any[] = [];
-    const { ScatterplotLayer, ColumnLayer, PathLayer } = layersModule;
+    const { ScatterplotLayer, ColumnLayer, PathLayer, ArcLayer } = layersModule;
+
+    if (this.activeLayers.has('tradeRoutes')) {
+      const routeArcs = (this.geoData['trade-routes'] || [])
+        .filter((route: any) => route.points?.length >= 2)
+        .map((route: any) => ({
+          name: route.name,
+          source: route.points[0],
+          target: route.points[route.points.length - 1],
+          category: route.category,
+        }));
+      layers.push(new ArcLayer({
+        id: 'deck-trade-route-arcs',
+        data: routeArcs,
+        getSourcePosition: (d: any) => d.source,
+        getTargetPosition: (d: any) => d.target,
+        getSourceColor: [34, 211, 238, 210],
+        getTargetColor: [103, 232, 249, 110],
+        getWidth: 2.5,
+        getHeight: 0.35,
+        widthMinPixels: 1.5,
+        widthMaxPixels: 5,
+        pickable: true,
+        onClick: (info: any) => this.showDeckGLPopup(info.object?.name, info.coordinate),
+      }));
+    }
 
     if (this.activeLayers.has('chokepoints')) {
       layers.push(new ScatterplotLayer({
@@ -772,7 +821,7 @@ export class MapContainer {
         getRadius: 40000,
         radiusMinPixels: 6,
         pickable: true,
-        onClick: (info: any) => this.showGlobePopup(info.object.name, info.coordinate),
+        onClick: (info: any) => this.showDeckGLPopup(info.object.name, info.coordinate),
       }));
     }
 
@@ -784,7 +833,7 @@ export class MapContainer {
         getElevation: (d: any) => d.elevation,
         radius: 15000,
         pickable: true,
-        onClick: (info: any) => this.showGlobePopup(info.object.name, info.coordinate),
+        onClick: (info: any) => this.showDeckGLPopup(info.object.name, info.coordinate),
       }));
     }
 
@@ -796,7 +845,7 @@ export class MapContainer {
         getRadius: 30000,
         radiusMinPixels: 4,
         pickable: true,
-        onClick: (info: any) => this.showGlobePopup(info.object.name, info.coordinate),
+        onClick: (info: any) => this.showDeckGLPopup(info.object.name, info.coordinate),
       }));
     }
 
@@ -824,9 +873,65 @@ export class MapContainer {
     return layers;
   }
 
-  private initGlobe(_containerEl: HTMLElement): void {
-    // Globe is now handled by MapLibre's native 'globe' projection
-    // No separate globe.gl instance needed
+  private getCargoFeatureCollection(nowMs: number): any {
+    const routes = (this.geoData['trade-routes'] || []).filter((route: any) => route.points?.length >= 2);
+    const features = routes.slice(0, 14).map((route: any, index: number) => {
+      const progress = ((nowMs / 180_000) + index * 0.137) % 1;
+      const point = this.getRoutePosition(route.points, progress);
+      return {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: point },
+        properties: { name: `${route.name} cargo`, category: route.category },
+      };
+    });
+    return { type: 'FeatureCollection', features };
+  }
+
+  private getRoutePosition(points: [number, number][], progress: number): [number, number] {
+    const lengths: number[] = [];
+    let total = 0;
+    for (let index = 1; index < points.length; index++) {
+      const [fromLon, fromLat] = points[index - 1]!;
+      const [toLon, toLat] = points[index]!;
+      const dx = Math.min(Math.abs(toLon - fromLon), 360 - Math.abs(toLon - fromLon));
+      const length = Math.hypot(dx, toLat - fromLat);
+      lengths.push(length);
+      total += length;
+    }
+    let remaining = progress * total;
+    for (let index = 1; index < points.length; index++) {
+      const segmentLength = lengths[index - 1]!;
+      if (remaining > segmentLength) { remaining -= segmentLength; continue; }
+      const [fromLon, fromLat] = points[index - 1]!;
+      const [rawToLon, toLat] = points[index]!;
+      const toLon = Math.abs(rawToLon - fromLon) > 180
+        ? rawToLon + (rawToLon < fromLon ? 360 : -360)
+        : rawToLon;
+      const ratio = segmentLength ? remaining / segmentLength : 0;
+      const lon = ((fromLon + (toLon - fromLon) * ratio + 540) % 360) - 180;
+      return [lon, fromLat + (toLat - fromLat) * ratio];
+    }
+    return points[points.length - 1]!;
+  }
+
+  private startCargoAnimation(): void {
+    if (this.cargoAnimationFrame !== null) return;
+    const animate = (nowMs: number) => {
+      if (nowMs - this.lastCargoUpdateAt >= 120) {
+        const source = this.map?.getSource('cargo-vessels') as maplibregl.GeoJSONSource | undefined;
+        source?.setData(this.getCargoFeatureCollection(nowMs));
+        this.lastCargoUpdateAt = nowMs;
+      }
+      this.cargoAnimationFrame = requestAnimationFrame(animate);
+    };
+    this.cargoAnimationFrame = requestAnimationFrame(animate);
+  }
+
+  private showDeckGLPopup(name: string, coordinate?: [number, number]): void {
+    if (!this.map || !coordinate) return;
+    this.popup?.setLngLat(coordinate)
+      .setHTML(`<div style="padding:8px;font-size:12px;color:#e2e8f0;font-family:inherit;"><b style="color:#f1f5f9;">${name}</b></div>`)
+      .addTo(this.map);
   }
 
   private updateModeButtons(): void {
@@ -1134,6 +1239,7 @@ export class MapContainer {
 
   destroy(): void {
     this.mapResizeObserver?.disconnect();
+    if (this.cargoAnimationFrame !== null) cancelAnimationFrame(this.cargoAnimationFrame);
     this.popup?.remove();
     if (this.mode === 'globe' && this.globe) this.globe._destructor?.();
     this.map?.remove();
