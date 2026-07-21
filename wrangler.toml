@@ -2,19 +2,4 @@ name = "orion"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-[site]
-bucket = "./dist"
-
-# Functions configuration for API routes
-[functions]
-directory = "api"
-compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
-
-# Environment variables — set these in the Cloudflare dashboard
-# or via `wrangler secret put <NAME>`
-
-# Routes (optional — Cloudflare auto-routes based on your domain)
-# routes = [
-#   { pattern = "orion.pages.dev/*", zone_name = "pages.dev" }
-# ]
+pages_build_output_dir = "./dist"
