@@ -20,7 +20,6 @@
 //     we return it without re-prompting. Re-linking an already-linked
 //     device is a no-op from the user's perspective.
 
-import { getClerkToken } from '@/services/clerk';
 import { VAPID_PUBLIC_KEY, isWebPushConfigured, urlBase64ToUint8Array, arrayBufferToBase64 } from '@/config/push';
 
 export type PushPermission = 'default' | 'granted' | 'denied' | 'unsupported';
@@ -95,7 +94,7 @@ function subscriptionToPayload(sub: PushSubscription): SubscriptionPayload | nul
 }
 
 async function authFetch(path: string, init: RequestInit): Promise<Response> {
-  const token = await getClerkToken();
+  const token: string | null = null;
   if (!token) throw new Error('Not authenticated');
   return fetch(path, {
     ...init,

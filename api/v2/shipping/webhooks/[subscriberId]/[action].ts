@@ -13,7 +13,6 @@ export const config = { runtime: 'edge' };
 import { validateApiKey } from '../../../../_api-key.js';
 // @ts-expect-error — JS module, no declaration file
 import { getCorsHeaders } from '../../../../_cors.js';
-import { isCallerPremium } from '../../../../../server/_shared/premium-check';
 import { getCachedJson, setCachedJson } from '../../../../../server/_shared/redis';
 import {
   WEBHOOK_TTL,
@@ -41,14 +40,6 @@ export default async function handler(req: Request): Promise<Response> {
   if (apiKeyResult.required && !apiKeyResult.valid) {
     return new Response(JSON.stringify({ error: apiKeyResult.error ?? 'API key required' }), {
       status: 401,
-      headers: { ...cors, 'Content-Type': 'application/json' },
-    });
-  }
-
-  const isPro = await isCallerPremium(req);
-  if (!isPro) {
-    return new Response(JSON.stringify({ error: 'PRO subscription required' }), {
-      status: 403,
       headers: { ...cors, 'Content-Type': 'application/json' },
     });
   }

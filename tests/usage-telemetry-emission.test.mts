@@ -282,7 +282,7 @@ describe('gateway telemetry payload — bearer identity propagation', () => {
     const ev = spy.events[0]!;
     // The whole point of fix #2: pre-fix this would have been null/anon.
     assert.equal(ev.customer_id, 'user_pro', 'customer_id should be the bearer subject');
-    assert.equal(ev.auth_kind, 'clerk_jwt');
+    assert.equal(ev.auth_kind, 'bearer_session');
     assert.equal(ev.domain, 'resilience');
     assert.equal(ev.status, 200);
   });
@@ -345,7 +345,7 @@ describe('gateway telemetry payload — bearer identity propagation', () => {
     const ev = spy.events[0]!;
     assert.equal(ev.tier, 2, `tier should reflect resolved entitlement, got ${ev.tier}`);
     assert.equal(ev.customer_id, 'user_api');
-    assert.equal(ev.auth_kind, 'clerk_jwt');
+    assert.equal(ev.auth_kind, 'bearer_session');
     assert.equal(ev.domain, 'market');
     assert.equal(ev.route, '/api/market/v1/analyze-stock');
   });

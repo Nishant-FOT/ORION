@@ -1,11 +1,8 @@
 ---
-title: "Desktop Release Packaging Guide (Local, Reproducible)"
-description: "This guide provides reproducible local packaging steps for both desktop variants: full (ORION) and tech (Tech Monitor)."
+title: "Release Packaging Guide (Local, Reproducible)"
+description: "This guide provides reproducible local packaging steps for ORION."
 ---
-This guide provides reproducible local packaging steps for both desktop variants:
-
-- **full** → `ORION`
-- **tech** → `Tech Monitor`
+This guide provides reproducible local packaging steps for ORION.
 
 Variant identity is controlled by Tauri config:
 
@@ -20,18 +17,18 @@ Variant identity is controlled by Tauri config:
   - macOS: Xcode command-line tools
   - Windows: Visual Studio Build Tools + NSIS + WiX
 
-Install dependencies (this also installs the pinned Tauri CLI used by desktop scripts):
+Install dependencies (this also installs the pinned Tauri CLI used by build scripts):
 
 ```bash
 npm ci
 ```
 
-All desktop scripts call the local `tauri` binary from `node_modules/.bin`; no runtime `npx` package download is required after `npm ci`.
+All build scripts call the local `tauri` binary from `node_modules/.bin`; no runtime `npx` package download is required after `npm ci`.
 If the local CLI is missing, `scripts/desktop-package.mjs` now fails fast with an explicit `npm ci` remediation message.
 
 ## Network preflight and remediation
 
-Before running desktop packaging in CI or managed networks, verify connectivity and proxy config:
+Before running packaging in CI or managed networks, verify connectivity and proxy config:
 
 ```bash
 npm ping
@@ -184,9 +181,6 @@ npm run desktop:package:windows:full:sign
 
 ## Variant-aware outputs (names/icons)
 
-- Full variant: `ORION` / `orion`
-- Tech variant: `Tech Monitor` / `tech-monitor`
-
 Distinct names are configured in Tauri:
 
 - `src-tauri/tauri.conf.json` → `ORION` / `orion`
@@ -211,7 +205,7 @@ Common subfolders:
 
 ## Release checklist (clean machine)
 
-1. Build required OS + variant package(s).
+1. Build required OS package(s).
 2. Move artifacts to a clean machine (or fresh VM).
 3. Install/launch:
    - macOS: mount `.dmg`, drag app to Applications, launch.
@@ -220,8 +214,8 @@ Common subfolders:
    - App window opens without crash.
    - Map view renders.
    - Initial data loading path does not fatal-error.
-5. Validate variant identity:
-   - Window title and product name match expected variant.
+5. Validate identity:
+   - Window title and product name match expected configuration.
 6. If signing was enabled:
    - Verify code-signing metadata in OS dialogs/properties.
    - Verify notarization/Gatekeeper acceptance on macOS.

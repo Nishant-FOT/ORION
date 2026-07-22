@@ -97,7 +97,6 @@ export function createBlankMapLayers(): MapLayers {
     economic: false,
     waterways: false,
     outages: false,
-    cyberThreats: false,
     datacenters: false,
     protests: false,
     flights: false,

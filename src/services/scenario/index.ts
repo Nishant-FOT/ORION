@@ -1,5 +1,5 @@
 import { getRpcBaseUrl } from '@/services/rpc-client';
-import { premiumFetch } from '@/services/premium-fetch';
+
 import {
   ScenarioServiceClient,
   type RunScenarioRequest,
@@ -23,10 +23,7 @@ export type {
   ScenarioTemplate,
 };
 
-// RunScenario + GetScenarioStatus are PRO-gated — premiumFetch injects the
-// Clerk Bearer token / API key. ListScenarioTemplates is public but harmless
-// to route through the same fetch wrapper.
-const client = new ScenarioServiceClient(getRpcBaseUrl(), { fetch: premiumFetch });
+const client = new ScenarioServiceClient(getRpcBaseUrl());
 
 /**
  * Enqueue a scenario job and return the resulting job id. Server validates

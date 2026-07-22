@@ -34,7 +34,6 @@ import { readRawJsonFromUpstash } from './_upstash-json.js';
 // @ts-expect-error — JS module, no declaration file
 import { captureSilentError } from './_sentry-edge.js';
 import { validateBearerToken } from '../server/auth-session';
-import { getEntitlements } from '../server/_shared/entitlement-check';
 import { signBriefUrl, BriefUrlError } from '../server/_shared/brief-url';
 import { assertBriefEnvelope } from '../server/_shared/brief-render.js';
 
@@ -192,19 +191,6 @@ export default async function handler(
   const session = await validateBearerToken(jwt);
   if (!session.valid || !session.userId) {
     return jsonResponse({ error: 'UNAUTHENTICATED' }, 401, cors);
-  }
-
-  const ent = await getEntitlements(session.userId);
-  if (!ent || ent.features.tier < 1) {
-    return jsonResponse(
-      {
-        error: 'pro_required',
-        message: 'The Brief is available on the Pro plan.',
-        upgradeUrl: 'https://orion.app/pro',
-      },
-      403,
-      cors,
-    );
   }
 
   const secret = process.env.BRIEF_URL_SIGNING_SECRET ?? '';

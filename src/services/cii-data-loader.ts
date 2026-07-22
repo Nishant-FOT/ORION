@@ -6,7 +6,6 @@ import {
   ingestOutagesForCII,
   ingestGpsJammingForCII,
   ingestAisDisruptionsForCII,
-  ingestCyberThreatsForCII,
   ingestEarthquakesForCII,
   ingestSanctionsForCII,
   ingestOrefForCII,
@@ -65,7 +64,6 @@ async function doLoad(): Promise<CountryScore[]> {
     loadOutages(),
     loadGpsJamming(),
     loadAisDisruptions(),
-    loadCyberThreats(),
     loadEarthquakes(),
     loadSanctions(),
     loadOref(),
@@ -144,12 +142,6 @@ async function loadAisDisruptions(): Promise<void> {
   const { fetchAisSignals } = await import('@/services/maritime');
   const result = await fetchAisSignals();
   if (result?.disruptions?.length) ingestAisDisruptionsForCII(result.disruptions);
-}
-
-async function loadCyberThreats(): Promise<void> {
-  const { fetchCyberThreats } = await import('@/services/cyber');
-  const threats = await fetchCyberThreats({ limit: 100 });
-  if (threats?.length) ingestCyberThreatsForCII(threats);
 }
 
 async function loadEarthquakes(): Promise<void> {

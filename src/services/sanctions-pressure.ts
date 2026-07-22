@@ -1,6 +1,6 @@
 import { createCircuitBreaker } from '@/utils';
 import { getRpcBaseUrl } from '@/services/rpc-client';
-import { premiumFetch } from '@/services/premium-fetch';
+
 import { getHydratedData } from '@/services/bootstrap';
 import { toApiUrl } from '@/services/runtime';
 import {
@@ -56,10 +56,7 @@ export interface SanctionsPressureResult {
   entries: SanctionsEntry[];
 }
 
-// premiumFetch — listSanctionsPressure (the only method called here) is in
-// PREMIUM_RPC_PATHS. See src/services/supply-chain/index.ts for the pattern
-// and #3242 review HIGH(new) #1 for the bug class this prevents.
-const client = new SanctionsServiceClient(getRpcBaseUrl(), { fetch: premiumFetch });
+const client = new SanctionsServiceClient(getRpcBaseUrl());
 const breaker = createCircuitBreaker<SanctionsPressureResult>({
   name: 'Sanctions Pressure',
   cacheTtlMs: 30 * 60 * 1000,

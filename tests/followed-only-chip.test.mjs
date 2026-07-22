@@ -146,7 +146,6 @@ function makeHost() {
 
 function setupAnonymousFlagOn() {
   _setDepsForTests({
-    getCurrentClerkUser: () => null,
     getEntitlementState: () => null,
     hasTier: () => false,
     featureFlagEnabled: true,
@@ -157,7 +156,6 @@ function setupAnonymousFlagOn() {
 
 function setupAnonymousFlagOff() {
   _setDepsForTests({
-    getCurrentClerkUser: () => null,
     getEntitlementState: () => null,
     hasTier: () => false,
     featureFlagEnabled: false,

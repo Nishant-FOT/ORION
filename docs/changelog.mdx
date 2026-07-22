@@ -46,15 +46,15 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 ### Security
 
-- **CDN cache bypass closed**: `CDN-Cache-Control` header now only emitted for trusted origins (orion.app, Vercel previews, Tauri). No-origin server-side requests always invoke the edge function so `validateApiKey` runs, preventing a cached 200 from being served to external scrapers.
+- **CDN cache bypass closed**: `CDN-Cache-Control` header now only emitted for trusted origins (orion.app, Vercel previews, native clients). No-origin server-side requests always invoke the edge function so `validateApiKey` runs, preventing a cached 200 from being served to external scrapers.
 - **Shipping v2 webhook tenant isolation (#3242)**: `POST /api/v2/shipping/webhooks` and `GET /api/v2/shipping/webhooks` now enforce `validateApiKey(req, { forceKey: true })`, matching the sibling `[subscriberId]{,/[action]}` routes. Without this gate, a Clerk-authenticated pro user with no API key would collapse into a shared `'anon'` fingerprint bucket and see/overwrite webhooks owned by other `'anon'`-bucket tenants.
 
 ### Fixed
 
-- Trade Policy panel WTO gate changed from panel-wide to per-tab, so Revenue tab works on desktop without WTO API key (#1663)
+- Trade Policy panel WTO gate changed from panel-wide to per-tab, so Revenue tab works without WTO API key (#1663)
 - Conflict-intel seed succeeds without ACLED credentials by accepting empty events when humanitarian/PizzINT data is available (#1651)
 - Seed-forecasts crash from top-level `@aws-sdk/client-s3` import resolved with lazy dynamic import (#1654)
-- Bootstrap desktop timeouts restored (5s/8s) while keeping aggressive web timeouts (1.2s/1.8s) (#1653)
+- Bootstrap timeouts restored (5s/8s) while keeping aggressive web timeouts (1.2s/1.8s) (#1653)
 - Service worker navigation reverted to NetworkOnly to prevent stale HTML caching on deploy (#1653)
 - Railway seed watch paths fixed for 5 services (seed-insights, seed-unrest-events, seed-prediction-markets, seed-infra, seed-gpsjam)
 - PortWatch ArcGIS URL, field names, and chokepoint name mappings (#1572)
@@ -177,8 +177,8 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 - **Rate Limiting**: prioritize `cf-connecting-ip` over `x-real-ip` for correct per-user rate limiting behind CF proxy (#1241)
 - **Security**: harden cache keys against injection and hash collision (#1103), per-endpoint rate limits for summarize endpoints (#1161)
-- **Map**: prevent ghost layers rendering without a toggle (#1264), DeckGL layer toggles getting stuck (#1248), auto-fallback to OpenFreeMap on basemap failure (#1109), CORS fallback for Carto basemap (#1142), use CORS-enabled R2 URL for PMTiles in Tauri (#1119), CII Instability layer disabled in 3D mode (#1292)
-- **Layout**: reconcile ultrawide zones when map is hidden (#1246), keep settings button visible on scaled desktop widths (#1249), exit fullscreen before switching variants (#1253), apply map-hidden layout class on initial load (#1087), preserve panel column position across refresh (#1170, #1108, #1112)
+- **Map**: prevent ghost layers rendering without a toggle (#1264), DeckGL layer toggles getting stuck (#1248), auto-fallback to OpenFreeMap on basemap failure (#1109), CORS fallback for Carto basemap (#1142), use CORS-enabled R2 URL for PMTiles in native builds (#1119), CII Instability layer disabled in 3D mode (#1292)
+- **Layout**: reconcile ultrawide zones when map is hidden (#1246), keep settings button visible on scaled widths (#1249), exit fullscreen before switching variants (#1253), apply map-hidden layout class on initial load (#1087), preserve panel column position across refresh (#1170, #1108, #1112)
 - **Panels**: event delegation to survive setContent debounce (#1203), guard RPC response array access with optional chaining (#1174), clear stuck error headers and sanitize error messages (#1175), lazy panel race conditions + server feed gaps (#1113), Tech Readiness panel loading on full variant (#1208), Strategic Risk panel button listeners (#1214), World Clock green home row (#1202), Airline Intelligence CSS grid layouts (#1197)
 - **Pro/Turnstile**: explicit rendering to fix widget race condition (#1189), invisible widget support (#1215), CSP allow Turnstile (#1155), handle `already_registered` state (#1183), reset on enterprise form error (#1222), registration feedback and referral code gen (#1229, #1228), no-cache header for /pro (#1179), correct API endpoint path (#1177), www redirect loop fix (#1198, #1201)
 - **SEO**: comprehensive improvements for /pro and main pages (#1271)
@@ -322,7 +322,7 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 - CII scoring: security advisories, Iran strikes, OREF sirens, GPS jamming (#547, #559, #570, #579)
 - Country brief + CII signal coverage expansion (#611)
 - Server-side military bases with 125K+ entries + rate limiting (#496)
-- AVIATIONSTACK_API key in desktop settings (#553)
+- AVIATIONSTACK_API key in settings (#553)
 - Iran events seed script and latest data (#575)
 
 ### Fixed
@@ -430,7 +430,7 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 - **Sentry noise filters** — added patterns for SW FetchEvent, PostHog ingest; enabled SW POST method for PostHog analytics (#246)
 - **Service Worker same-origin routing** — restricted SW route patterns to same-origin only, preventing cross-origin fetch interception (#247, #251)
 - **Social preview bot allowlisting** — whitelisted Twitterbot, facebookexternalhit, and other crawlers on OG image assets (#251)
-- **Windows CORS for Tauri** — allow `http://` origin from `tauri.localhost` for Windows desktop builds (#262)
+- **Windows CORS for Tauri** — allow `http://` origin from `tauri.localhost` for Windows builds (#262)
 - **Linux AppImage GLib crash** — fix GLib symbol mismatch on newer distros by bundling compatible libraries (#263)
 
 </Update>
@@ -478,7 +478,7 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 ### Highlights
 
-**Local LLM Support (Ollama / LM Studio)** — Run AI summarization entirely on your own hardware with zero cloud dependency. The desktop app auto-discovers models from any OpenAI-compatible local inference server (Ollama, LM Studio, llama.cpp, vLLM) and populates a selection dropdown. A 4-tier fallback chain ensures summaries always generate: Local LLM → Groq → OpenRouter → browser-side T5. Combined with the Tauri desktop app, this enables fully air-gapped intelligence analysis where no data leaves your machine.
+**Local LLM Support (Ollama / LM Studio)** — Run AI summarization entirely on your own hardware with zero cloud dependency. The native client auto-discovers models from any OpenAI-compatible local inference server (Ollama, LM Studio, llama.cpp, vLLM) and populates a selection dropdown. A 4-tier fallback chain ensures summaries always generate: Local LLM → Groq → OpenRouter → browser-side T5. Combined with the native client, this enables fully air-gapped intelligence analysis where no data leaves your machine.
 
 ### Added
 
@@ -486,21 +486,21 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 - **4-tier summarization fallback chain** — Ollama (local) → Groq (cloud) → OpenRouter (cloud) → Transformers.js T5 (browser), each with 5-second timeout before silently advancing to the next
 - **Shared summarization handler factory** — all three API tiers use identical logic for headline deduplication (Jaccard >0.6), variant-aware prompting, language-aware output, and Redis caching (`summary:v3:&#123;mode&#125;:&#123;variant&#125;:&#123;lang&#125;:&#123;hash&#125;`)
 - **Settings window with 3 tabs** — dedicated **LLMs** tab (Ollama endpoint/model, Groq, OpenRouter), **API Keys** tab (12+ data source credentials), and **Debug &amp; Logs** tab (traffic log, verbose mode, log file access). Each tab runs an independent verification pipeline
-- **Consolidated keychain vault** — all desktop secrets stored as a single JSON blob in one OS keychain entry (`secrets-vault`), reducing macOS Keychain authorization prompts from 20+ to exactly 1 on app startup. One-time auto-migration from individual entries with cleanup
+- **Consolidated keychain vault** — all secrets stored as a single JSON blob in one OS keychain entry (`secrets-vault`), reducing macOS Keychain authorization prompts from 20+ to exactly 1 on app startup. One-time auto-migration from individual entries with cleanup
 - **Cross-window secret synchronization** — saving credentials in the Settings window immediately syncs to the main dashboard via `localStorage` broadcast, with no app restart needed
 - **API key verification pipeline** — each credential is validated against its provider's actual API endpoint. Network errors (timeouts, DNS failures) soft-pass to prevent transient failures from blocking key storage; only explicit 401/403 marks a key invalid
 - **Plaintext URL inputs** — endpoint URLs (Ollama API, relay URLs, model names) display as readable text instead of masked password dots in Settings
 - **5 new defense/intel RSS feeds** — Military Times, Task &amp; Purpose, USNI News, Oryx OSINT, UK Ministry of Defence
 - **Koeberg nuclear power plant** — added to the nuclear facilities map layer (the only commercial reactor in Africa, Cape Town, South Africa)
-- **Privacy &amp; Offline Architecture** documentation — README now details the three privacy levels: full cloud, desktop with cloud APIs, and air-gapped local with Ollama
+- **Privacy &amp; Offline Architecture** documentation — README now details the three privacy levels: full cloud, native client with cloud APIs, and air-gapped local with Ollama
 - **AI Summarization Chain** documentation — README includes provider fallback flow diagram and detailed explanation of headline deduplication, variant-aware prompting, and cross-user cache deduplication
 
 ### Changed
 
 - AI fallback chain now starts with Ollama (local) before cloud providers
 - Feature toggles increased from 14 to 15 (added AI/Ollama)
-- Desktop architecture uses consolidated vault instead of per-key keychain entries
-- README expanded with ~85 lines of new content covering local LLM support, privacy architecture, summarization chain internals, and desktop readiness framework
+- Native client architecture uses consolidated vault instead of per-key keychain entries
+- README expanded with ~85 lines of new content covering local LLM support, privacy architecture, summarization chain internals, and native client readiness framework
 
 ### Fixed
 
@@ -530,7 +530,7 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 ### Changed
 
-- **Mobile detection**: use viewport width only for mobile detection; touch-capable notebooks (e.g. ROG Flow X13) now get desktop layout (#113)
+- **Mobile detection**: use viewport width only for mobile detection; touch-capable notebooks (e.g. ROG Flow X13) now get expanded layout (#113)
 - **Webcam feeds**: curated Tel Aviv, Mecca, LA, Miami; replaced dead Tokyo feed; diverse ALL grid with Jerusalem, Tehran, Kyiv, Washington
 
 ### Fixed
@@ -584,8 +584,8 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 ### Added
 
-- **Finance variant**: Added a dedicated market-first variant (`finance.orion.app`) with finance/trading-focused feeds, panels, and map defaults
-- **Finance desktop profile**: Added finance-specific desktop config and build profile for Tauri packaging
+- **Finance variant**: Added a dedicated market-first configuration with finance/trading-focused feeds, panels, and map defaults
+- **Finance profile**: Added finance-specific config and build profile for Tauri packaging
 
 ### Changed
 
@@ -598,12 +598,12 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 ### Fixed
 
 - **Finance panel parity**: Kept data-rich panels while adding news panels for finance instead of removing core data surfaces
-- **Desktop finance map parity**: Finance variant now runs first-class Deck.GL map/layer behavior on desktop runtime
+- **Finance map parity**: Finance configuration now runs first-class Deck.GL map/layer behavior
 - **Polymarket fallback**: Added one-time direct connectivity probe and memoized fallback to prevent repeated `ERR_CONNECTION_RESET` storms
 - **FRED fallback behavior**: Missing `FRED_API_KEY` now returns graceful empty payloads instead of repeated hard 500s
 - **Preview CSP tooling**: Allowed `https://vercel.live` script in CSP so Vercel preview feedback injection is not blocked
 - **Trending quality**: Suppressed noisy generic finance terms in keyword spike detection
-- **Mobile UX**: Hidden desktop download prompt on mobile devices
+- **Mobile UX**: Improved mobile experience
 
 </Update>
 
@@ -615,7 +615,7 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 - **Theme-aware maps and charts**: Deck.GL basemap, overlay layers, and CountryTimeline charts respond to theme changes in real time
 - **Dark/light mode header toggle**: Sun/moon icon in the header bar for quick theme switching, replacing the duplicate UTC clock
 - **Desktop update checker**: Architecture-aware download links for macOS (ARM/Intel) and Windows
-- **Node.js bundled in Tauri installer**: Sidecar no longer requires system Node.js
+- **Node.js bundled in installer**: Sidecar no longer requires system Node.js
 - **Markdown linting**: Added markdownlint config and CI workflow
 
 ### Changed
@@ -625,7 +625,7 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 ### Fixed
 
-- **CORS for Tauri desktop**: Fixed CORS issues for desktop app requests
+- **CORS for native builds**: Fixed CORS issues for native client requests
 - **Markets panel**: Keep Yahoo-backed data visible when Finnhub API key is skipped
 - **Windows UNC paths**: Preserve extended-length path prefix when sanitizing sidecar script path
 - **Light mode readability**: Darkened neon semantic colors and overlay backgrounds for light mode contrast
@@ -636,7 +636,7 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 ### Fixed
 
-- **Windows console window**: Hide the `node.exe` console window that appeared alongside the desktop app on Windows
+- **Windows console window**: Hide the `node.exe` console window that appeared alongside the app on Windows
 
 </Update>
 
@@ -653,7 +653,7 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 ### Fixed
 
-- **Windows sidecar crash**: Strip `\\?\` UNC extended-length prefix from paths before passing to Node.js — Tauri `resource_dir()` on Windows returns UNC-prefixed paths that cause `EISDIR: lstat 'C:'` in Node.js module resolution
+- **Windows sidecar crash**: Strip `\\?\` UNC extended-length prefix from paths before passing to Node.js — `resource_dir()` on Windows returns UNC-prefixed paths that cause `EISDIR: lstat 'C:'` in Node.js module resolution
 - **Windows sidecar CWD**: Set explicit `current_dir` on the Node.js Command to prevent bare drive-letter working directory issues from NSIS shortcut launcher
 - **Sidecar package scope**: Add `package.json` with `"type": "module"` to sidecar directory, preventing Node.js from walking up the entire directory tree during ESM scope resolution
 
@@ -665,8 +665,8 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 - **Keychain persistence**: Enable `apple-native` (macOS) and `windows-native` (Windows) features for the `keyring` crate — v3 ships with no default platform backends, so API keys were stored in-memory only and lost on restart
 - **Settings key verification**: Soft-pass network errors during API key verification so transient sidecar failures don't block saving
-- **Resilient keychain reads**: Use `Promise.allSettled` in `loadDesktopSecrets` so a single key failure doesn't discard all loaded secrets
-- **Settings window capabilities**: Add `"settings"` to Tauri capabilities window list for core plugin permissions
+- **Resilient keychain reads**: Use `Promise.allSettled` in `loadSecrets` so a single key failure doesn't discard all loaded secrets
+- **Settings window capabilities**: Add `"settings"` to capabilities window list for core plugin permissions
 - **Input preservation**: Capture unsaved input values before DOM re-render in settings panel
 
 </Update>
@@ -718,7 +718,7 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 ### Fixed
 
-- Hide desktop config panel on web
+- Hide config panel on web
 - Route World Bank &amp; Polymarket via Railway relay
 
 </Update>
@@ -729,7 +729,7 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 - Cyber threat intelligence map layer (Feodo Tracker, URLhaus, C2IntelFeeds, OTX, AbuseIPDB)
 - Trending keyword spike detection with end-to-end flow
-- Download desktop app slide-in banner for web visitors
+- Download app slide-in banner for web visitors
 - Country briefs in Cmd+K search
 
 ### Changed
@@ -759,7 +759,7 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 - Normalize country name from GeoJSON to canonical TIER1 name
 - Tighten headline relevance, add Top News section, compact markets
-- Hide desktop config panel on web, fix irrelevant prediction markets
+- Hide config panel on web, fix irrelevant prediction markets
 - Tone down climate anomalies heatmap to stop obscuring other layers
 - macOS: hide window on close instead of quitting
 
@@ -784,6 +784,6 @@ All notable changes to ORION are documented here. Subscribe via [RSS](/changelog
 
 <Update label="v2.2.0 - February 07, 2026" description="v2.2.0" tags={["Desktop", "Map", "Intelligence"]}>
 
-Initial v2.2 release with multi-variant support (World + Tech), desktop app (Tauri), and comprehensive geopolitical intelligence features.
+Initial v2.2 release with multi-variant support (World + Tech) and comprehensive geopolitical intelligence features.
 
 </Update>

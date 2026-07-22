@@ -13,7 +13,7 @@
 //      ~50 fetch sites individually.
 
 import { getCanonicalApiOrigin, toApiUrl } from './runtime';
-import { PREMIUM_RPC_PATHS } from '@/shared/premium-paths';
+
 
 const STORAGE_KEY = 'orion-session-exp';
 // Refresh well before expiry so a half-loaded page doesn't fail mid-flight.
@@ -31,7 +31,6 @@ let cached: StoredSession | null = null;
 let inflight: Promise<boolean> | null = null;
 let interceptorInstalled = false;
 let nativeSessionFetch: typeof fetch | null = null;
-let retryRejectedWarned = false;
 
 function isFresh(s: StoredSession | null): s is StoredSession {
   return !!s && s.exp - REFRESH_MARGIN_MS > Date.now();
@@ -124,7 +123,6 @@ export function __resetWmSessionForTests(): void {
   cached = null;
   inflight = null;
   interceptorInstalled = false;
-  retryRejectedWarned = false;
 }
 
 // Install a one-shot fetch wrapper that includes HttpOnly session cookies on
@@ -213,71 +211,7 @@ export function installOrionSessionFetchInterceptor(): void {
     // X-ORION-Key=ors_... here, the premium injector sees the header
     // and bails, and the server then 401s because ors_ is rejected on premium
     // routes (it's anonymous, not user-bound). PR #3557 review finding.
-    const path = (() => {
-      try {
-        return new URL(url, typeof location === 'undefined' ? 'http://localhost' : location.href).pathname;
-      } catch {
-        return url.split('?')[0] ?? url;
-      }
-    })();
-    if (PREMIUM_RPC_PATHS.has(path)) return original(input, withCredentials(init));
-
-    const headers = new Headers(
-      init?.headers ?? (input instanceof Request ? input.headers : undefined),
-    );
-
-    // Caller already authenticated (Bearer JWT, explicit user/widget key, etc).
-    // Don't override — Clerk and explicit-key paths take precedence.
-    if (
-      headers.has('Authorization') ||
-      headers.has('X-ORION-Key') ||
-      headers.has('X-Api-Key')
-    ) {
-      return original(input, withCredentials(init));
-    }
-
-    await ensureOrionSession().catch(() => false);
-
-    // A Request body is a one-shot stream — clone BEFORE the first send so
-    // the refresh-on-401 retry below has an intact body to replay. For
-    // string/URL inputs, body lives on `init` and Headers merging is enough.
-    const requestClone = input instanceof Request ? input.clone() : null;
-
-    const sendWith = (h: Headers, src: typeof input): Promise<Response> => {
-      if (src instanceof Request) {
-        const cloned = new Request(src, { ...withCredentials(init), headers: h });
-        return original(cloned);
-      }
-      return original(src, { ...withCredentials(init), headers: h });
-    };
-
-    const resp = await sendWith(headers, input);
-
-    // Layer 2 — refresh-on-401. A single transient blip (HMAC-key rotation,
-    // expiry race, server-side cache flap) shouldn't strand the tab. If we
-    // had no token to begin with OR the token we sent was rejected, mint a
-    // fresh one and replay ONCE. Premium routes already returned above; the
-    // ors_ token is irrelevant there.
-    if (resp.status !== 401) return resp;
-
-    // Invalidate the cached expiry (and its sessionStorage twin) before
-    // re-minting. ensureOrionSession() is opportunistic — without invalidation,
-    // it would return the same not-yet-clock-expired token that the server
-    // just rejected (HMAC-key rotation: token signature is wrong even though
-    // `exp` is in the future), and the retry would 401 with the same header.
-    cached = null;
-    try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
-
-    const fresh = await ensureOrionSession().catch(() => false);
-    if (!fresh) return resp;
-
-    const retryHeaders = new Headers(headers);
-    const retryResp = await sendWith(retryHeaders, requestClone ?? input);
-    if (retryResp.status === 401 && !retryRejectedWarned) {
-      retryRejectedWarned = true;
-      console.warn('[orion-session] API request still returned 401 after refreshing HttpOnly session cookie');
-    }
-    return retryResp;
+    return original(input, withCredentials(init));
   };
 
   // Layer 1 — periodic refresh. The token is short-lived (12h server-side)

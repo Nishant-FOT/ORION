@@ -5,7 +5,6 @@ export const HEALTH_CHECK_SOURCE_MAP: Record<string, readonly DataSourceId[]> = 
   gdeltIntel: ['gdelt'],
   newsInsights: ['rss'],
   outages: ['outages'],
-  cyberThreats: ['cyber_threats'],
   naturalEvents: ['usgs'],
   weatherAlerts: ['weather'],
   spending: ['spending'],

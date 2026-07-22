@@ -56,9 +56,9 @@ async function fetchOwidData() {
     if (!line) continue;
     const cols = line.split(',');
     const country = cols[col.country];
-    const year = parseInt(cols[col.year]);
+    const year = parseInt(cols[col.year], 10);
     const renewElec = parseFloat(cols[col.renewables_share_elec]);
-    if (!country || isNaN(year) || isNaN(renewElec)) continue;
+    if (!country || Number.isNaN(year) || Number.isNaN(renewElec)) continue;
     rows.push({
       country, year, renewElec,
       hydro: parseFloat(cols[col.hydro_share_elec]) || 0,
@@ -83,7 +83,7 @@ async function fetchOwidData() {
   const regions = [];
   for (const [owidName, info] of Object.entries(OWID_REGIONS)) {
     const regionRows = rows
-      .filter(r => r.country === owidName && !isNaN(r.renewElec))
+      .filter(r => r.country === owidName && !Number.isNaN(r.renewElec))
       .sort((a, b) => b.year - a.year);
     if (regionRows.length > 0) {
       const latest = regionRows[0];
@@ -152,13 +152,13 @@ async function fetchEiaCapacity() {
       // Aggregate by period (year)
       const byYear = {};
       for (const row of data) {
-        const year = parseInt(row.period);
+        const year = parseInt(row.period, 10);
         const mw = parseFloat(row['nameplate-capacity-mw']);
-        if (isNaN(year) || isNaN(mw)) continue;
+        if (Number.isNaN(year) || Number.isNaN(mw)) continue;
         byYear[year] = (byYear[year] || 0) + mw;
       }
       const points = Object.entries(byYear)
-        .map(([year, capacityMw]) => ({ year: parseInt(year), capacityMw: Math.round(capacityMw) }))
+        .map(([year, capacityMw]) => ({ year: parseInt(year, 10), capacityMw: Math.round(capacityMw) }))
         .sort((a, b) => a.year - b.year);
       series.push({ source: src.code, name: src.name, data: points });
       console.log(`  ${src.name}: ${points.length} years, latest ${points[points.length - 1]?.capacityMw} MW`);

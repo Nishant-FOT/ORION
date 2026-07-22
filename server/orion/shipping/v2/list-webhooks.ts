@@ -8,7 +8,6 @@ import { ApiError } from '../../../../src/generated/server/orion/shipping/v2/ser
 
 // @ts-expect-error — JS module, no declaration file
 import { validateApiKey } from '../../../../api/_api-key.js';
-import { isCallerPremium } from '../../../_shared/premium-check';
 import { runRedisPipeline } from '../../../_shared/redis';
 import {
   webhookKey,
@@ -33,10 +32,7 @@ export async function listWebhooks(
     throw new ApiError(401, apiKeyResult.error ?? 'API key required', '');
   }
 
-  const isPro = await isCallerPremium(ctx.request);
-  if (!isPro) {
-    throw new ApiError(403, 'PRO subscription required', '');
-  }
+
 
   const ownerHash = await callerFingerprint(ctx.request);
   const smembersResult = await runRedisPipeline([['SMEMBERS', ownerIndexKey(ownerHash)]]);

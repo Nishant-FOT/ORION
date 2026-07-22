@@ -3,9 +3,9 @@ import {
   MarketServiceClient,
   type GetInsiderTransactionsResponse,
 } from '@/generated/client/orion/market/v1/service_client';
-import { premiumFetch } from '@/services/premium-fetch';
 
-const client = new MarketServiceClient(getRpcBaseUrl(), { fetch: premiumFetch });
+
+const client = new MarketServiceClient(getRpcBaseUrl());
 
 export type InsiderTransactionsResult = GetInsiderTransactionsResponse;
 

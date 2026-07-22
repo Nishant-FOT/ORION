@@ -6,7 +6,6 @@ import type {
 } from '../../../../src/generated/server/orion/sanctions/v1/service_server';
 
 import { getCachedJson } from '../../../_shared/redis';
-import { isCallerPremium } from '../../../_shared/premium-check';
 
 const REDIS_CACHE_KEY = 'sanctions:pressure:v1';
 const DEFAULT_MAX_ITEMS = 25;
@@ -38,11 +37,10 @@ function emptyResponse(): ListSanctionsPressureResponse {
 }
 
 export const listSanctionsPressure: SanctionsServiceHandler['listSanctionsPressure'] = async (
-  ctx: ServerContext,
+  _ctx: ServerContext,
   req: ListSanctionsPressureRequest,
 ): Promise<ListSanctionsPressureResponse> => {
-  const isPro = await isCallerPremium(ctx.request);
-  if (!isPro) return emptyResponse();
+
 
   const maxItems = clampMaxItems(req.maxItems);
   try {

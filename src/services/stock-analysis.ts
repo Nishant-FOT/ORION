@@ -6,14 +6,14 @@ import {
 } from '@/generated/client/orion/market/v1/service_client';
 import { getMarketWatchlistEntries } from '@/services/market-watchlist';
 import { runThrottledTargetRequests } from '@/services/throttled-target-requests';
-import { premiumFetch } from '@/services/premium-fetch';
+
 import { isProUser } from '@/services/widget-store';
 import {
   selectStockAnalysisTargets,
   type StockAnalysisTarget,
 } from '@/services/stock-analysis-targets';
 
-const client = new MarketServiceClient(getRpcBaseUrl(), { fetch: premiumFetch });
+const client = new MarketServiceClient(getRpcBaseUrl());
 
 export type StockAnalysisResult = AnalyzeStockResponse;
 

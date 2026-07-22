@@ -42,34 +42,4 @@
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-  <url>
-    <loc>https://tech.orion.app/dashboard</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://finance.orion.app/dashboard</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://commodity.orion.app/dashboard</loc>
-    <lastmod>2026-03-26</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://happy.orion.app/dashboard</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://energy.orion.app/dashboard</loc>
-    <lastmod>2026-06-13</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
 </urlset>

@@ -7,8 +7,6 @@
 
 import { scheduleAfterFirstPaint } from '@/bootstrap/secondary-startup';
 import { subscribeAuthState, type AuthSession } from './auth-state';
-import { onSubscriptionChange, type SubscriptionInfo } from './billing';
-import { getClerkUserCreatedAt } from './clerk';
 
 const UMAMI_SCRIPT_SRC = 'https://abacus.orion.app/script.js';
 const UMAMI_WEBSITE_ID = 'e8800335-c853-46a8-8497-c993ed2f58bc';
@@ -191,7 +189,7 @@ export function initAnalytics(): void {
 export function identifyUser(
   userId: string,
   plan: string,
-  subStatus?: SubscriptionInfo['status'] | null,
+  subStatus?: 'active' | 'canceled' | 'past_due' | 'trialing' | null,
   planKey?: string | null,
 ): void {
   const data = {
@@ -212,18 +210,14 @@ export function clearIdentity(): void {
 }
 
 let _unsubAuth: (() => void) | null = null;
-let _unsubBilling: (() => void) | null = null;
 
-// Cached latest values so either subscription firing can re-identify with full data
 let _lastAuth: AuthSession | null = null;
-let _lastSub: SubscriptionInfo | null = null;
 
 function _syncIdentity(): void {
   const user = _lastAuth?.user;
   if (user) {
-    identifyUser(user.id, user.role, _lastSub?.status ?? null, _lastSub?.planKey ?? null);
+    identifyUser(user.id, user.role);
   } else {
-    _lastSub = null;
     clearIdentity();
   }
 }
@@ -240,11 +234,10 @@ export function initAuthAnalytics(): void {
     const prevUserId = _lastAuth?.user?.id ?? null;
     const nextUserId = state.user?.id ?? null;
     if (prevUserId !== nextUserId) {
-      _lastSub = null;
       // Detect a genuine sign-UP (not a sign-in). Null→non-null id transition
-      // plus a createdAt within FRESH_SIGNUP_WINDOW_MS of now means Clerk
-      // just created this account. Firing trackSignUp on the button click
-      // would conflate "opened the sign-up modal" with "completed the flow";
+      // plus a createdAt within FRESH_SIGNUP_WINDOW_MS of now means the auth
+      // provider just created this account. Firing trackSignUp on the button
+      // click would conflate "opened the sign-up modal" with "completed the flow";
       // gating on createdAt freshness captures the successful-completion
       // signal we actually want to measure.
       //
@@ -259,7 +252,7 @@ export function initAuthAnalytics(): void {
       if (
         nextUserId !== null &&
         !hasTrackedSignupInSession(nextUserId) &&
-        isLikelyFreshSignup(prevUserId, nextUserId, getClerkUserCreatedAt(), Date.now())
+        isLikelyFreshSignup(prevUserId, nextUserId, null, Date.now())
       ) {
         trackSignUp('clerk');
         markSignupTrackedInSession(nextUserId);
@@ -268,21 +261,13 @@ export function initAuthAnalytics(): void {
     _lastAuth = state;
     _syncIdentity();
   });
-
-  _unsubBilling = onSubscriptionChange((sub) => {
-    _lastSub = sub;
-    _syncIdentity();
-  });
 }
 
-/** Tear down auth + billing listeners. Symmetric with initAuthAnalytics(). */
+/** Tear down auth listeners. Symmetric with initAuthAnalytics(). */
 export function destroyAuthAnalytics(): void {
   _unsubAuth?.();
-  _unsubBilling?.();
   _unsubAuth = null;
-  _unsubBilling = null;
   _lastAuth = null;
-  _lastSub = null;
   clearIdentity();
 }
 
@@ -307,9 +292,9 @@ export function trackAnalystControlAction(actionType: string, status: string, re
 }
 
 /**
- * Window during which a freshly-observed Clerk `createdAt` is treated
+ * Window during which a freshly-observed `createdAt` is treated
  * as "this user just signed up." 60s is conservative enough to survive
- * network jitter between Clerk's user.created and the client seeing
+ * network jitter between the user.created event and the client seeing
  * the auth-state transition, while staying tight enough to reject
  * returning-user sign-ins on accounts created weeks ago.
  */
@@ -318,7 +303,7 @@ export const FRESH_SIGNUP_WINDOW_MS = 60_000;
 /**
  * Pure predicate: was the just-observed auth transition a fresh sign-up?
  *
- * Exported for testability. Do not read Date.now() or Clerk state from
+ * Exported for testability. Do not read Date.now() or auth state from
  * inside this function — callers pass both, so tests can pin time and
  * user state.
  */
@@ -341,7 +326,7 @@ const FRESH_SIGNUP_CLOCK_SKEW_MS = 5_000;
  *
  * Keyed per user id so account switches within the same browser still
  * correctly track each user's first signup (rare but valid). The key
- * never needs to be cleaned up because Clerk user ids are effectively
+ * never needs to be cleaned up because user ids are effectively
  * unique forever — a deleted user's key is harmless and the storage
  * footprint is trivial (one byte per user who ever signed up here).
  *

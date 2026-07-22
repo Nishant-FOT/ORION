@@ -17,7 +17,7 @@ ORION runs a minimal OAuth 2.1 authorization server whose only client-facing pur
 | `/.well-known/oauth-authorization-server` | AS metadata (endpoints, supported grants, PKCE methods) |
 | `/.well-known/oauth-protected-resource` | Resource metadata (authorization servers, scopes) |
 
-`/.well-known/oauth-protected-resource` currently advertises the public resource scope `mcp`. Pro authorization-code grants return the internal scope value `mcp_pro`; legacy API-key grants and `client_credentials` return `mcp`.
+`/.well-known/oauth-protected-resource` currently advertises the public resource scope `mcp`. Authorization-code grants return the internal scope value `mcp`; legacy API-key grants and `client_credentials` return `mcp`.
 
 ## Endpoints
 
@@ -48,7 +48,7 @@ Dynamic Client Registration. Returns a `client_id` (public clients, no secret).
 
 ### `GET /api/oauth/authorize`
 
-Starts the OAuth flow. Renders a consent page that redirects to Clerk for sign-in, then issues an authorization code bound to the caller's PRO entitlement.
+Starts the OAuth flow. Renders a consent page that redirects to the sign-in page, then issues an authorization code.
 
 **Required query params**:
 
@@ -110,7 +110,7 @@ Pass the access token on every MCP request:
 Authorization: Bearer 6f13d8fa-89b6-4a02-a527-7f6f61a2df55
 ```
 
-Tokens are bound to the user's account and re-check entitlement on every call — a downgrade revokes access on the next request.
+Tokens are bound to the user's account and re-check authorization on every call.
 
 ## Error responses
 

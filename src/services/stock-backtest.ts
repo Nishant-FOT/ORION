@@ -4,9 +4,9 @@ import {
   type BacktestStockResponse,
 } from '@/generated/client/orion/market/v1/service_client';
 import { runThrottledTargetRequests } from '@/services/throttled-target-requests';
-import { premiumFetch } from '@/services/premium-fetch';
 
-const client = new MarketServiceClient(getRpcBaseUrl(), { fetch: premiumFetch });
+
+const client = new MarketServiceClient(getRpcBaseUrl());
 
 export type StockBacktestResult = BacktestStockResponse;
 

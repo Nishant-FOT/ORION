@@ -1,16 +1,15 @@
 /**
- * Cross-session referral-code capture for dashboard-origin checkouts.
+ * Cross-session referral-code capture for dashboard-origin upgrades.
  *
  * Flow: a visitor lands on `/pro?ref=<code>`, clicks through to the
  * dashboard (either directly or after a free-tier trial), eventually
  * upgrades from within the dashboard. Without this module, the ref
- * code is lost at the `/pro` → dashboard navigation and the Dodo
- * checkout never carries it in `affonso_referral`.
+ * code is lost at the `/pro` to dashboard navigation.
  *
  * Persistence model: localStorage (NOT sessionStorage) so the code
  * survives tab close / new-tab navigations. Paired with a 7-day TTL
  * and explicit clear on attributed purchase so we don't credit a
- * sharer indefinitely or on multiple purchases from the same funnel.
+ * sharer indefinitely or on multiple conversions from the same funnel.
  *
  * Separate from `checkout-attempt.ts` because lifetime + storage tier
  * differ: attempts are sessionStorage-scoped (dies on tab close) while

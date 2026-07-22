@@ -12,9 +12,7 @@ export class DataLoaderManager implements AppModule {
 
   async init(): Promise<void> {}
 
-  async loadAllData(_forceAll?: boolean): Promise<void> {
-    console.log('[DataLoader] loadAllData — stub');
-  }
+  async loadAllData(_forceAll?: boolean): Promise<void> {}
 
   destroy(): void {}
 }

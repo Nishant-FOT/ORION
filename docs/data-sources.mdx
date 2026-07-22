@@ -61,7 +61,7 @@ description: "Comprehensive documentation of all data sources, feed tiers, and c
 - **Customizable market watchlist** — user-defined stock/commodity/crypto symbol lists (up to 50 symbols) with optional friendly labels, persisted to localStorage, synchronized across panels via CustomEvent
 - **Gulf Economies panel** — live data for GCC financial markets across three sections: **Indices** (Tadawul/Saudi Arabia, Dubai Financial Market, Abu Dhabi, Qatar, WisdomTree Gulf Dividend, Muscat MSM 30), **Currencies** (SAR, AED, QAR, KWD, BHD, OMR vs USD), and **Oil** (WTI Crude, Brent Crude). All quotes fetched from Yahoo Finance with staggered batching, Redis-cached for 8 minutes, with mini sparklines per quote and 60-second polling
 - Real-time crypto prices (BTC, ETH, SOL, XRP, and more) via CoinGecko
-- **Prediction markets** — Polymarket geopolitical contracts with 4-tier fetch (bootstrap → RPC → browser-direct → Tauri native TLS), country-specific market matching, and volume-weighted ranking
+- **Prediction markets** — Polymarket geopolitical contracts with 4-tier fetch (bootstrap → RPC → browser-direct → native TLS), country-specific market matching, and volume-weighted ranking
 - BTC spot ETF flow tracker (IBIT, FBTC, GBTC, and 7 more)
 - Stablecoin peg health monitor (USDT, USDC, DAI, FDUSD, USDe)
 - Fear & Greed Index with 30-day history
@@ -311,7 +311,7 @@ Ports are ranked by throughput and weighted by strategic importance in the infra
 
 The webcam panel supports two viewing modes: a 4-feed grid (default strategic selection: Jerusalem, Tehran, Kyiv, Washington DC) and a single-feed expanded view. Region tabs (ALL/IRAN/MIDEAST/EUROPE/AMERICAS/ASIA) filter the available feeds. The Iran/Attacks tab provides a dedicated 2×2 grid for real-time visual monitoring during escalation events between Iran and Israel.
 
-Resource management is aggressive — iframes are lazy-loaded via Intersection Observer (only rendered when the panel scrolls into view), paused after 5 minutes of user inactivity, and destroyed from the DOM entirely when the browser tab is hidden. On Tauri desktop, YouTube embeds route through a cloud proxy to bypass WKWebView autoplay restrictions. Each feed carries a fallback video ID in case the primary stream goes offline.
+Resource management is aggressive — iframes are lazy-loaded via Intersection Observer (only rendered when the panel scrolls into view), paused after 5 minutes of user inactivity, and destroyed from the DOM entirely when the browser tab is hidden. In native builds, YouTube embeds route through a cloud proxy to bypass WKWebView autoplay restrictions. Each feed carries a fallback video ID in case the primary stream goes offline.
 
 ---
 
@@ -459,7 +459,7 @@ Polymarket geopolitical markets are queried using tag-based filters (Ukraine, Ir
 1. **Bootstrap hydration** — zero-network, page-load-embedded data from the Redis-cached `predictions` key. If fresh (&lt;20 min), the panel renders instantly without any API call
 2. **Sebuf RPC** — `POST /api/prediction/v1/list-prediction-markets` queries Redis for the seed-script-maintained cache. Single request, sub-100ms cold start
 3. **Browser-direct Polymarket** — the browser fetches Polymarket's Gamma API directly, bypassing JA3 fingerprinting (browser TLS passes Cloudflare)
-4. **Sidecar native TLS** — on Tauri desktop, Rust's `reqwest` TLS fingerprint differs from Node.js, providing another bypass vector
+4. **Sidecar native TLS** — Rust's `reqwest` TLS fingerprint differs from Node.js, providing another bypass vector
 
 **Country-specific markets** — `fetchCountryMarkets(country)` maps 40+ countries to Polymarket tag variants (e.g., "Russia" matches ["russia", "russian", "moscow", "kremlin", "putin"]), enabling the Country Brief to display prediction contracts relevant to any nation.
 
@@ -470,7 +470,7 @@ Polymarket geopolitical markets are queried using tag-based filters (Ukraine, Ir
 | Tier  | Method                     | When It Works                                           |
 | ----- | -------------------------- | ------------------------------------------------------- |
 | **1** | Browser-direct fetch       | Always (browser TLS passes Cloudflare)                  |
-| **2** | Tauri native TLS (reqwest) | Desktop app (Rust TLS fingerprint differs from Node.js) |
+| **2** | Native TLS (reqwest) | Native client (Rust TLS fingerprint differs from Node.js) |
 | **3** | Vercel edge proxy          | Rarely (edge runtime sometimes passes)                  |
 
 Once browser-direct succeeds, the system caches this state and skips fallback tiers on subsequent requests. Country-specific markets are fetched by mapping countries to Polymarket tags with name-variant matching (e.g., "Russia" matches titles containing "Russian", "Moscow", "Kremlin", "Putin").

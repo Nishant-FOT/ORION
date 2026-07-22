@@ -8,16 +8,7 @@ const modules = import.meta.glob("../**/*.ts");
 const USER = { subject: "user-tests-alertrules", tokenIdentifier: "clerk|user-tests-alertrules" };
 const VARIANT = "full";
 
-/**
- * Seed a PRO entitlement for the test user. Required before invoking any
- * public alertRules mutation (setAlertRules, setDigestSettings, setQuietHours)
- * — those now gate on `assertProEntitlement`. Without this seed, every
- * pre-existing test would fail with PRO_REQUIRED because convex-test starts
- * with an empty `entitlements` table.
- *
- * Call at the start of any test that uses a public mutation OR that
- * exercises setNotificationConfigForUser via the HTTP path.
- */
+/** Seed a historical entitlement row for tests that need one. */
 async function seedProEntitlement(
   t: ReturnType<typeof convexTest>,
   userId = USER.subject,
@@ -393,45 +384,6 @@ describe("alertRules — setNotificationConfigForUser atomic pair update", () =>
     ).rejects.toThrow(/INCOMPATIBLE_DELIVERY|Real-time delivery is for Critical/i);
   });
 
-  test("free user (no entitlement) calling setNotificationConfigForUser → throws PRO_REQUIRED", async () => {
-    // Layer-2 gate: setNotificationConfigForUser is reachable from the public
-    // `/set-notification-config` HTTP action; a free-tier user hitting that
-    // endpoint must be rejected at the mutation, not just by the relay.
-    //
-    // Note on identity context: unlike the public `setAlertRules` /
-    // `setDigestSettings` mutations (which derive `userId` from `ctx.auth`),
-    // `setNotificationConfigForUser` takes `userId` as an arg — the HTTP
-    // action sets it from the verified Clerk JWT. The entitlement check
-    // reads the arg-supplied userId, so a `t.withIdentity(...)` wrapper is
-    // intentionally absent from these tests.
-    const t = convexTest(schema, modules);
-    // Deliberately NO seedProEntitlement — the user is free.
-    await expect(
-      t.mutation(internal.alertRules.setNotificationConfigForUser, {
-        userId: USER.subject,
-        variant: VARIANT,
-        digestMode: "daily",
-        sensitivity: "high",
-      }),
-    ).rejects.toThrow(/PRO_REQUIRED|Notifications are a PRO feature/i);
-  });
-
-  test("expired entitlement (validUntil < now) → throws PRO_REQUIRED", async () => {
-    // Mirrors entitlements.ts FREE_TIER_DEFAULTS fallback: an expired
-    // entitlement is treated identically to no entitlement. The mutation gate
-    // must apply the same semantics.
-    const t = convexTest(schema, modules);
-    await seedProEntitlement(t, USER.subject, Date.now() - 1000); // expired 1s ago
-    await expect(
-      t.mutation(internal.alertRules.setNotificationConfigForUser, {
-        userId: USER.subject,
-        variant: VARIANT,
-        digestMode: "daily",
-        sensitivity: "high",
-      }),
-    ).rejects.toThrow(/PRO_REQUIRED|Notifications are a PRO feature/i);
-  });
-
   test("omitted sensitivity on patch preserves existing value", async () => {
     const t = convexTest(schema, modules);
     await seedProEntitlement(t);
@@ -465,75 +417,9 @@ describe("alertRules — setNotificationConfigForUser atomic pair update", () =>
   });
 });
 
-// ---------------------------------------------------------------------------
-// Layer-2 entitlement gate: public mutations reject free-tier callers.
-// (Discovered 2026-04-28: 7 of 28 enabled alertRules rows belonged to
-// free-tier users despite the UI paywall — the relay's PRO filter has been
-// silently masking the bug at delivery time. This gate is the primary
-// defense at write time.)
-// ---------------------------------------------------------------------------
-
-describe("alertRules — layer-2 entitlement gate (PRO_REQUIRED)", () => {
-  test("setAlertRules from a free-tier user → throws PRO_REQUIRED", async () => {
+describe("alertRules — public mutations", () => {
+  test("setAlertRules succeeds", async () => {
     const t = convexTest(schema, modules);
-    // No seedProEntitlement — the user has no entitlement row, treated as free.
-    const asFreeUser = t.withIdentity(USER);
-    await expect(
-      asFreeUser.mutation(api.alertRules.setAlertRules, {
-        variant: VARIANT,
-        enabled: true,
-        eventTypes: [],
-        sensitivity: "critical",
-        channels: [],
-      }),
-    ).rejects.toThrow(/PRO_REQUIRED|Notifications are a PRO feature/i);
-  });
-
-  test("setDigestSettings from a free-tier user → throws PRO_REQUIRED", async () => {
-    const t = convexTest(schema, modules);
-    const asFreeUser = t.withIdentity(USER);
-    await expect(
-      asFreeUser.mutation(api.alertRules.setDigestSettings, {
-        variant: VARIANT,
-        digestMode: "daily",
-        digestHour: 8,
-        digestTimezone: "UTC",
-      }),
-    ).rejects.toThrow(/PRO_REQUIRED|Notifications are a PRO feature/i);
-  });
-
-  test("setQuietHours from a free-tier user → throws PRO_REQUIRED", async () => {
-    const t = convexTest(schema, modules);
-    const asFreeUser = t.withIdentity(USER);
-    await expect(
-      asFreeUser.mutation(api.alertRules.setQuietHours, {
-        variant: VARIANT,
-        quietHoursEnabled: true,
-        quietHoursStart: 22,
-        quietHoursEnd: 7,
-        quietHoursTimezone: "UTC",
-      }),
-    ).rejects.toThrow(/PRO_REQUIRED|Notifications are a PRO feature/i);
-  });
-
-  test("setAlertRules with expired entitlement → throws PRO_REQUIRED", async () => {
-    const t = convexTest(schema, modules);
-    await seedProEntitlement(t, USER.subject, Date.now() - 1000); // expired
-    const asUser = t.withIdentity(USER);
-    await expect(
-      asUser.mutation(api.alertRules.setAlertRules, {
-        variant: VARIANT,
-        enabled: true,
-        eventTypes: [],
-        sensitivity: "critical",
-        channels: [],
-      }),
-    ).rejects.toThrow(/PRO_REQUIRED|Notifications are a PRO feature/i);
-  });
-
-  test("setAlertRules with PRO entitlement → succeeds (control)", async () => {
-    const t = convexTest(schema, modules);
-    await seedProEntitlement(t);
     const asUser = t.withIdentity(USER);
     await asUser.mutation(api.alertRules.setAlertRules, {
       variant: VARIANT,
@@ -546,15 +432,10 @@ describe("alertRules — layer-2 entitlement gate (PRO_REQUIRED)", () => {
     expect(rows).toHaveLength(1);
   });
 
-  test("INTENTIONAL: setAlertRulesForUser internal mutation stays UNGATED for operator/migration paths", async () => {
+  test("setAlertRulesForUser internal mutation succeeds for operator/migration paths", async () => {
     // The *ForUser internal mutations are reachable only via `npx convex run`
-    // (deploy-key auth) or trusted server-side code paths. They are intentionally
-    // NOT entitlement-gated so operator cleanup scripts (e.g. disabling
-    // notifications for free users that got rows in via a UI-gate hole) can
-    // still run. The HTTP-reachable setNotificationConfigForUser IS gated;
-    // see its dedicated tests above.
+    // (deploy-key auth) or trusted server-side code paths.
     const t = convexTest(schema, modules);
-    // No seedProEntitlement — free user.
     await t.mutation(internal.alertRules.setAlertRulesForUser, {
       userId: USER.subject,
       variant: VARIANT,

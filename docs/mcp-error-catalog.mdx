@@ -38,7 +38,7 @@ For the projection grammar itself, see the [JMESPath guide](/mcp-jmespath). For 
 
 | Code      | Meaning (this server)                                                  | Paired HTTP status        | Recovery                                                              |
 |-----------|------------------------------------------------------------------------|---------------------------|-----------------------------------------------------------------------|
-| `-32001`  | Unauthenticated, invalid token, or subscription not active             | **401**                   | Re-authenticate via OAuth or fix the `X-ORION-Key` header      |
+| `-32001`  | Unauthenticated or invalid token                                       | **401**                   | Re-authenticate via OAuth or fix the `X-ORION-Key` header      |
 | `-32029`  | Rate-limited — per-minute throttle OR Pro daily quota cap              | **200** (per-min) / **429** (daily) | Honour `Retry-After`; for 200/per-min back off ~1s                    |
 | `-32600`  | Malformed JSON-RPC request envelope                                    | **200**                   | Fix the request encoder; this is a client bug                         |
 | `-32601`  | Method not found                                                       | **200**                   | Use a method advertised in the initialize result's `capabilities`     |
@@ -49,13 +49,12 @@ Subsections below give the literal payload, the trigger site, and what to do for
 
 ### `-32001` — Unauthenticated / invalid credentials
 
-Fires from six `api/mcp/auth.ts` emission sites, always paired with HTTP **401** and a `WWW-Authenticate` header. Those sites collapse to five user-visible triggers, in order of how clients hit them:
+Fires from six `api/mcp/auth.ts` emission sites, always paired with HTTP **401** and a `WWW-Authenticate` header. Those sites collapse to four user-visible triggers, in order of how clients hit them:
 
 1. **No `Authorization` bearer AND no `X-ORION-Key`** — the client called `/mcp` with no credentials.
 2. **`Authorization: Bearer <token>` but `<token>` is invalid or expired** — the token didn't resolve to a context (revoked / TTL expired / never minted by `/api/oauth/token`).
 3. **`X-ORION-Key: <key>` but `<key>` isn't in the valid set** — the API key is wrong.
-4. **OAuth token resolves but the Pro MCP token row is missing or cross-bound** — the `mcpTokenId` no longer maps to the userId. Typically a revoke from Settings → Connected MCP clients.
-5. **OAuth token resolves but the subscription went away** — entitlement re-check found `tier < 1`, `mcpAccess !== true`, or `validUntil < now`. Includes the entitlements-service-unavailable fail-closed path.
+4. **OAuth token resolves but the MCP token row is missing or cross-bound** — the `mcpTokenId` no longer maps to the userId. Typically a revoke from Settings → Connected MCP clients.
 
 Example wire payload (case 1):
 
@@ -229,7 +228,7 @@ Every status the MCP handler can return. Most JSON-RPC replies — including mos
 | **200** | JSON-RPC envelope         | success OR `-32029` / `-32600` / `-32601` / `-32602` / `-32603` | Any successful call, OR an application-layer error that doesn't merit a transport escalation |
 | **202** | empty                     | n/a              | `notifications/initialized` — JSON-RPC notifications take no response body, per spec |
 | **204** | empty                     | n/a              | `OPTIONS` preflight                                                  |
-| **401** | JSON-RPC envelope         | `-32001`         | Missing/invalid/expired credentials, revoked Pro MCP token, inactive subscription. `WWW-Authenticate` header set. |
+| **401** | JSON-RPC envelope         | `-32001`         | Missing/invalid/expired credentials. `WWW-Authenticate` header set. |
 | **403** | plain `"Forbidden"`       | n/a (NOT JSON-RPC)| `Origin` header is present and is not `https://claude.ai` or `https://claude.com`. Server-to-server callers (no `Origin`) are exempt. |
 | **405** | empty                     | n/a              | Request method is not `POST`, `HEAD`, or `OPTIONS`. `Allow: POST, HEAD, OPTIONS` header set. |
 | **429** | JSON-RPC envelope         | `-32029`         | **Pro daily cap exceeded only.** `Retry-After: <seconds-until-UTC-midnight>` set. (Per-minute throttle returns `-32029` inside HTTP 200 — see `-32029` above.) |

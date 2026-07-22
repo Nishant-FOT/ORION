@@ -79,12 +79,6 @@ While the workflow is open, the underlying map reflects your selections in real 
 
 When the workflow closes, the map restores its prior state.
 
-## Tier & gating
-
-Route Explorer is **PRO**. Free-tier visitors can open the workflow and fill in the input bar, but they hit a hard gate at fetch time — the left rail is blurred, the tab area is replaced with an "Unlock route intelligence" card and an **Upgrade to PRO** button, and no numeric payload is rendered in any tab. The underlying map, visible behind the modal, shows a generic public-route highlight as a preview of what PRO exposes.
-
-The gate path is implemented by `renderFreeGate()` in `src/components/RouteExplorer/RouteExplorer.ts:342`; a `route-explorer:free-cta-click` analytics event fires if the Upgrade button is clicked. Clicking Upgrade routes into the Pro checkout (or falls back to the Pro marketing page).
-
 ## Data behind Route Explorer
 
 - **Route graph** — `/api/supply-chain/v1/get-route-explorer-lane` (generated from `proto/orion/supply_chain/v1/`). Returns primary route id, chokepoint exposures, bypass corridors, war-risk tier, and disruption score.

@@ -11,7 +11,6 @@ export * from './correlation';
 export * from './weather';
 export * from './economic';
 export * from './infrastructure';
-export * from './cyber';
 export * from './maritime';
 export * from './cable-activity';
 export * from './cable-health';

@@ -84,7 +84,7 @@ function interpolateLineViaGreatCircle(
   return splitAtAntimeridian(allPts);
 }
 
-type MapMode = 'flat' | 'deckgl' | 'globe';
+type MapMode = 'flat' | 'globe';
 
 interface LayerDef { id: string; label: string; color: string; icon: string; category?: string; }
 
@@ -94,7 +94,7 @@ const LAYER_COLORS: Record<string, string> = {
   satellites: '#64748b', cables: '#06b6d4', pipelines: '#f59e0b', datacenters: '#8b5cf6',
   military: '#3b82f6', ais: '#38bdf8', tradeRoutes: '#22d3ee', flights: '#60a5fa',
   protests: '#f59e0b', ucdpEvents: '#dc2626', displacement: '#fb923c', climate: '#22d3ee',
-  weather: '#38bdf8', outages: '#ef4444', cyberThreats: '#e879f9', natural: '#ef4444',
+  weather: '#38bdf8',   outages: '#ef4444', natural: '#ef4444',
   fires: '#f97316', waterways: '#2dd4bf', economic: '#eab308', minerals: '#ec4899',
   gpsJamming: '#f472b6', ciiChoropleth: '#f59e0b', resilienceScore: '#3b82f6',
   dayNight: '#64748b', sanctions: '#94a3b8', startupHubs: '#22d3ee', techHQs: '#8b5cf6',
@@ -118,7 +118,7 @@ const LAYER_ICONS: Record<string, string> = {
   military: 'flight', ais: 'directions_boat', tradeRoutes: 'route',
   flights: 'flight', protests: 'group', ucdpEvents: 'local_fire_department',
   displacement: 'groups', climate: 'thunderstorm', weather: 'cloud',
-  outages: 'signal_wifi_off', cyberThreats: 'bug_report', natural: 'thunderstorm',
+  outages: 'signal_wifi_off', natural: 'thunderstorm',
   fires: 'local_fire_department', waterways: 'waves', economic: 'payments',
   minerals: 'diamond', gpsJamming: 'gps_off', ciiChoropleth: 'public',
   resilienceScore: 'trending_up', dayNight: 'dark_mode', sanctions: 'block',
@@ -143,7 +143,7 @@ const LAYER_CATEGORIES: Record<string, string> = {
   military: 'conflicts', ais: 'maritime', tradeRoutes: 'maritime',
   flights: 'maritime', protests: 'conflicts', ucdpEvents: 'conflicts',
   displacement: 'conflicts', climate: 'environment', weather: 'environment',
-  outages: 'infrastructure', cyberThreats: 'environment', natural: 'environment',
+  outages: 'infrastructure', natural: 'environment',
   fires: 'environment', waterways: 'maritime', economic: 'economic',
   minerals: 'economic', gpsJamming: 'environment', ciiChoropleth: 'economic',
   resilienceScore: 'economic', dayNight: 'environment', sanctions: 'economic',
@@ -216,7 +216,6 @@ export class MapContainer {
   private mode: MapMode = 'flat';
   private map: maplibregl.Map | null = null;
   private globe: any = null;
-  private deckOverlay: any = null;
   private popup: maplibregl.Popup | null = null;
   private activeLayers = new Set(LAYERS.map(l => l.id));
   private layerPanelOpen = false;
@@ -342,14 +341,6 @@ export class MapContainer {
       { name: 'Mediterranean Fires', lat: 38.0, lon: 24.0, intensity: 'high' },
     ];
 
-    // Simulated cyber threats
-    const cyberThreats = [
-      { name: 'APT28 Infrastructure', lat: 55.75, lon: 37.62, severity: 'critical' },
-      { name: 'Ransomware C2 - Eastern Europe', lat: 48.0, lon: 30.0, severity: 'high' },
-      { name: 'DDoS Campaign - Financial', lat: 40.7, lon: -74.0, severity: 'medium' },
-      { name: 'Supply Chain Attack Vector', lat: 37.4, lon: 127.0, severity: 'high' },
-    ];
-
     // Simulated data centers
     const datacenters = [
       { name: 'AWS us-east-1', lat: 39.0, lon: -77.5, type: 'cloud' },
@@ -418,7 +409,6 @@ export class MapContainer {
       'weather': weatherAlerts,
       'natural-disasters': naturalDisasters,
       'wildfires': wildfires,
-      'cyber-threats': cyberThreats,
       'datacenters': datacenters,
       'power-plants': powerPlants,
       'ucdp-events': ucdpEvents,
@@ -443,9 +433,6 @@ export class MapContainer {
             <button data-mode="flat" class="mode-btn px-2 py-1.5 text-[10px] font-data-md text-primary bg-primary/10 transition-all" title="2D Map">
               <span class="material-symbols-outlined text-sm align-middle">map</span>
             </button>
-            <button data-mode="deckgl" class="mode-btn px-2 py-1.5 text-[10px] font-data-md text-on-surface-variant hover:bg-white/10 transition-all" title="3D Terrain">
-              <span class="material-symbols-outlined text-sm align-middle">terrain</span>
-            </button>
             <button data-mode="globe" class="mode-btn px-2 py-1.5 text-[10px] font-data-md text-on-surface-variant hover:bg-white/10 transition-all" title="3D Globe">
               <span class="material-symbols-outlined text-sm align-middle">public</span>
             </button>
@@ -468,7 +455,7 @@ export class MapContainer {
           <div id="layer-list" class="max-h-[400px] overflow-y-auto p-1.5"></div>
           <div id="layer-explanation" class="hidden px-3 py-2 border-t border-white/5 max-h-[200px] overflow-y-auto"></div>
         </div>
-        <div id="hormuz-widget" class="absolute bottom-16 left-3 z-20 w-64 rounded-xl bg-[#0a1a2e]/95 backdrop-blur-md border border-white/10 shadow-xl p-3">
+        <div id="hormuz-widget" class="absolute bottom-[140px] left-3 z-20 w-64 rounded-xl bg-[#0a1a2e]/95 backdrop-blur-md border border-white/10 shadow-xl p-3">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
               <span class="material-symbols-outlined text-sm text-emerald-400">water</span>
@@ -670,7 +657,6 @@ export class MapContainer {
       'weather': { color: '#38bdf8', radius: 5, glow: true },
       'natural-disasters': { color: '#ef4444', radius: 6, glow: true },
       'wildfires': { color: '#f97316', radius: 5, glow: true },
-      'cyber-threats': { color: '#e879f9', radius: 4 },
       'datacenters': { color: '#8b5cf6', radius: 3 },
       'power-plants': { color: '#eab308', radius: 4 },
       'ucdp-events': { color: '#dc2626', radius: 4, glow: true },
@@ -710,11 +696,6 @@ export class MapContainer {
   private async switchMode(newMode: MapMode): Promise<void> {
     if (newMode === this.mode) return;
 
-    // Destroy old
-    if (this.mode === 'deckgl' && this.deckOverlay) {
-      this.deckOverlay = null;
-    }
-
     const flatEl = this.container.querySelector('#map-container-flat') as HTMLElement;
     const globeEl = this.container.querySelector('#map-container-globe') as HTMLElement;
 
@@ -727,25 +708,7 @@ export class MapContainer {
         this.map.resize();
         this.map.easeTo({ center: [0, 20], zoom: 1.2, pitch: 0, bearing: 0, duration: 800 });
       }
-    } else if (newMode === 'deckgl') {
-      flatEl.classList.remove('hidden');
-      globeEl.classList.add('hidden');
-      if (!this.map) await this.initFlatMap();
-      if (this.map) {
-        this.map.setProjection({ type: 'mercator' });
-        this.map.resize();
-        if (this.deckOverlay) {
-          try { this.map.removeControl(this.deckOverlay); } catch {}
-          this.deckOverlay = null;
-        }
-        this.map.easeTo({ pitch: 60, bearing: -20, duration: 1200 });
-        await new Promise<void>(r => this.map?.once('moveend', () => r()));
-        await this.initDeckGLOverlay();
-      }
     } else if (newMode === 'globe') {
-      // Globe mode uses MapLibre's native projection on the existing map
-      // canvas. The separate globe element is intentionally not a renderer;
-      // showing it here hid the only rendered canvas and produced a black panel.
       flatEl.classList.remove('hidden');
       globeEl.classList.add('hidden');
       this.popup?.remove();
@@ -753,8 +716,6 @@ export class MapContainer {
       if (this.map) {
         this.map.setProjection({ type: 'globe' });
         this.map.resize();
-        // A level, minimum-zoom camera keeps the complete sphere centred in
-        // the shorter two-row panel.
         this.map.easeTo({ center: [0, 0], zoom: 0, pitch: 0, bearing: 0, duration: 900 });
       }
     }
@@ -764,114 +725,6 @@ export class MapContainer {
     try { localStorage.setItem('orion-map-mode', JSON.stringify(newMode)); } catch {}
   }
 
-  private async initDeckGLOverlay(): Promise<void> {
-    if (!this.map || this.deckOverlay) return;
-    try {
-      const [, mapboxModule, layersModule] = await Promise.all([
-        import('@deck.gl/core'),
-        import('@deck.gl/mapbox'),
-        import('@deck.gl/layers'),
-      ]);
-      const { MapboxOverlay } = mapboxModule;
-
-      this.deckOverlay = new MapboxOverlay({
-        interleaved: true,
-        layers: this.buildDeckGLLayers(layersModule),
-      });
-      this.map.addControl(this.deckOverlay as any);
-    } catch (err) {
-      console.warn('[Map] deck.gl overlay unavailable:', err);
-    }
-  }
-
-  private buildDeckGLLayers(layersModule: any): any[] {
-    const layers: any[] = [];
-    const { ScatterplotLayer, ColumnLayer, PathLayer, ArcLayer } = layersModule;
-
-    if (this.activeLayers.has('tradeRoutes')) {
-      const routeArcs = (this.geoData['trade-routes'] || [])
-        .filter((route: any) => route.points?.length >= 2)
-        .map((route: any) => ({
-          name: route.name,
-          source: route.points[0],
-          target: route.points[route.points.length - 1],
-          category: route.category,
-        }));
-      layers.push(new ArcLayer({
-        id: 'deck-trade-route-arcs',
-        data: routeArcs,
-        getSourcePosition: (d: any) => d.source,
-        getTargetPosition: (d: any) => d.target,
-        getSourceColor: [34, 211, 238, 210],
-        getTargetColor: [103, 232, 249, 110],
-        getWidth: 2.5,
-        getHeight: 0.35,
-        widthMinPixels: 1.5,
-        widthMaxPixels: 5,
-        pickable: true,
-        onClick: (info: any) => this.showDeckGLPopup(info.object?.name, info.coordinate),
-      }));
-    }
-
-    if (this.activeLayers.has('chokepoints')) {
-      layers.push(new ScatterplotLayer({
-        id: 'deck-chokepoints',
-        data: (this.geoData['chokepoints'] || []).map(c => ({ position: [c.lon, c.lat], name: c.name })),
-        getFillColor: [107, 251, 154, 200],
-        getRadius: 40000,
-        radiusMinPixels: 6,
-        pickable: true,
-        onClick: (info: any) => this.showDeckGLPopup(info.object.name, info.coordinate),
-      }));
-    }
-
-    if (this.activeLayers.has('military-bases')) {
-      layers.push(new ColumnLayer({
-        id: 'deck-military-bases',
-        data: (this.geoData['military-bases'] || []).map(b => ({ position: [b.lon, b.lat], name: b.name, elevation: 800 })),
-        getFillColor: [59, 130, 246, 200],
-        getElevation: (d: any) => d.elevation,
-        radius: 15000,
-        pickable: true,
-        onClick: (info: any) => this.showDeckGLPopup(info.object.name, info.coordinate),
-      }));
-    }
-
-    if (this.activeLayers.has('nuclear')) {
-      layers.push(new ScatterplotLayer({
-        id: 'deck-nuclear',
-        data: (this.geoData['nuclear'] || []).map(n => ({ position: [n.lon, n.lat], name: n.name })),
-        getFillColor: [168, 85, 247, 200],
-        getRadius: 30000,
-        radiusMinPixels: 4,
-        pickable: true,
-        onClick: (info: any) => this.showDeckGLPopup(info.object.name, info.coordinate),
-      }));
-    }
-
-    if (this.activeLayers.has('cables')) {
-      const cableDeckData: any[] = [];
-      for (const c of (this.geoData['cables'] || [])) {
-        const segs = interpolateLineViaGreatCircle(c.points, 12);
-        for (const seg of segs) {
-          cableDeckData.push({
-            path: seg.map((p: number[]) => [p[0], p[1], 0]),
-            name: c.name
-          });
-        }
-      }
-      layers.push(new PathLayer({
-        id: 'deck-cables',
-        data: cableDeckData,
-        getPath: (d: any) => d.path,
-        getColor: [6, 182, 212, 120],
-        getWidth: 2,
-        pickable: false,
-      }));
-    }
-
-    return layers;
-  }
 
   private getCargoFeatureCollection(nowMs: number): any {
     const routes = (this.geoData['trade-routes'] || []).filter((route: any) => route.points?.length >= 2);
@@ -927,12 +780,6 @@ export class MapContainer {
     this.cargoAnimationFrame = requestAnimationFrame(animate);
   }
 
-  private showDeckGLPopup(name: string, coordinate?: [number, number]): void {
-    if (!this.map || !coordinate) return;
-    this.popup?.setLngLat(coordinate)
-      .setHTML(`<div style="padding:8px;font-size:12px;color:#e2e8f0;font-family:inherit;"><b style="color:#f1f5f9;">${name}</b></div>`)
-      .addTo(this.map);
-  }
 
   private updateModeButtons(): void {
     this.container.querySelectorAll('.mode-btn').forEach(btn => {

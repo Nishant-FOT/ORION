@@ -11,9 +11,6 @@ export type RuntimeSecretKey =
   | 'EIA_API_KEY'
   | 'CLOUDFLARE_API_TOKEN'
   | 'ACLED_ACCESS_TOKEN'
-  | 'URLHAUS_AUTH_KEY'
-  | 'OTX_API_KEY'
-  | 'ABUSEIPDB_API_KEY'
   | 'WINGBITS_API_KEY'
   | 'WS_RELAY_URL'
   | 'VITE_OPENSKY_RELAY_URL'
@@ -40,9 +37,6 @@ export type RuntimeFeatureId =
   | 'energyEia'
   | 'internetOutages'
   | 'acledConflicts'
-  | 'abuseChThreatIntel'
-  | 'alienvaultOtxThreatIntel'
-  | 'abuseIpdbThreatIntel'
   | 'wingbitsEnrichment'
   | 'aisRelay'
   | 'openskyRelay'
@@ -98,9 +92,6 @@ const defaultToggles: Record<RuntimeFeatureId, boolean> = {
   internetOutages: true,
   acledConflicts: true,
   ucdpConflicts: true,
-  abuseChThreatIntel: true,
-  alienvaultOtxThreatIntel: true,
-  abuseIpdbThreatIntel: true,
   wingbitsEnrichment: true,
   aisRelay: true,
   openskyRelay: true,
@@ -192,27 +183,6 @@ export const RUNTIME_FEATURES: RuntimeFeatureDefinition[] = [
     description: 'Armed conflict georeferenced event data from Uppsala Conflict Data Program.',
     requiredSecrets: ['UCDP_ACCESS_TOKEN'],
     fallback: 'UCDP conflict layer is disabled.',
-  },
-  {
-    id: 'abuseChThreatIntel',
-    name: 'abuse.ch cyber IOC feeds',
-    description: 'URLhaus and ThreatFox IOC ingestion for the cyber threat layer.',
-    requiredSecrets: ['URLHAUS_AUTH_KEY'],
-    fallback: 'URLhaus/ThreatFox IOC ingestion is disabled.',
-  },
-  {
-    id: 'alienvaultOtxThreatIntel',
-    name: 'AlienVault OTX threat intel',
-    description: 'Optional OTX IOC ingestion for cyber threat enrichment.',
-    requiredSecrets: ['OTX_API_KEY'],
-    fallback: 'OTX IOC enrichment is disabled.',
-  },
-  {
-    id: 'abuseIpdbThreatIntel',
-    name: 'AbuseIPDB threat intel',
-    description: 'Optional AbuseIPDB IOC/reputation enrichment for the cyber threat layer.',
-    requiredSecrets: ['ABUSEIPDB_API_KEY'],
-    fallback: 'AbuseIPDB enrichment is disabled.',
   },
   {
     id: 'wingbitsEnrichment',

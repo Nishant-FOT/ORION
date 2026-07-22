@@ -103,8 +103,8 @@ These panels visualise cross-domain correlation over a rolling window — useful
 
 ## Shared behaviour
 
-- All panels above are **free** unless noted otherwise — none are `premium: 'locked'` in `src/config/panels.ts`.
-- Compact tiles are registered across multiple variants; the per-variant registration determines whether a tile is enabled by default. Check `src/config/panels.ts` directly when confirming availability.
+- All panels above are **free** unless noted otherwise.
+- Compact tiles are registered across multiple configurations; the per-configuration registration determines whether a tile is enabled by default. Check `src/config/panels.ts` directly when confirming availability.
 - Most tile-style panels hydrate from the bootstrap payload (`getHydratedData(...)`) and fall back to a fresh RPC call so the initial paint is immediate.
 
 ## Related

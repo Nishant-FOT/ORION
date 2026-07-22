@@ -2,24 +2,6 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { channelTypeValidator, digestModeValidator, quietHoursOverrideValidator, sensitivityValidator } from "./constants";
 
-// Subscription status enum — maps Dodo statuses to our internal set
-const subscriptionStatus = v.union(
-  v.literal("active"),
-  v.literal("on_hold"),
-  v.literal("cancelled"),
-  v.literal("expired"),
-);
-
-// Payment event status enum — covers charge outcomes and dispute lifecycle
-const paymentEventStatus = v.union(
-  v.literal("succeeded"),
-  v.literal("failed"),
-  v.literal("dispute_opened"),
-  v.literal("dispute_won"),
-  v.literal("dispute_lost"),
-  v.literal("dispute_closed"),
-);
-
 export default defineSchema({
   userPreferences: defineTable({
     userId: v.string(),
@@ -493,87 +475,9 @@ export default defineSchema({
     value: v.number(),
   }).index("by_name", ["name"]),
 
-  // --- Payment tables (Dodo Payments integration) ---
-
-  subscriptions: defineTable({
-    userId: v.string(),
-    dodoSubscriptionId: v.string(),
-    dodoProductId: v.string(),
-    planKey: v.string(),
-    status: subscriptionStatus,
-    currentPeriodStart: v.number(),
-    currentPeriodEnd: v.number(),
-    cancelledAt: v.optional(v.number()),
-    // Stable first-class projection of `rawPayload.customer.customer_id`
-    // (the Dodo customer this sub was paid as). Optional because
-    // `DodoSubscriptionData.customer` is itself optional and lifecycle
-    // event payloads (`subscription.renewed`, `.on_hold`, `.cancelled`,
-    // `.plan_changed`, `.expired`) sometimes arrive without it — a
-    // blind `rawPayload: data` patch would otherwise wipe the value.
-    // Webhook handlers write this field with `data.customer?.customer_id
-    // ?? existing.dodoCustomerId` (see `mergeDodoCustomerId` in
-    // `subscriptionHelpers.ts`) so it survives lifecycle patches.
-    //
-    // Manage Billing prefers this column when populated — see
-    // `payments/billing:getDodoCustomerIdForUserPortal`, which is a
-    // 3-tier resolver (this column → `rawPayload.customer.customer_id`
-    // → `customers.dodoCustomerId` for the same userId). Pre-PR rows
-    // may still rely on tiers 2-3 until
-    // `backfillSubscriptionDodoCustomerId` lands their values here.
-    dodoCustomerId: v.optional(v.string()),
-    rawPayload: v.any(),
-    updatedAt: v.number(),
-  })
-    .index("by_userId", ["userId"])
-    .index("by_dodoSubscriptionId", ["dodoSubscriptionId"])
-    .index("by_dodoCustomerId", ["dodoCustomerId"]),
-
-  entitlements: defineTable({
-    userId: v.string(),
-    planKey: v.string(),
-    features: v.object({
-      tier: v.number(),
-      maxDashboards: v.number(),
-      apiAccess: v.boolean(),
-      apiRateLimit: v.number(),
-      prioritySupport: v.boolean(),
-      exportFormats: v.array(v.string()),
-      // Optional for backward-compat with existing rows written before
-      // plan 2026-05-10-001 (Pro MCP). Dodo webhooks repopulate this on
-      // the next subscription event; legacy rows return undefined and
-      // every consumer treats undefined as "no MCP access" (fail-closed).
-      mcpAccess: v.optional(v.boolean()),
-    }),
-    validUntil: v.number(),
-    // Optional complimentary-entitlement floor. When set and in the future,
-    // subscription.expired events skip the normal downgrade-to-free so
-    // goodwill credits outlive Dodo subscription cancellations.
-    compUntil: v.optional(v.number()),
-    updatedAt: v.number(),
-  }).index("by_userId", ["userId"]),
-
-  customers: defineTable({
-    userId: v.string(),
-    dodoCustomerId: v.optional(v.string()),
-    email: v.string(),
-    // Lowercased + trimmed mirror of `email`. Required for O(1) joins from
-    // `registrations`/`emailSuppressions` (both keyed on `normalizedEmail`)
-    // when building broadcast audiences — without this, dedup is a full
-    // table scan and paid users can leak into "buy PRO!" sends.
-    // Optional so existing rows pass schema validation; backfilled via
-    // `npx convex run payments/backfillCustomerNormalizedEmail:backfill`.
-    normalizedEmail: v.optional(v.string()),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_userId", ["userId"])
-    .index("by_dodoCustomerId", ["dodoCustomerId"])
-    .index("by_normalized_email", ["normalizedEmail"]),
-
   // Canonical per-Clerk-user record. Populated on first authenticated session
-  // by client → `users:ensureRecord` (see convex/users.ts). Distinct from
-  // `customers` (which is paid-only, populated by Dodo subscription webhook):
-  // `users` covers EVERY Clerk-authenticated user, free or paid. Holds
+  // by client → `users:ensureRecord` (see convex/users.ts). Covers EVERY
+  // Clerk-authenticated user, free or paid. Holds
   // operational properties used for product personalization and broadcast
   // audience filtering — locale, timezone, country, first/last seen.
   //
@@ -598,39 +502,6 @@ export default defineSchema({
     .index("by_userId", ["userId"])
     .index("by_normalizedEmail", ["normalizedEmail"])
     .index("by_localePrimary", ["localePrimary"]),
-
-  webhookEvents: defineTable({
-    webhookId: v.string(),
-    eventType: v.string(),
-    rawPayload: v.any(),
-    processedAt: v.number(),
-    status: v.literal("processed"),
-  })
-    .index("by_webhookId", ["webhookId"])
-    .index("by_eventType", ["eventType"]),
-
-  paymentEvents: defineTable({
-    userId: v.string(),
-    dodoPaymentId: v.string(),
-    type: v.union(v.literal("charge"), v.literal("refund")),
-    amount: v.number(),
-    currency: v.string(),
-    status: paymentEventStatus,
-    dodoSubscriptionId: v.optional(v.string()),
-    rawPayload: v.any(),
-    occurredAt: v.number(),
-  })
-    .index("by_userId", ["userId"])
-    .index("by_dodoPaymentId", ["dodoPaymentId"]),
-
-  productPlans: defineTable({
-    dodoProductId: v.string(),
-    planKey: v.string(),
-    displayName: v.string(),
-    isActive: v.boolean(),
-  })
-    .index("by_dodoProductId", ["dodoProductId"])
-    .index("by_planKey", ["planKey"]),
 
   userApiKeys: defineTable({
     userId: v.string(),

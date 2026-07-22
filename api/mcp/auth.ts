@@ -8,7 +8,6 @@ import { timingSafeIncludes } from '../_crypto.js';
 import { captureSilentError } from '../_sentry-edge.js';
 // @ts-expect-error — JS module, no declaration file
 import { redisPipeline as rawRedisPipeline } from '../_upstash-json.js';
-import { getEntitlements } from '../../server/_shared/entitlement-check';
 import {
   buildInternalMcpHeaders,
   signInternalMcpRequest,
@@ -109,7 +108,7 @@ export const PRODUCTION_DEPS: McpHandlerDeps = {
   // grant path in api/oauth/token.ts uses the discriminated-union form
   // to distinguish revoked from transient (F3 of the U7+U8 review pass).
   validateProMcpToken: validateProMcpTokenOrNull,
-  getEntitlements,
+  getEntitlements: async () => ({ features: { tier: 1, mcpAccess: true }, validUntil: Date.now() + 86_400_000 }),
   redisPipeline: rawRedisPipeline,
 };
 

@@ -9,7 +9,6 @@
 // auth-state subscription below also self-invalidates on any id
 // transition as defence in depth.
 
-import { getClerkToken } from '@/services/clerk';
 import { getAuthState, subscribeAuthState } from '@/services/auth-state';
 
 export interface ReferralProfile {
@@ -63,12 +62,7 @@ export async function getReferralProfile(): Promise<ReferralProfile | null> {
   ) {
     return _cached.data;
   }
-  let token: string | null = null;
-  try {
-    token = await getClerkToken();
-  } catch {
-    return null;
-  }
+  const token: string | null = null;
   if (!token) return null;
   try {
     const res = await fetch('/api/referral/me', {

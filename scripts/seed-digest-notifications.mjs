@@ -141,7 +141,6 @@ const DIGEST_CRITICAL_LIMIT = Infinity;
 const DIGEST_HIGH_LIMIT = 15;
 const DIGEST_MEDIUM_LIMIT = 10;
 const AI_DIGEST_ENABLED = process.env.AI_DIGEST_ENABLED !== '0';
-const ENTITLEMENT_CACHE_TTL = 900; // 15 min
 
 // Absolute importance-score floor applied to the digest AFTER dedup.
 // Mirrors the realtime notification-relay gate (IMPORTANCE_SCORE_MIN)
@@ -185,18 +184,6 @@ const BRIEF_SIGNING_SECRET_MISSING =
 // toggled independently (e.g. kill the brief LLM without silencing
 // the email's AI summary during a provider outage).
 const BRIEF_LLM_ENABLED = process.env.BRIEF_LLM_ENABLED !== '0';
-
-// Free-tier follow limit (PR C / U10). Mirrors the UI cap at
-// `src/components/FollowCountryButton.ts` and the server-side mutation
-// cap at `convex/followedCountries.ts::followCountry`. Three layers
-// total — UI / mutation / composer — per the
-// `paywalled-feature-needs-three-layer-entitlement-gate` pattern. The
-// composer clamp catches the post-downgrade case: a user accumulated
-// >3 follows as Pro then downgraded to free; existing rows are
-// grandfathered (mutation only blocks NEW writes), but the composer
-// must still bias only the first 3 in addedAt order so the soft uplift
-// matches what's gated.
-const FREE_TIER_FOLLOW_LIMIT = 3;
 
 // Phase 3c — analyst-backed whyMatters enrichment via an internal Vercel
 // edge endpoint. When the endpoint is reachable + returns a string, it
@@ -1492,52 +1479,6 @@ async function sendWebhook(userId, webhookEnvelope, stories, aiSummary) {
 
 // ── Entitlement check ────────────────────────────────────────────────────────
 
-/**
- * Resolve the caller's entitlement tier (0 = free, 1 = pro, etc).
- * Reads the relay:entitlement:{userId} cache first; falls back to the
- * /relay/entitlement HTTP action and back-fills the cache.
- *
- * Failure mode: returns `null` when neither cache nor relay yields a
- * usable number. Callers MUST treat null as "unknown" — never "free"
- * — so a transient relay outage doesn't accidentally clamp legitimate
- * paying users out of paywalled affordances. The digest cron's
- * `isUserPro` uses null → fail-open (true); the followed-country
- * composer clamp uses null → "skip clamp" (treat as Pro for the
- * duration of the outage). Same fail-open polarity in both call
- * sites, but explicit so future readers can audit the choice.
- */
-async function getUserTier(userId) {
-  const cacheKey = `relay:entitlement:${userId}`;
-  try {
-    const cached = await upstashRest('GET', cacheKey);
-    if (cached !== null) {
-      const n = Number(cached);
-      if (Number.isFinite(n)) return n;
-    }
-  } catch { /* miss */ }
-  try {
-    const res = await fetch(`${CONVEX_SITE_URL}/relay/entitlement`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RELAY_SECRET}`, 'User-Agent': 'orion-digest/1.0' },
-      body: JSON.stringify({ userId }),
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!res.ok) return null; // unknown — caller decides fail-open polarity
-    const { tier } = await res.json();
-    const safeTier = Number.isFinite(tier) ? tier : 0;
-    await upstashRest('SET', cacheKey, String(safeTier), 'EX', String(ENTITLEMENT_CACHE_TTL));
-    return safeTier;
-  } catch {
-    return null;
-  }
-}
-
-async function isUserPro(userId) {
-  const tier = await getUserTier(userId);
-  if (tier === null) return true; // fail-open — preserve historic polarity
-  return tier >= 1;
-}
-
 // ── Per-channel body composition ─────────────────────────────────────────────
 
 const DIVIDER = '─'.repeat(40);
@@ -1861,13 +1802,8 @@ async function composeAndStoreBriefForUser(userId, annotated, insightsNumbers, d
     }
   }
 
-  // PR C / U10: fetch the user's followed-countries watchlist, then
-  // apply the free-tier safety-net clamp. Three-layer gate: UI cap
-  // (FollowCountryButton) + mutation cap (followedCountries.ts) +
-  // this composer clamp (post-downgrade safety). Memory:
-  // `paywalled-feature-needs-three-layer-entitlement-gate`.
-  //
-  // Failure modes are absorbed by fetchFollowedCountries (it returns
+  // Fetch the user's followed-countries watchlist. Failure modes are
+  // absorbed by fetchFollowedCountries (it returns
   // [] on any soft error, never throws) — the bias is purely an
   // uplift, so missing data degrades to today's behavior, not to a
   // wrong brief.
@@ -1875,13 +1811,7 @@ async function composeAndStoreBriefForUser(userId, annotated, insightsNumbers, d
   try {
     const followed = await fetchFollowedCountries(userId);
     if (followed.length > 0) {
-      const tier = await getUserTier(userId);
-      // tier === null (relay unreachable) → fail-open: skip the clamp,
-      // honor the user's full followed list. Same polarity as
-      // isUserPro's fail-open (true = Pro). A transient outage must
-      // not silently demote a paying user's bias.
-      const isFree = tier !== null && tier < 1;
-      followedCountriesUsed = isFree ? followed.slice(0, FREE_TIER_FOLLOW_LIMIT) : followed;
+      followedCountriesUsed = followed;
     }
   } catch (err) {
     console.warn(`[digest] brief: followed-countries fetch threw for ${userId}:`, err?.message);
@@ -1928,8 +1858,8 @@ async function composeAndStoreBriefForUser(userId, annotated, insightsNumbers, d
   // Operator-visible signal that the followed-country bias did
   // (or did not) participate in this user's compose. Distinct log
   // line so the brief-filter-drops grep stays clean. Captures the
-  // clamped list (post free-tier truncation) so an operator
-  // reading the log can recompute "why was this story boosted".
+  // followed list so an operator reading the log can recompute
+  // "why was this story boosted".
   // Empty list → no-op (and we don't log to keep volume sane).
   if (followedCountriesUsed.length > 0) {
     console.log(
@@ -2325,7 +2255,7 @@ async function main() {
         composeMissUsers.add(rule.userId);
       }
       // Fall through — no canonical filter; this rule iterates
-      // through isDue / isUserPro / buildDigest / send normally.
+      // through isDue / buildDigest / send normally.
     }
 
     const lastSentKey = `digest:last-sent:v1:${rule.userId}:${rule.variant}`;
@@ -2335,12 +2265,6 @@ async function main() {
     const lastSentAt = await getLastSentAt(rule);
 
     if (!isDue(rule, lastSentAt)) continue;
-
-    const pro = await isUserPro(rule.userId);
-    if (!pro) {
-      console.log(`[digest] Skipping ${rule.userId} — not PRO`);
-      continue;
-    }
 
     const windowStart = digestWindowStartMs(lastSentAt, nowMs, DIGEST_LOOKBACK_MS);
     const stories = await buildDigest(rule, windowStart);

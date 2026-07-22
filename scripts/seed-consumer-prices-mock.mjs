@@ -155,7 +155,7 @@ function movers(m, range) {
 }
 
 function spread(m) {
-  const retailers = m.retailers.map((r, i) => ({
+  const retailers = m.retailers.map((r) => ({
     slug: r,
     name: r.charAt(0).toUpperCase() + r.slice(1).replace(/-/g, ' '),
     basketTotal: rand(80, 200),

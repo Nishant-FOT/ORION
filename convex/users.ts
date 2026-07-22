@@ -6,8 +6,8 @@
  * timezone (display), country (analytics — client-reported, not
  * authoritative), first/last seen.
  *
- * Distinct from `customers` (paid-only, populated by Dodo webhook):
- * `users` covers EVERY Clerk-authenticated user, free or paid.
+ * Distinct from historical customer records: `users` covers every
+ * Clerk-authenticated user.
  *
  * This mutation is PUBLIC (called from the browser via ConvexClient)
  * but trusts ONLY `ctx.auth.getUserIdentity()` for identity, never the

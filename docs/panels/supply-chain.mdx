@@ -15,12 +15,12 @@ Across the composite:
 - **Scenario Engine trigger cards** — per-scenario trigger buttons (`sc-scenario-trigger` / `sc-scenario-btn`) that dispatch a template id to the scenario worker. Free users see the buttons but hit the PRO gate at activation. Scope-all scenario runs use the v1 seeded reporter set (`US`, `CN`, `RU`, `IR`, `IN`, `TW`). See [Scenario Engine](/scenario-engine) for the full workflow.
 - **Active-scenario banner** (when a scenario is running) — icon, scenario name, optional params chip (duration + cost bump), top impacted countries, dismiss ×. When template parameters are populated, an additional "Simulating …" tagline renders. Banner construction lives in `renderScenarioBanner()` in `src/components/SupplyChainPanel.ts`.
 
-Panel id is `supply-chain`; canonical component is `src/components/SupplyChainPanel.ts`. Title per variant: "Supply Chain" (full/finance) or "Supply Chain & Logistics" (commodity).
+Panel id is `supply-chain`; canonical component is `src/components/SupplyChainPanel.ts`. Title per configuration: "Supply Chain" (full/finance) or "Supply Chain & Logistics" (commodity).
 
 ## How you reach it
 
 - **Cmd+K**: type *supply chain*, *shipping*, or *logistics*.
-- **Availability by variant**: registered and enabled by default in the **full/geopolitical** (priority 1), **finance** (priority 1), and **commodity** (priority 1) variants. Not present in the tech or happy variants. Source: `'supply-chain'` entries in `FULL_PANELS`, `FINANCE_PANELS`, `COMMODITY_PANELS`. On desktop the full-variant registration additionally layers `premium: 'enhanced'` (`_desktop &&` clause in `src/config/panels.ts`).
+- **Availability**: registered and enabled by default in the **full/geopolitical** (priority 1), **finance** (priority 1), and **commodity** (priority 1) configurations. Not present in the tech or happy configurations. Source: `'supply-chain'` entries in `FULL_PANELS`, `FINANCE_PANELS`, `COMMODITY_PANELS`.
 
 ## Data sources
 
@@ -32,7 +32,7 @@ Panel reads on mount and on user-triggered refresh. Scenario Engine jobs are asy
 
 ## Tier & gating
 
-The Supply Chain panel itself is **free** on web (full / finance / commodity variants). On desktop, the full-variant registration layers `premium: 'enhanced'`. **The Scenario Engine activation is PRO** regardless of web vs desktop — free users see the trigger buttons but hit the `scenario-engine` gate on activation.
+All panels are freely accessible. No subscription or API key required.
 
 ## Related
 

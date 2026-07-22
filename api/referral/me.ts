@@ -144,12 +144,8 @@ export default async function handler(
     }),
   );
 
-  // No invite/conversion count is returned on the response. The
-  // waitlist path (userReferralCredits) now credits correctly, but
-  // the Dodopayments checkout path (affonso_referral) still doesn't
-  // flow into Convex. Counting only one of the two attribution
-  // paths would mislead. Metrics will surface in a follow-up that
-  // unifies both.
+  // No invite/conversion count is returned on the response. Counting only
+  // one attribution path would mislead; metrics belong in a unified follow-up.
   return jsonResponse(
     {
       code,

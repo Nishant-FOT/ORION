@@ -17,7 +17,6 @@ const LAYER_KEYS: (keyof MapLayers)[] = [
   'economic',
   'waterways',
   'outages',
-  'cyberThreats',
   'datacenters',
   'protests',
   'flights',

@@ -1,8 +1,8 @@
 ---
 title: "Premium Finance"
-description: "Premium finance is the finance-variant layer providing stock-analysis capabilities within ORION, originally inspired by a standalone daily_stock_analysis project but now fully integrated."
+description: "Premium finance provides stock-analysis capabilities within ORION, originally inspired by a standalone daily_stock_analysis project but now fully integrated."
 ---
-Premium finance is the finance-variant layer providing stock-analysis capabilities within ORION. These features were originally inspired by a standalone `daily_stock_analysis` project but are now fully integrated into the ORION codebase.
+Premium finance provides stock-analysis capabilities within ORION. These features were originally inspired by a standalone `daily_stock_analysis` project but are now fully integrated into the ORION codebase.
 
 This layer is intentionally split into:
 
@@ -21,7 +21,7 @@ The current premium finance scope includes:
 - shared analysis history
 - stored backtest summaries
 - scheduled daily market brief generation
-- finance-variant premium panels
+- premium finance panels
 - Redis-backed shared backend persistence for analysis history and backtests
 
 The original standalone project included capabilities that were intentionally not carried over:
@@ -42,7 +42,7 @@ The original standalone project included capabilities that were intentionally no
 
 1. Finance premium panels load through the normal app shell and panel loader.
 2. Premium stock RPCs are called through `MarketService`.
-3. Premium endpoints require `ORION_API_KEY` server-side, not just a locked UI.
+3. Finance premium panels are called through `MarketService`.
 4. Results are persisted into Redis-backed shared storage.
 5. Panels prefer stored shared results before recomputing fresh analyses or backtests.
 
@@ -128,7 +128,7 @@ Earlier iterations stored history locally per device and recomputed backtests on
 
 - multiple users can share the same analysis results
 - multiple users can share the same backtest summaries
-- browser or desktop cache is no longer the canonical history
+- browser or native client cache is no longer the canonical history
 
 ### Current Storage Model
 

@@ -12,21 +12,14 @@
 import { createRouter, type RouteDescriptor } from './router';
 import { getCorsHeaders, isDisallowedOrigin, isAllowedOrigin } from './cors';
 // @ts-expect-error — JS module, no declaration file
-import { validateApiKey } from '../api/_api-key.js';
-// @ts-expect-error — JS module, no declaration file
 import { captureSilentError } from '../api/_sentry-edge.js';
 import { mapErrorToResponse } from './error-mapper';
 import { checkRateLimit, checkEndpointRateLimit, hasEndpointRatePolicy } from './_shared/rate-limit';
 import { drainResponseHeaders } from './_shared/response-headers';
-import { checkEntitlement, getRequiredTier, getEntitlements } from './_shared/entitlement-check';
-import { resolveClerkSession } from './_shared/auth-session';
+
 import {
-  INTERNAL_MCP_SIG_HEADER,
-  INTERNAL_MCP_USER_ID_HEADER,
   INTERNAL_MCP_VERIFIED_HEADER,
   TRUSTED_USER_ID_HEADER,
-  getInternalMcpVerifiedNonce,
-  verifyInternalMcpRequest,
 } from './_shared/mcp-internal-hmac';
 import { buildUsageIdentity, type UsageIdentityInput } from './_shared/usage-identity';
 import {
@@ -51,7 +44,6 @@ import {
   type CacheTier as UsageCacheTier,
   type RequestReason,
 } from './_shared/usage';
-import { timingSafeEqual } from './_shared/internal-auth';
 import type { ServerOptions } from '../src/generated/server/orion/seismology/v1/service_server';
 
 export const serverOptions: ServerOptions = { onError: mapErrorToResponse };
@@ -302,7 +294,7 @@ const RPC_CACHE_TIER: Record<string, CacheTier> = {
   '/api/intelligence/v1/get-country-energy-profile': 'slow',
   '/api/intelligence/v1/compute-energy-shock': 'fast',
   '/api/intelligence/v1/get-country-port-activity': 'slow',
-  // NOTE: get-regional-snapshot is premium-gated via PREMIUM_RPC_PATHS; the
+  // NOTE: get-regional-snapshot is a slow-tier endpoint.
   // gateway short-circuits to 'slow-browser' before consulting this map. The
   // entry below exists to satisfy the parity contract enforced by
   // tests/route-cache-tier.test.mjs (every generated GET route needs a tier)
@@ -326,7 +318,7 @@ const RPC_CACHE_TIER: Record<string, CacheTier> = {
   '/api/v2/shipping/webhooks': 'slow-browser',
 };
 
-import { PREMIUM_RPC_PATHS } from '../src/shared/premium-paths';
+
 
 export const PUBLIC_NO_AUTH_RPC_PATHS = new Set<string>([
   '/api/conflict/v1/list-acled-events',
@@ -351,15 +343,14 @@ export const PUBLIC_NO_AUTH_RPC_PATHS = new Set<string>([
 // to keep their compute caches hot (so the first real user request isn't a cold
 // miss). These require a browser session token or an API key in normal traffic;
 // the relay is a trusted internal service with neither, so it authenticates as
-// itself via ORION_RELAY_KEY (validated below in isRelayWarmPingRequest).
+// itself via ORION_RELAY_KEY.
 //
 // Least privilege: ORION_RELAY_KEY is a DEDICATED relay↔gateway secret —
 // it does NOT need to be (and should not be) a ORION_VALID_KEYS enterprise
 // key. It unlocks ONLY a cache-warm on these specific free endpoints — exactly
 // what any session holder could already trigger — so the blast radius of the
 // secret is a recompute on public data: no premium access, no entitlement bypass
-// beyond anonymous-equivalent. Mirrors the isResilienceRankingSeedRefreshRequest
-// internal-auth path below.
+// beyond anonymous-equivalent.
 export const RELAY_WARM_PING_PATHS = new Set<string>([
   '/api/infrastructure/v1/list-service-statuses',
   '/api/infrastructure/v1/get-cable-health',
@@ -389,11 +380,7 @@ function isPostToGetCompatibleBodySize(headers: Headers): boolean {
 // `TRUSTED_USER_ID_HEADER` (a.k.a. `x-user-id`) is gateway-internal: the
 // gateway is the ONLY layer permitted to set it, and it must reflect an
 // authenticated principal. Inbound client copies are stripped at handler
-// entry (see stripClientUserIdHeader); the authenticated value is re-
-// injected after Clerk / wm_ user-key / legacy bearer auth via
-// withAuthenticatedUserId. The internal-MCP block below has its own
-// strip-and-rebuild step that ALSO strips this header alongside
-// INTERNAL_MCP_VERIFIED_HEADER — both layers are defense-in-depth.
+// entry (see stripClientUserIdHeader) as defense-in-depth.
 function cloneRequestWithHeaders(request: Request, headers: Headers): Request {
   return new Request(request, { headers });
 }
@@ -405,51 +392,9 @@ function stripClientUserIdHeader(request: Request): Request {
   return cloneRequestWithHeaders(request, headers);
 }
 
-function withAuthenticatedUserId(request: Request, userId: string): Request {
-  const headers = new Headers(request.headers);
-  headers.set(TRUSTED_USER_ID_HEADER, userId);
-  return cloneRequestWithHeaders(request, headers);
-}
-
-async function isResilienceRankingSeedRefreshRequest(request: Request, pathname: string): Promise<boolean> {
-  if (pathname !== '/api/resilience/v1/get-resilience-ranking') return false;
-  const expected = process.env.ORION_SEED_REFRESH_KEY?.trim() ?? '';
-  if (!expected) return false;
-  try {
-    const url = new URL(request.url);
-    if (url.searchParams.get('refresh') !== '1') return false;
-  } catch {
-    return false;
-  }
-  const candidate = request.headers.get('X-ORION-Key') ?? '';
-  return timingSafeEqual(candidate, expected);
-}
-
-// Authenticate a relay warm-ping as a trusted internal caller. True only when
-// the path is an explicit warm-ping target AND the request carries the dedicated
-// relay secret in X-ORION-Key (timing-safe compared). Returns false when
-// the secret is unset so a misconfigured deploy fails CLOSED (no bypass) rather
-// than silently opening these paths. Mirrors isResilienceRankingSeedRefreshRequest.
-export async function isRelayWarmPingRequest(request: Request, pathname: string): Promise<boolean> {
-  if (!RELAY_WARM_PING_PATHS.has(pathname)) return false;
-  const expected = process.env.ORION_RELAY_KEY?.trim() ?? '';
-  if (!expected) return false;
-  const candidate = request.headers.get('X-ORION-Key') ?? '';
-  return timingSafeEqual(candidate, expected);
-}
-
-function assertProMcpGatewayHmacConfig(): void {
-  const proGrantSecret = process.env.MCP_PRO_GRANT_HMAC_SECRET?.trim() ?? '';
-  const internalSecret = process.env.MCP_INTERNAL_HMAC_SECRET?.trim() ?? '';
-  if (proGrantSecret && !internalSecret) {
-    throw new Error('MCP_INTERNAL_HMAC_SECRET must be configured when MCP_PRO_GRANT_HMAC_SECRET is set');
-  }
-}
-
 export function createDomainGateway(
   routes: RouteDescriptor[],
 ): (req: Request, ctx?: GatewayCtx) => Promise<Response> {
-  assertProMcpGatewayHmacConfig();
   const router = createRouter(routes);
 
   return async function handler(originalRequest: Request, ctx?: GatewayCtx): Promise<Response> {
@@ -475,7 +420,6 @@ export function createDomainGateway(
       isUserApiKey: false,
       enterpriseApiKey: null,
       widgetKey: validatedWidgetKey,
-      clerkOrgId: null,
       userApiKeyCustomerRef: null,
       tier: null,
     };
@@ -651,386 +595,28 @@ export function createDomainGateway(
       }
     }
 
-    // ----------------------------------------------------------------------
-    // Internal-MCP HMAC pre-check — runs BEFORE `validateApiKey` so that a
-    // verified Pro tool fetch never needs an `X-ORION-Key`. If
-    // `X-ORION-MCP-Internal` is present, treat as a deliberate signed request:
-    //   - verify ⇒ entitlement re-check ⇒ rebuild Request with trusted markers
-    //   - verify FAILS ⇒ 401 immediately (do NOT fall through; present-but-
-    //     invalid is a forge attempt, falling through to validateApiKey
-    //     would let an attacker chain the legacy auth path).
-    // If the header is absent, fall through to the existing validateApiKey
-    // path with the (header-stripped) request — Starter+ wm_ keys remain
-    // unchanged.
-    //
-    // When this flag is true, downstream auth gates (validateApiKey, the
-    // PREMIUM_RPC_PATHS bearer gate, IP rate limiting) are skipped. The MCP
-    // edge already enforced 50/day + 60/min/userId; the gateway-level
-    // entitlement check for ENDPOINT_ENTITLEMENTS is also skipped here
-    // because we re-checked tier ≥ 1 + mcpAccess === true above.
-    // ----------------------------------------------------------------------
-    let internalMcpVerified = false;
-    if (request.headers.has(INTERNAL_MCP_SIG_HEADER)) {
-      const hmacSecret = process.env.MCP_INTERNAL_HMAC_SECRET ?? '';
-      if (!hmacSecret) {
-        // Server misconfiguration on the HMAC-attempt path. Surface as 500
-        // CONFIGURATION so operators see it; legacy wm_ key path is
-        // unaffected because we only enter this branch when the caller
-        // explicitly tried to use the internal-MCP route.
-        emitRequest(500, 'auth_401', null);
-        return new Response(
-          JSON.stringify({ error: 'CONFIGURATION', detail: 'MCP_INTERNAL_HMAC_SECRET not configured' }),
-          { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } },
-        );
-      }
-      // Read the body bytes ONCE upfront. We need them in three places:
-      //   1. Inside verifyInternalMcpRequest for the bodyHash compare
-      //   2. To rebuild a fresh Request with trusted markers (Node's undici
-      //      Request constructor refuses a ReadableStream body without
-      //      `duplex: 'half'`; passing bytes sidesteps that)
-      //   3. To make the body re-readable by the downstream handler — once
-      //      a stream is locked, subsequent reads throw.
-      // Reading then passing buffered bytes is safe for internal-MCP
-      // payloads (small JSON RPC params); not appropriate for streamed
-      // uploads, which this path doesn't carry.
-      let bodyBytes: ArrayBuffer | null = null;
-      if (request.method !== 'GET' && request.method !== 'HEAD') {
-        // F8: cap inbound body BEFORE buffering. Internal-MCP signed
-        // requests carry small JSON-RPC params; 256 KB is a safe ceiling.
-        const contentLen = parseInt(request.headers.get('Content-Length') ?? '0', 10);
-        if (Number.isFinite(contentLen) && contentLen > MAX_INTERNAL_MCP_BODY) {
-          emitRequest(413, 'malformed_request', null);
-          return new Response(JSON.stringify({ error: 'payload_too_large' }), {
-            status: 413,
-            headers: { 'Content-Type': 'application/json', ...corsHeaders },
-          });
-        }
-        try {
-          bodyBytes = await request.clone().arrayBuffer();
-        } catch {
-          emitRequest(401, 'auth_401', null);
-          return new Response(
-            JSON.stringify({ error: 'invalid_internal_mcp_signature' }),
-            { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } },
-          );
-        }
-        if (bodyBytes.byteLength > MAX_INTERNAL_MCP_BODY) {
-          emitRequest(413, 'malformed_request', null);
-          return new Response(JSON.stringify({ error: 'payload_too_large' }), {
-            status: 413,
-            headers: { 'Content-Type': 'application/json', ...corsHeaders },
-          });
-        }
-        // Reconstruct request from buffered bytes so verify can clone freely
-        // and the downstream handler can read the body normally.
-        request = new Request(request.url, {
-          method: request.method,
-          headers: request.headers,
-          body: bodyBytes,
-        });
-      }
-      // verifyInternalMcpRequest returns null when X-ORION-MCP-User-Id is
-      // missing, signature header is malformed, timestamp is out of
-      // window, or the HMAC compare fails. All collapse to a single 401 —
-      // intentionally do NOT distinguish (don't leak which piece failed
-      // to a forge probe).
-      const verified = await verifyInternalMcpRequest(request, hmacSecret);
-      if (!verified) {
-        emitRequest(401, 'auth_401', null);
-        return new Response(
-          JSON.stringify({ error: 'invalid_internal_mcp_signature' }),
-          { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } },
-        );
-      }
-      // Entitlement re-check at the gateway: the MCP edge already verifies
-      // tier ≥ 1 + mcpAccess + validUntil before signing the outbound
-      // fetch (api/mcp.ts). This second check defends against (a) the
-      // edge being bypassed (e.g. captured signature + leaked secret), (b)
-      // mid-request entitlement lapse, (c) future regressions where a
-      // non-edge caller signs requests.
-      //
-      // F1 (U7+U8 review pass): include `validUntil < Date.now()` in the
-      // rejection condition. The cache-hot path in `entitlement-check.ts`
-      // self-validates `validUntil >= Date.now()` at line 134, but the
-      // Convex fallback at lines 154-156 does not — without this check
-      // an entitlement row with stale `validUntil` would pass the gateway
-      // re-check via the fallback path. Mirror the per-handler runProPreChecks
-      // and authorize-pro entitlement guards.
-      const ent = await getEntitlements(verified.userId);
-      if (
-        !ent ||
-        ent.features.tier < 1 ||
-        // mcpAccess flag lands in U10 — undefined means "field not present
-        // on this entitlement row", which we treat as false. This keeps
-        // pre-U10 entitlement rows from accidentally granting MCP access.
-        (ent.features as { mcpAccess?: boolean }).mcpAccess !== true ||
-        ent.validUntil < Date.now()
-      ) {
-        emitRequest(401, 'auth_401', null);
-        return new Response(
-          JSON.stringify({ error: 'insufficient_entitlement' }),
-          { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } },
-        );
-      }
-      // Rebuild Request with trusted markers — sanitised header set
-      // already had inbound copies stripped above, so this is the ONLY
-      // place those markers can enter the downstream path. Body is
-      // re-supplied from the bytes we buffered (bodyBytes is null for
-      // GET/HEAD, in which case we omit the body field entirely).
-      //
-      // The verified-marker value is a per-process-startup random nonce,
-      // NOT the constant '1'. This protects direct edge functions that
-      // call `isCallerPremium` but don't route through this gateway —
-      // an attacker can't guess the nonce, so spoofing the marker on
-      // those endpoints fails closed.
-      //
-      // F7 (U7+U8 review pass): strip the inbound HMAC headers BEFORE
-      // setting the trusted markers. The gateway has consumed them via
-      // verifyInternalMcpRequest; downstream handlers should only see
-      // the trusted-marker pair, not the raw signature/userId headers.
-      // Defense-in-depth — handlers shouldn't have any reason to read
-      // the inbound HMAC.
-      const trusted = new Headers(request.headers);
-      trusted.delete(INTERNAL_MCP_SIG_HEADER);
-      trusted.delete(INTERNAL_MCP_USER_ID_HEADER);
-      trusted.set(INTERNAL_MCP_VERIFIED_HEADER, getInternalMcpVerifiedNonce());
-      trusted.set(TRUSTED_USER_ID_HEADER, verified.userId);
-      const rebuildInit: RequestInit = { method: request.method, headers: trusted };
-      if (bodyBytes !== null) rebuildInit.body = bodyBytes;
-      request = new Request(request.url, rebuildInit);
-      usage.sessionUserId = verified.userId;
-      if (typeof ent.features.tier === 'number') {
-        usage.tier = ent.features.tier;
-      }
-      internalMcpVerified = true;
-    }
-
-    // Tier gate check first — JWT resolution is expensive (JWKS + RS256) and only needed
-    // for tier-gated endpoints. Non-tier-gated endpoints never use sessionUserId.
-    //
-    // Internal-MCP verified path skips the tier gate / Clerk JWT resolution
-    // entirely: we already resolved the userId via HMAC verify and confirmed
-    // tier ≥ 1 + mcpAccess === true. Re-running the JWT path on a request
-    // that has no Authorization header would just no-op anyway.
-    const isPublicNoAuthRpc = PUBLIC_NO_AUTH_RPC_PATHS.has(pathname);
-    const seedRefreshVerified = await isResilienceRankingSeedRefreshRequest(request, pathname);
-    const relayWarmPingVerified = await isRelayWarmPingRequest(request, pathname);
-    const isTierGated = !internalMcpVerified && !isPublicNoAuthRpc && !seedRefreshVerified && !relayWarmPingVerified && getRequiredTier(pathname) !== null;
-    const needsLegacyProBearerGate = !internalMcpVerified && !isPublicNoAuthRpc && PREMIUM_RPC_PATHS.has(pathname) && !isTierGated;
-
-    // Session resolution — extract userId from bearer token (Clerk JWT) if present.
-    // Only runs for tier-gated endpoints to avoid JWKS lookup on every request.
-    let sessionUserId: string | null = null;
-    if (isTierGated) {
-      const session = await resolveClerkSession(request);
-      sessionUserId = session?.userId ?? null;
-      usage.sessionUserId = sessionUserId;
-      usage.clerkOrgId = session?.orgId ?? null;
-      if (sessionUserId) {
-        request = withAuthenticatedUserId(request, sessionUserId);
-      }
-    }
-
-    // API key validation — tier-gated endpoints require EITHER an API key OR a valid bearer token.
-    // Authenticated users (sessionUserId present) bypass the API key requirement.
-    //
-    // Internal-MCP verified path: skip validateApiKey entirely. The HMAC
-    // verify replaced the API key contract for this request — running
-    // validateApiKey would 401 every Pro tool fetch (no wm_ key on the
-    // request). Telemetry stays attributed via the verified userId set
-    // above; entitlement re-check (`features.tier ≥ 1 && mcpAccess`) was
-    // already performed before flipping `internalMcpVerified = true`.
-    let keyCheck: { valid: boolean; required: boolean; error?: string; kind?: 'enterprise' | 'session' | 'user' } = internalMcpVerified || isPublicNoAuthRpc || seedRefreshVerified || relayWarmPingVerified
-      ? { valid: true, required: false }
-      : ((await validateApiKey(request, {
-          forceKey: (isTierGated && !sessionUserId) || needsLegacyProBearerGate,
-        })) as { valid: boolean; required: boolean; error?: string; kind?: 'enterprise' | 'session' | 'user' });
-
-    // Clerk session is itself proof of authentication (validated at line 410).
-    // validateApiKey is strict-no-trust-of-headers per #3541 and would 401 every
-    // Clerk-authenticated user who hasn't also minted a ors_ session token.
-    // Override: tier-gated routes with a resolved sessionUserId pass this layer.
-    if (isTierGated && sessionUserId && keyCheck.required && !keyCheck.valid) {
-      keyCheck = { valid: true, required: false };
-    }
-
-    // User-owned API keys (wm_ prefix): when the static ORION_VALID_KEYS
-    // check fails, try async Convex-backed validation for user-issued keys.
-    let isUserApiKey = false;
-    const wmKey =
-      request.headers.get('X-ORION-Key') ??
-      request.headers.get('X-Api-Key') ??
-      '';
-    if (keyCheck.required && !keyCheck.valid && wmKey.startsWith('wm_')) {
-      const { validateUserApiKey } = await import('./_shared/user-api-key');
-      const userKeyResult = await validateUserApiKey(wmKey);
-      if (userKeyResult) {
-        isUserApiKey = true;
-        usage.isUserApiKey = true;
-        usage.userApiKeyCustomerRef = userKeyResult.userId;
-        keyCheck = { valid: true, required: true };
-        // Propagate the resolved key-owner identity to downstream route
-        // handlers via x-user-id. The entitlement check itself takes the
-        // userId argument directly (see checkEntitlement(sessionUserId, …))
-        // so it no longer depends on this header — the header is now for
-        // handler consumption + the internal-MCP `isCallerPremium` path.
-        if (!sessionUserId) {
-          sessionUserId = userKeyResult.userId;
-          usage.sessionUserId = sessionUserId;
-          request = withAuthenticatedUserId(request, sessionUserId);
-        }
-      }
-    }
-
-    // Enterprise API key (ORION_VALID_KEYS): require kind === 'enterprise'.
-    // Without this, anonymous ors_ tokens slipped through (validateApiKey marks
-    // them valid, wmKey is set, !isUserApiKey, and 'ors_' doesn't startsWith
-    // 'wm_'), so telemetry mislabelled them as enterprise_api_key with
-    // customer_id='enterprise-unmapped'. PR #3557 round-3 review.
-    if (keyCheck.valid && wmKey && !isUserApiKey && keyCheck.kind === 'enterprise') {
-      usage.enterpriseApiKey = wmKey;
-    }
-
-    // User API keys on PREMIUM_RPC_PATHS need verified pro-tier entitlement.
-    // Admin keys (ORION_VALID_KEYS) bypass this since they are operator-issued.
-    if (isUserApiKey && needsLegacyProBearerGate && sessionUserId) {
-      const ent = await getEntitlements(sessionUserId);
-      if (ent) usage.tier = typeof ent.features.tier === 'number' ? ent.features.tier : 0;
-      if (!ent || !ent.features.apiAccess) {
-        emitRequest(403, 'tier_403', null);
-        return new Response(JSON.stringify({ error: 'API access subscription required' }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json', ...corsHeaders },
-        });
-      }
-    }
-
-    if (keyCheck.required && !keyCheck.valid) {
-      if (needsLegacyProBearerGate) {
-        const authHeader = request.headers.get('Authorization');
-        if (authHeader?.startsWith('Bearer ')) {
-          const { validateBearerToken } = await import('./auth-session');
-          const session = await validateBearerToken(authHeader.slice(7));
-          if (!session.valid) {
-            emitRequest(401, 'auth_401', null);
-            return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
-              status: 401,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders },
-            });
-          }
-          // Capture identity for telemetry — legacy bearer auth bypasses the
-          // earlier resolveClerkSession() block (only runs for tier-gated routes),
-          // so without this premium bearer requests would emit as anonymous.
-          if (session.userId) {
-            sessionUserId = session.userId;
-            usage.sessionUserId = session.userId;
-            request = withAuthenticatedUserId(request, session.userId);
-          }
-          // Accept EITHER a Clerk 'pro' role OR a Convex Dodo entitlement with
-          // tier >= 1. The Dodo webhook pipeline writes Convex entitlements but
-          // does NOT sync Clerk publicMetadata.role, so a paying subscriber's
-          // session.role stays 'free' indefinitely. A Clerk-role-only check
-          // would block every paying user on legacy premium endpoints despite
-          // a valid Dodo subscription. This mirrors the two-signal logic in
-          // server/_shared/premium-check.ts::isCallerPremium so the gateway
-          // gate and the per-handler gate agree on who is premium — same split
-          // already documented at the frontend layer (panel-gating.ts:11-27).
-          //
-          // Note: validateBearerToken returns session.userId directly, so we
-          // use it without needing to resolveSessionUserId() — sessionUserId
-          // is intentionally only resolved for ENDPOINT_ENTITLEMENTS-tier-gated
-          // endpoints earlier (line 292) to avoid a JWKS lookup on every
-          // legacy premium request. validateBearerToken already does its own
-          // verification here (line 360) and exposes userId on the result.
-          let allowed = session.role === 'pro';
-          if (!allowed && session.userId) {
-            const ent = await getEntitlements(session.userId);
-            if (ent) usage.tier = typeof ent.features.tier === 'number' ? ent.features.tier : 0;
-            allowed = !!ent && ent.features.tier >= 1 && ent.validUntil >= Date.now();
-          }
-          if (!allowed) {
-            emitRequest(403, 'tier_403', null);
-            return new Response(JSON.stringify({ error: 'Pro subscription required' }), {
-              status: 403,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders },
-            });
-          }
-          // Valid pro session (Clerk role OR Dodo entitlement) — fall through to route handling.
-        } else {
-          emitRequest(401, 'auth_401', null);
-          return new Response(JSON.stringify({ error: keyCheck.error }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json', ...corsHeaders },
-          });
-        }
-      } else {
-        emitRequest(401, 'auth_401', null);
-        return new Response(JSON.stringify({ error: keyCheck.error }), {
-          status: 401,
-          headers: { 'Content-Type': 'application/json', ...corsHeaders },
-        });
-      }
-    }
-
-    // Entitlement check — blocks tier-gated endpoints for users below required tier.
-    // Admin API-key holders (ORION_VALID_KEYS, kind: 'enterprise') bypass.
-    // User API keys do NOT bypass — the key owner's tier is checked normally.
-    // Anonymous ors_ session tokens (kind: 'session') do NOT bypass — they are
-    // freely mintable by any caller and are NOT user-bound (PR #3557 review).
-    //
-    // Internal-MCP verified path also bypasses: we already confirmed
-    // tier ≥ 1 + mcpAccess === true above. Some ENDPOINT_ENTITLEMENTS
-    // routes require tier 2, but Pro MCP callers only reach the gateway
-    // through the MCP edge's whitelisted tool set.
-    const isEnterpriseAuth = keyCheck.valid && wmKey && !isUserApiKey && keyCheck.kind === 'enterprise';
-    if (!isEnterpriseAuth && !internalMcpVerified && !seedRefreshVerified && !relayWarmPingVerified) {
-      const entitlementResponse = await checkEntitlement(sessionUserId, pathname, corsHeaders);
-      if (entitlementResponse) {
-        const entReason: RequestReason =
-          entitlementResponse.status === 401 ? 'auth_401'
-          : entitlementResponse.status === 403 ? 'tier_403'
-          : 'ok';
-        emitRequest(entitlementResponse.status, entReason, null);
-        return entitlementResponse;
-      }
-      // Allowed → record the resolved tier for telemetry. getEntitlements has
-      // its own Redis cache + in-flight coalescing, so the second lookup here
-      // does not double the cost when checkEntitlement already fetched.
-      if (isTierGated && sessionUserId && usage.tier === null) {
-        const ent = await getEntitlements(sessionUserId);
-        if (ent) usage.tier = typeof ent.features.tier === 'number' ? ent.features.tier : 0;
-      }
-    }
-
     // IP-based rate limiting — two-phase: endpoint-specific first, then global fallback.
-    //
-    // Internal-MCP verified path skips IP rate limiting: the MCP edge
-    // already enforced 50/day + 60/min per userId in api/mcp.ts. A second
-    // limiter here would create misleading double-counting and could 429
-    // legitimate Pro tool fetches that pass the upstream cap.
-    if (!internalMcpVerified) {
-      const endpointRlResponse = await checkEndpointRateLimit(request, pathname, corsHeaders);
-      if (endpointRlResponse) {
+    const endpointRlResponse = await checkEndpointRateLimit(request, pathname, corsHeaders);
+    if (endpointRlResponse) {
+      const reason =
+        endpointRlResponse.status === 503 &&
+        endpointRlResponse.headers.get('X-RateLimit-Mode') === 'degraded'
+          ? 'rate_limit_degraded'
+          : 'rate_limit_429';
+      emitRequest(endpointRlResponse.status, reason, null);
+      return endpointRlResponse;
+    }
+
+    if (!hasEndpointRatePolicy(pathname)) {
+      const rateLimitResponse = await checkRateLimit(request, corsHeaders);
+      if (rateLimitResponse) {
         const reason =
-          endpointRlResponse.status === 503 &&
-          endpointRlResponse.headers.get('X-RateLimit-Mode') === 'degraded'
+          rateLimitResponse.status === 503 &&
+          rateLimitResponse.headers.get('X-RateLimit-Mode') === 'degraded'
             ? 'rate_limit_degraded'
             : 'rate_limit_429';
-        emitRequest(endpointRlResponse.status, reason, null);
-        return endpointRlResponse;
-      }
-
-      if (!hasEndpointRatePolicy(pathname)) {
-        const rateLimitResponse = await checkRateLimit(request, corsHeaders);
-        if (rateLimitResponse) {
-          const reason =
-            rateLimitResponse.status === 503 &&
-            rateLimitResponse.headers.get('X-RateLimit-Mode') === 'degraded'
-              ? 'rate_limit_degraded'
-              : 'rate_limit_429';
-          emitRequest(rateLimitResponse.status, reason, null);
-          return rateLimitResponse;
-        }
+        emitRequest(rateLimitResponse.status, reason, null);
+        return rateLimitResponse;
       }
     }
 
@@ -1168,18 +754,14 @@ export function createDomainGateway(
       } else {
         const rpcName = pathname.split('/').pop() ?? '';
         const envOverride = process.env[`CACHE_TIER_OVERRIDE_${rpcName.replace(/-/g, '_').toUpperCase()}`] as CacheTier | undefined;
-        const isPremium = PREMIUM_RPC_PATHS.has(pathname) || getRequiredTier(pathname) !== null;
-        const tier = isPremium ? 'slow-browser' as CacheTier
-          : (envOverride && envOverride in TIER_HEADERS ? envOverride : null) ?? RPC_CACHE_TIER[pathname] ?? 'medium';
+        const tier = (envOverride && envOverride in TIER_HEADERS ? envOverride : null) ?? RPC_CACHE_TIER[pathname] ?? 'medium';
         resolvedCacheTier = tier;
         mergedHeaders.set('Cache-Control', TIER_HEADERS[tier]);
         // Only allow Vercel CDN caching for trusted origins (orion.app, Vercel previews,
-        // Tauri). No-origin server-side requests (external scrapers) must always reach the edge
-        // function so the auth check in validateApiKey() can run. Without this guard, a cached
-        // 200 from a trusted-origin browser request could be served to a no-origin scraper,
-        // bypassing auth entirely.
+        // Tauri). No-origin server-side requests (external scrapers) should always reach
+        // the edge function directly.
         const reqOrigin = request.headers.get('origin') || '';
-        const cdnCache = !isPremium && isAllowedOrigin(reqOrigin) ? TIER_CDN_CACHE[tier] : null;
+        const cdnCache = isAllowedOrigin(reqOrigin) ? TIER_CDN_CACHE[tier] : null;
         if (cdnCache) mergedHeaders.set('CDN-Cache-Control', cdnCache);
         mergedHeaders.set('X-Cache-Tier', tier);
 

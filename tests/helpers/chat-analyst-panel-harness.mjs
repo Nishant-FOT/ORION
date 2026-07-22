@@ -69,16 +69,6 @@ async function loadChatAnalystPanel() {
     ['runtime-config-stub', `
       export function getSecretState() { return { present: true }; }
     `],
-    ['panel-gating-stub', `
-      export const PanelGateReason = Object.freeze({
-        NONE: 'none',
-        ANONYMOUS: 'anonymous',
-        FREE_TIER: 'free_tier',
-      });
-    `],
-    ['premium-fetch-stub', `
-      export function premiumFetch() { return Promise.reject(new Error('not wired in test')); }
-    `],
     ['analyst-markdown-stub', `
       export function postProcessAnalystHtml(html) { return html; }
     `],
@@ -106,8 +96,6 @@ async function loadChatAnalystPanel() {
     ['@/services/analytics', 'analytics-stub'],
     ['@/services/ai-flow-settings', 'ai-flow-settings-stub'],
     ['@/services/runtime-config', 'runtime-config-stub'],
-    ['@/services/panel-gating', 'panel-gating-stub'],
-    ['@/services/premium-fetch', 'premium-fetch-stub'],
     ['@/utils/analyst-markdown', 'analyst-markdown-stub'],
     ['@/services/checkout', 'checkout-stub'],
     ['@/config/products', 'products-stub'],

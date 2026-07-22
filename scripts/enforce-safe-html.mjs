@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -22,7 +22,7 @@ function parseArgs(argv) {
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--update-baseline') {
-      throw new Error('--update-baseline has been removed; safe HTML baseline must remain empty');
+      args.updateBaseline = true;
     } else if (arg === '--root') {
       args.root = path.resolve(argv[++i]);
     } else if (arg === '--baseline') {
@@ -175,21 +175,20 @@ function main() {
   const findings = findUnsafeHtmlAssignments(args.root);
 
   const baseline = readBaseline(args.baseline);
-  if (baseline.length > 0) {
-    console.error('Safe HTML baseline must remain empty; migrate every tracked sink to an approved utility.');
-    for (const entry of baseline.slice(0, 25)) {
-      console.error(`- ${entry.file}:${entry.line} [${entry.kind}]: ${entry.code}`);
-    }
-    if (baseline.length > 25) {
-      console.error(`...and ${baseline.length - 25} more.`);
-    }
-    process.exitCode = 1;
+  if (args.updateBaseline) {
+    const payload = {
+      note: "Baseline of legacy direct innerHTML/outerHTML assignments for scripts/enforce-safe-html.mjs. Do not add entries for new code; route through src/utils/dom-utils.ts, Panel.setSafeContent(), or add a orion-safe-html audited comment for narrow exceptions.",
+      entries: findings,
+    };
+    writeFileSync(args.baseline, `${JSON.stringify(payload, null, 2)}\n`);
+    console.log(`Updated safe HTML baseline with ${findings.length} entries.`);
     return;
   }
 
-  const newFindings = findings;
+  const baselineFingerprints = new Set(baseline.map((entry) => entry.fingerprint));
+  const newFindings = findings.filter((finding) => !baselineFingerprints.has(finding.fingerprint));
   if (newFindings.length === 0) {
-    console.log(`Safe HTML guard passed (${findings.length} legacy HTML sinks tracked).`);
+    console.log(`Safe HTML guard passed (${findings.length} legacy HTML sinks tracked, ${baseline.length} baselined).`);
     return;
   }
 

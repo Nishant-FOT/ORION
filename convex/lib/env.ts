@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * const apiKey = requireEnv("DODO_API_KEY");
+ * const apiKey = requireEnv("RESEND_API_KEY");
  * ```
  */
 export function requireEnv(name: string): string {

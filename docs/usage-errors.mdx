@@ -32,14 +32,14 @@ OAuth endpoints follow [RFC 6749 §5.2](https://datatracker.ietf.org/doc/html/rf
 | `304` | Not Modified (conditional cache hit) | — |
 | `400` | Bad request — validation error | No — fix input |
 | `401` | Missing / invalid auth | No — fix auth |
-| `403` | Authenticated but not entitled (usually `pro_required`) | No — upgrade |
+| `403` | Authenticated but not entitled | No — check credentials |
 | `404` | Resource / tool / brief / entity not found | No |
 | `405` | Method not allowed | No |
 | `409` | Conflict (duplicate webhook registration, etc.) | No |
 | `413` | Payload too large | No |
 | `429` | Rate limited | Yes — honor `Retry-After` |
 | `500` | Server bug | Yes — with backoff, then report |
-| `502` | Upstream / Convex / Dodo failure | Yes — exponential backoff |
+| `502` | Upstream / Convex failure | Yes — exponential backoff |
 | `503` | Service unavailable — missing env or dependency down | Yes — exponential backoff |
 | `504` | Upstream timeout | Yes — with backoff |
 
@@ -47,8 +47,7 @@ OAuth endpoints follow [RFC 6749 §5.2](https://datatracker.ietf.org/doc/html/rf
 
 | `error` value | Meaning |
 |---------------|---------|
-| `UNAUTHENTICATED` | No valid Clerk JWT or API key. |
-| `pro_required` | Authenticated, but account is not PRO. |
+| `UNAUTHENTICATED` | No valid session or API key. |
 | `invalid_payload` | Body failed schema validation. |
 | `invalid_date_shape` | Date param not `YYYY-MM-DD`. |
 | `brief_not_found` | No composed brief for the requested `{userId, issueSlot}`. |

@@ -41,7 +41,7 @@ const TARGET_DIRS = ['api', 'convex'];
 // `captureSilentError` is our helper. `captureEdgeException` is the
 // pre-sweep alias still imported by notification-channels.ts.
 // `status: 5xx` covers HTTP handlers that return a 5xx upstream — Resend
-// / Dodo / clients retry, and the inner mutation throw (if any) is already
+// / clients retry, and the inner mutation throw (if any) is already
 // captured by Convex auto-Sentry, so the outer catch+log isn't a swallow.
 //
 // These regexes run against the catch body AFTER comments and string

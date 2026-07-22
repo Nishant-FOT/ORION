@@ -1083,7 +1083,7 @@ export interface MonitoredAirport {
 
 export type DataSourceId =
   | 'acled' | 'opensky' | 'wingbits' | 'ais' | 'usgs' | 'gdelt' | 'gdelt_doc'
-  | 'rss' | 'polymarket' | 'predictions' | 'pizzint' | 'outages' | 'cyber_threats'
+  | 'rss' | 'polymarket' | 'predictions' | 'pizzint' | 'outages'
   | 'weather' | 'economic' | 'oil' | 'spending' | 'firms' | 'acled_conflict' | 'ucdp'
   | 'hapi' | 'ucdp_events' | 'unhcr' | 'climate' | 'worldpop' | 'giving' | 'bis'
   | 'bls' | 'wto_trade' | 'supply_chain' | 'security_advisories' | 'sanctions_pressure'
@@ -1110,7 +1110,6 @@ export interface MapLayers {
   economic: boolean;
   waterways: boolean;
   outages: boolean;
-  cyberThreats: boolean;
   datacenters: boolean;
   protests: boolean;
   flights: boolean;
@@ -1211,7 +1210,6 @@ export interface CountryBriefSignals {
   satelliteFires: number;
   radiationAnomalies: number;
   temporalAnomalies: number;
-  cyberThreats: number;
   earthquakes: number;
   displacementOutflow: number;
   climateStress: number;

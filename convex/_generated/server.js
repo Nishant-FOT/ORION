@@ -33,7 +33,7 @@ export const query = queryGeneric;
  *
  * This function will be allowed to read from your Convex database. It will not be accessible from the client.
  *
- * @param func - The query function. It receives a {@link QueryCtx} as its first argument.
+ * @param func - The function. It receives a {@link QueryCtx} as its first argument.
  * @returns The wrapped query. Include this as an `export` to name it and make it accessible.
  */
 export const internalQuery = internalQueryGeneric;
@@ -53,7 +53,7 @@ export const mutation = mutationGeneric;
  *
  * This function will be allowed to modify your Convex database. It will not be accessible from the client.
  *
- * @param func - The mutation function. It receives a {@link MutationCtx} as its first argument.
+ * @param func - The function. It receives a {@link MutationCtx} as its first argument.
  * @returns The wrapped mutation. Include this as an `export` to name it and make it accessible.
  */
 export const internalMutation = internalMutationGeneric;

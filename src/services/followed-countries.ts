@@ -3,8 +3,7 @@
  *
  * Operating modes:
  *  1. Anonymous (no Clerk user) — localStorage at `orion-followed-countries-v1`,
- *     storing `JSON.stringify({ countries: string[] })`. Cap enforced
- *     client-side. (U2.)
+ *     storing `JSON.stringify({ countries: string[] })`. (U2.)
  *  2. handoffPending — transitional during the anon→signed-in merge.
  *     Mutations refused with `HANDOFF_PENDING`. (U3.)
  *  3. Signed-in (handoff complete) — Convex authoritative. (U3.)
@@ -25,7 +24,6 @@
  * Patterns mirrored from:
  *  - src/services/market-watchlist.ts (event dispatch, JSON.parse safety)
  *  - src/services/aviation/watchlist.ts (storage-key versioning)
- *  - src/services/entitlements.ts (hasTier / getEntitlementState; ConvexClient.onUpdate)
  *  - src/utils/cloud-prefs-sync.ts (`_authGeneration` guard pattern)
  *
  * Memory: `discriminated-union-over-sentinel-boolean` —
@@ -37,11 +35,6 @@
 
 import type { FunctionReference } from 'convex/server';
 import { toIso2 } from '../utils/country-codes';
-import {
-  getEntitlementState as _getEntitlementState,
-  hasTier as _hasTier,
-} from './entitlements';
-import { getCurrentClerkUser as _getCurrentClerkUser } from './clerk';
 import { subscribeAuthState as _subscribeAuthState } from './auth-state';
 import {
   getConvexClient as _getConvexClient,
@@ -57,21 +50,11 @@ import type {
 // Public constants & types
 // ---------------------------------------------------------------------------
 
-/** Mirror of the server-side `convex/constants.ts::FREE_TIER_FOLLOW_LIMIT`. */
-export const FREE_TIER_FOLLOW_LIMIT = 3;
-
 /** localStorage key for the anonymous-mode list. Versioned for safe migration. */
 export const FOLLOWED_COUNTRIES_STORAGE_KEY = 'orion-followed-countries-v1';
 
 /** Custom event name dispatched on every successful mutation. */
 export const WM_FOLLOWED_COUNTRIES_CHANGED = 'orion-followed-countries-changed';
-
-/**
- * Custom event dispatched after a sign-in handoff completes with cap-drops.
- * `detail = { kept, dropped }` — number of localStorage entries kept vs
- * dropped due to FREE-tier cap. UI consumers can render an upgrade-CTA toast.
- */
-export const WM_FOLLOWED_COUNTRIES_CAP_DROP = 'orion-followed-countries-cap-drop';
 
 /**
  * Discriminated-union result. Service NEVER throws from
@@ -81,12 +64,10 @@ export type FollowMutationResult =
   | { ok: true }
   | { ok: false; reason: 'DISABLED' }
   | { ok: false; reason: 'INVALID_INPUT' }
-  | { ok: false; reason: 'FREE_CAP'; currentCount?: number; limit?: number }
-  | { ok: false; reason: 'ENTITLEMENT_LOADING' }
   | { ok: false; reason: 'HANDOFF_PENDING' }
   | { ok: false; reason: 'STORAGE_FULL' };
 
-export type ServiceEntitlementState = 'pro' | 'free' | 'loading';
+export type ServiceEntitlementState = 'pro';
 
 declare global {
   interface Window {
@@ -152,8 +133,6 @@ export interface ConvexClientLike {
 // hooks. Production callers never touch these.
 
 type ClerkUserGetter = () => { id: string } | null;
-type EntitlementStateGetter = () => { features?: { tier?: number } } | null;
-type HasTierFn = (minTier: number) => boolean;
 
 /**
  * Strongly-typed Convex API surface this module needs. Mirrors the
@@ -169,11 +148,7 @@ interface ConvexApiLike {
   };
 }
 
-let _clerkUserGetter: ClerkUserGetter = () =>
-  _getCurrentClerkUser() as { id: string } | null;
-let _entitlementStateGetter: EntitlementStateGetter = () =>
-  _getEntitlementState();
-let _hasTierFn: HasTierFn = (n) => _hasTier(n);
+let _clerkUserGetter: ClerkUserGetter = () => null;
 let _featureFlagOverride: boolean | null = null;
 let _convexClientGetter: () => Promise<ConvexClientLike | null> = async () =>
   (await _getConvexClient()) as ConvexClientLike | null;
@@ -208,8 +183,8 @@ let _waitForConvexAuthFn: (timeoutMs?: number) => Promise<boolean> = (
  */
 export function _setDepsForTests(deps: {
   getCurrentClerkUser?: ClerkUserGetter | null;
-  getEntitlementState?: EntitlementStateGetter | null;
-  hasTier?: HasTierFn | null;
+  getEntitlementState?: unknown;
+  hasTier?: unknown;
   featureFlagEnabled?: boolean | null;
   convexClient?: ConvexClientLike | null | 'force-null';
   convexApi?: ConvexApiLike | null | 'force-null';
@@ -218,14 +193,7 @@ export function _setDepsForTests(deps: {
   if (deps.getCurrentClerkUser !== undefined) {
     _clerkUserGetter =
       deps.getCurrentClerkUser ??
-      (() => _getCurrentClerkUser() as { id: string } | null);
-  }
-  if (deps.getEntitlementState !== undefined) {
-    _entitlementStateGetter =
-      deps.getEntitlementState ?? (() => _getEntitlementState());
-  }
-  if (deps.hasTier !== undefined) {
-    _hasTierFn = deps.hasTier ?? ((n) => _hasTier(n));
+      (() => null);
   }
   if (deps.featureFlagEnabled !== undefined) {
     _featureFlagOverride = deps.featureFlagEnabled;
@@ -526,42 +494,15 @@ function dispatchChanged(): void {
   }
 }
 
-function dispatchCapDrop(kept: number, dropped: number): void {
-  if (typeof window === 'undefined') return;
-  try {
-    window.dispatchEvent(
-      new CustomEvent(WM_FOLLOWED_COUNTRIES_CAP_DROP, {
-        detail: { kept, dropped },
-      }),
-    );
-  } catch {
-    /* swallow */
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Entitlement + auth state resolution
 // ---------------------------------------------------------------------------
 
 /**
- * Returns the effective service-level entitlement state.
- *
- *  - Anonymous (no Clerk user) → `'free'` (NEVER `'loading'`; otherwise
- *    anon users would be permanently blocked because
- *    `getEntitlementState()` returns null without a Clerk session).
- *  - Signed-in, entitlement snapshot not yet arrived → `'loading'`.
- *  - Signed-in, snapshot arrived, tier ≥ 1 → `'pro'`.
- *  - Otherwise → `'free'`.
- *
- * Codex round-2 finding #1: anonymous users must never block on
- * entitlement loading.
+ * Returns the effective service-level access state.
  */
 export function serviceEntitlementState(): ServiceEntitlementState {
-  const user = _clerkUserGetter();
-  if (!user) return 'free';
-  const ent = _entitlementStateGetter();
-  if (ent === null) return 'loading';
-  return _hasTierFn(1) ? 'pro' : 'free';
+  return 'pro';
 }
 
 // ---------------------------------------------------------------------------
@@ -756,7 +697,6 @@ async function _runHandoff(
   }
 
   // Step 2: call mergeAnonymousLocal.
-  let result: ServerMergeAnonymousLocalResult;
   try {
     const client = await _convexClientGetter();
     const api = await _convexApiGetter();
@@ -777,7 +717,7 @@ async function _runHandoff(
     // any resulting UNAUTHENTICATED as transient and schedule a retry.
     await _waitForConvexAuthFn();
     if (!_authStillMatches(userIdAtStart, gen)) return;
-    result = await client.mutation(
+    await client.mutation(
       api.followedCountries.mergeAnonymousLocal,
       { countries: localList },
     );
@@ -823,14 +763,6 @@ async function _runHandoff(
   // snapshot will fire a second event when it arrives.
   dispatchChanged();
 
-  // Step 5: surface cap-drop event so the UI can render an upgrade toast.
-  const droppedDueToCap = Array.isArray(result.droppedDueToCap)
-    ? result.droppedDueToCap
-    : [];
-  const accepted = Array.isArray(result.accepted) ? result.accepted : [];
-  if (droppedDueToCap.length > 0) {
-    dispatchCapDrop(accepted.length, droppedDueToCap.length);
-  }
 }
 
 /**
@@ -1080,16 +1012,6 @@ function _extractConvexErrorKind(err: unknown): string | null {
   return null;
 }
 
-function _extractConvexErrorData(
-  err: unknown,
-): Record<string, unknown> | null {
-  const e = err as { data?: unknown } | undefined;
-  if (e && e.data && typeof e.data === 'object') {
-    return e.data as Record<string, unknown>;
-  }
-  return null;
-}
-
 /**
  * Add a country to the followed list. Idempotent. Never throws —
  * returns a `FollowMutationResult` discriminated union.
@@ -1102,11 +1024,6 @@ export async function addCountry(input: string): Promise<FollowMutationResult> {
 
   if (_handoffState === 'pending' || _handoffState === 'failed') {
     return { ok: false, reason: 'HANDOFF_PENDING' };
-  }
-
-  const ent = serviceEntitlementState();
-  if (ent === 'loading') {
-    return { ok: false, reason: 'ENTITLEMENT_LOADING' };
   }
 
   const user = _clerkUserGetter();
@@ -1141,7 +1058,7 @@ export async function addCountry(input: string): Promise<FollowMutationResult> {
       if (!client || !api) {
         return { ok: false, reason: 'HANDOFF_PENDING' };
       }
-      const result = await client.mutation(
+      await client.mutation(
         api.followedCountries.followCountry,
         { country: code },
       );
@@ -1151,42 +1068,11 @@ export async function addCountry(input: string): Promise<FollowMutationResult> {
       if (!_authStillMatches(userIdAtStart, genAtStart)) {
         return { ok: false, reason: 'HANDOFF_PENDING' };
       }
-      // Return-instead-of-throw FREE_CAP path. The server returns the
-      // discriminated union to avoid Convex auto-Sentry forwarding the
-      // ConvexError on every free-tier-cap hit (companion skill:
-      // `convex-gotchas/reference/convex-autosentry-forwards-intentional-convexerror-throws.md`).
-      // The catch block below still handles FREE_CAP from a legacy
-      // server response (deploy-skew window) — keep both paths until the
-      // next deploy cycle, then collapse to return-only.
-      if (result && result.ok === false && result.reason === 'FREE_CAP') {
-        return {
-          ok: false,
-          reason: 'FREE_CAP',
-          currentCount: result.currentCount,
-          limit: result.limit,
-        };
-      }
       // The reactive subscription will pick up the new row and dispatch
       // WM_FOLLOWED_COUNTRIES_CHANGED; no need to manually fire here.
       return { ok: true };
     } catch (err) {
       const kind = _extractConvexErrorKind(err);
-      const data = _extractConvexErrorData(err);
-      if (kind === 'FREE_CAP') {
-        // Legacy deploy-skew path: a new client talking to an old server
-        // that still throws ConvexError({kind:'FREE_CAP'}). Safe to drop
-        // one deploy cycle after the server refactor lands. See companion
-        // skill `convex-gotchas/reference/convex-autosentry-forwards-intentional-convexerror-throws.md`.
-        const currentCount =
-          typeof data?.currentCount === 'number'
-            ? (data.currentCount as number)
-            : undefined;
-        const limit =
-          typeof data?.limit === 'number'
-            ? (data.limit as number)
-            : FREE_TIER_FOLLOW_LIMIT;
-        return { ok: false, reason: 'FREE_CAP', currentCount, limit };
-      }
       if (kind === 'INVALID_COUNTRY') {
         return { ok: false, reason: 'INVALID_INPUT' };
       }
@@ -1198,8 +1084,7 @@ export async function addCountry(input: string): Promise<FollowMutationResult> {
         return { ok: false, reason: 'HANDOFF_PENDING' };
       }
       // Unknown Convex/network error — surface as STORAGE_FULL? No, that
-      // misleads the toast. Fall back to a generic ENTITLEMENT_LOADING
-      // would also mislead. Cleanest: rethrow so callers can decide. But
+      // misleads the toast. Cleanest: rethrow so callers can decide. But
       // the contract says "never throws." Map unknown to HANDOFF_PENDING
       // (transient — encourages a retry by the user). Production logs
       // get the real error via the global Sentry hook.
@@ -1212,14 +1097,6 @@ export async function addCountry(input: string): Promise<FollowMutationResult> {
   const existing = getFollowed();
   if (existing.includes(code)) {
     return { ok: true };
-  }
-  if (ent === 'free' && existing.length >= FREE_TIER_FOLLOW_LIMIT) {
-    return {
-      ok: false,
-      reason: 'FREE_CAP',
-      currentCount: existing.length,
-      limit: FREE_TIER_FOLLOW_LIMIT,
-    };
   }
   return _writeLocalStorageAdd(code);
 }

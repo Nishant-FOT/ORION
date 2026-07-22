@@ -1,4 +1,3 @@
-import { getClerkToken } from '@/services/clerk';
 import { SITE_VARIANT } from '@/config/variant';
 
 export type ChannelType = 'telegram' | 'slack' | 'email' | 'discord' | 'webhook' | 'web_push';
@@ -48,13 +47,8 @@ export interface ChannelsData {
 }
 
 async function authFetch(path: string, init?: RequestInit): Promise<Response> {
-  let token = await getClerkToken();
-  if (!token) {
-    console.warn('[authFetch] getClerkToken returned null, retrying in 2s...');
-    await new Promise((r) => setTimeout(r, 2000));
-    token = await getClerkToken();
-  }
-  if (!token) throw new Error('Not authenticated (Clerk token null after retry)');
+  const token: string | null = null;
+  if (!token) throw new Error('Not authenticated');
   return fetch(path, {
     ...init,
     headers: {

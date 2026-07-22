@@ -32,7 +32,6 @@ export const config = { runtime: 'edge' };
 import { getCorsHeaders } from '../_cors.js';
 // @ts-expect-error — JS module, no declaration file
 import { captureSilentError } from '../_sentry-edge.js';
-import { resolveClerkSession } from '../../server/_shared/auth-session';
 import {
   dailyCounterKey,
   PRO_DAILY_QUOTA_LIMIT,
@@ -137,7 +136,15 @@ export async function quotaHandler(req: Request, deps: QuotaDeps): Promise<Respo
 
 export default async function handler(req: Request): Promise<Response> {
   return quotaHandler(req, {
-    resolveUserId: async (r) => (await resolveClerkSession(r))?.userId ?? null,
+    resolveUserId: async (r) => {
+      const auth = r.headers.get('Authorization') ?? '';
+      const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1] ?? ''));
+        return typeof payload.sub === 'string' ? payload.sub : null;
+      } catch { return null; }
+    },
     redisGet: rawRedisGetString,
     now: () => new Date(),
   });

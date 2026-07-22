@@ -20,13 +20,13 @@ Panel id is `latest-brief`; canonical component is `src/components/LatestBriefPa
 ## How you reach it
 
 - **Cmd+K** — type *brief* (matches "Panel: Latest Brief" in the command palette).
-- **Availability by variant**: registered and enabled by default in the **full/geopolitical**, **tech**, **finance**, and **commodity** variants (all of them as `premium: 'locked'`). Not present in the happy variant. Source: `FULL_PANELS`, `TECH_PANELS`, `FINANCE_PANELS`, `COMMODITY_PANELS` in `src/config/panels.ts`.
+- **Availability**: registered and enabled by default in the **full/geopolitical**, **tech**, **finance**, and **commodity** configurations. Not present in the happy configuration. Source: `FULL_PANELS`, `TECH_PANELS`, `FINANCE_PANELS`, `COMMODITY_PANELS` in `src/config/panels.ts`.
 
 Clicking **Read brief →** opens the full magazine-style reader in a new tab. Sharing the brief is a separate, explicit action — see [AI Brief Endpoints](/api-brief) for how share links are materialised.
 
 ## Data sources
 
-The panel calls `GET /api/latest-brief` (Clerk JWT required, PRO gated). The response is either the ready payload (`issueDate`, `dateLong`, `greeting`, `threadCount`, `magazineUrl`) or a `{ status: "composing", issueDate }` stub. The signed `magazineUrl` is generated server-side — the HMAC signing secret never lives in the client bundle.
+The panel calls `GET /api/latest-brief` (session required). The response is either the ready payload (`issueDate`, `dateLong`, `greeting`, `threadCount`, `magazineUrl`) or a `{ status: "composing", issueDate }` stub. The signed `magazineUrl` is generated server-side — the HMAC signing secret never lives in the client bundle.
 
 The brief itself is composed by a Railway job from:
 
@@ -69,7 +69,7 @@ summarise durable event-driven intelligence.
 
 ## Tier & gating
 
-Latest Brief is **PRO**. The panel is registered with `premium: 'locked'` in `src/config/panels.ts`, so free-tier readers see the upgrade overlay and never see the brief body. Verification runs server-side in `api/latest-brief.ts` — a valid Clerk JWT and an active PRO entitlement are both required; otherwise the endpoint returns `403 pro_required`. No content is exposed over the wire for non-PRO readers.
+All panels are freely accessible. No subscription or API key required.
 
 ## API reference
 

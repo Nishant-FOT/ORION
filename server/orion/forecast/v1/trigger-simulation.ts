@@ -5,7 +5,6 @@ import type {
 } from '../../../../src/generated/server/orion/forecast/v1/service_server';
 import { ApiError } from '../../../../src/generated/server/orion/forecast/v1/service_server';
 
-import { isCallerPremium } from '../../../_shared/premium-check';
 import { markNoCacheResponse } from '../../../_shared/response-headers';
 import {
   enqueueSimulationTaskForServer,
@@ -22,18 +21,16 @@ import { MAX_QUEUE_DEPTH } from '../../../../scripts/_simulation-queue-constants
 /**
  * POST /api/forecast/v1/trigger-simulation
  *
- * PRO-gated mutation that enqueues a simulation task for the current
+ * Mutation that enqueues a simulation task for the current
  * SIMULATION_PACKAGE_LATEST_KEY pointer. Mirrors run-scenario.ts shape
- * (gateway Pro gate + per-IP rate-limit + queue-depth backpressure +
+ * (per-IP rate-limit + queue-depth backpressure +
  * ApiError for non-200 status codes). See #3734.
  *
  * Order of operations (gateway-side gates fire before this handler runs):
- *   1. isCallerPremium → 403 if false (defense-in-depth; gateway already
- *      gates via PREMIUM_RPC_PATHS).
- *   2. getQueueDepth → 429 if > MAX_QUEUE_DEPTH (matches run-scenario).
- *   3. getSimulationPackagePointer → 200 no_package if absent.
- *   4. getSimulationOutcomeLatest → 200 already-handled if cycle complete.
- *   5. enqueueSimulationTaskForServer → 200 queued or 200 already-handled
+ *   1. getQueueDepth → 429 if > MAX_QUEUE_DEPTH (matches run-scenario).
+ *   2. getSimulationPackagePointer → 200 no_package if absent.
+ *   3. getSimulationOutcomeLatest → 200 already-handled if cycle complete.
+ *   4. enqueueSimulationTaskForServer → 200 queued or 200 already-handled
  *      (NX-collision) or 503 redis_error or 500 invalid_run_id_format
  *      (server bug — should not happen with server-derived runId).
  *
@@ -53,19 +50,13 @@ export async function triggerSimulation(
   ctx: ServerContext,
   req: TriggerSimulationRequest,
 ): Promise<TriggerSimulationResponse> {
-  // Step 1: Pro gate (defense-in-depth).
-  const isPro = await isCallerPremium(ctx.request);
-  if (!isPro) {
-    throw new ApiError(403, 'Pro subscription required', '');
-  }
-
-  // Step 2: queue-depth backpressure (mirrors run-scenario:50).
+  // Step 1: queue-depth backpressure (mirrors run-scenario:50).
   const depth = await getQueueDepth();
   if (depth > MAX_QUEUE_DEPTH) {
     throw new ApiError(429, 'Simulation queue at capacity, please try again later', '');
   }
 
-  // Step 3: derive runId from package pointer; no UUID fallback.
+  // Step 2: derive runId from package pointer; no UUID fallback.
   let pointer;
   try {
     pointer = await getSimulationPackagePointer();
@@ -79,7 +70,7 @@ export async function triggerSimulation(
     return { queued: false, runId: '', pkgFingerprint: '', reason: 'no_package' };
   }
 
-  // Step 4: pre-enqueue idempotency fast-path (D5). Authoritative
+  // Step 3: pre-enqueue idempotency fast-path (D5). Authoritative
   // concurrency primitive is the SET NX inside enqueueSimulationTaskForServer
   // — this check just avoids consuming a rate-limit slot on a sure no-op.
   try {
@@ -102,7 +93,7 @@ export async function triggerSimulation(
     console.warn(`[TriggerSimulation] outcome-pre-check skipped: ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  // Step 5: enqueue.
+  // Step 4: enqueue.
   const result = await enqueueSimulationTaskForServer(pointer.runId, pointer.pkgFingerprint);
   if (result.reason === 'duplicate') {
     console.log(`[TriggerSimulation] already-queued runId=${pointer.runId}`);
@@ -133,12 +124,12 @@ export async function triggerSimulation(
   // Happy path.
   // Identity-aware success log drives the 30-day demand experiment. The
   // shape (auth_kind in the log line) lets a follow-up dashboard / Sentry
-  // filter separate team-test traffic from external Pro callers.
+  // filter separate team-test traffic from external callers.
   const authHeader = ctx.request.headers.get('authorization') ?? '';
   const apiKeyHeader = ctx.request.headers.get('x-api-key') || ctx.request.headers.get('x-orion-key') || '';
   const authKind = apiKeyHeader
     ? (apiKeyHeader.startsWith('wm_') ? 'user_api_key' : 'enterprise_api_key')
-    : (authHeader ? 'clerk_jwt' : 'unknown');
+    : (authHeader ? 'bearer_session' : 'unknown');
   // clientVersion echoed per the proto comment promise (Greptile P2 review on PR #3811).
   // Sanitized to a short slug to keep the log line bounded; never persisted.
   const clientVersion = String(req.clientVersion ?? '').slice(0, 64).replace(/[^a-zA-Z0-9._/-]/g, '');

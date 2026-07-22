@@ -511,9 +511,6 @@
     <header class="docked full-width top-0 bg-transparent flex flex-col w-full z-30 pt-4 px-6" style="animation: fadeInUp 0.6s ease-out both;">
       <div class="glass-panel rounded-2xl flex justify-between items-center px-6 py-3 mb-4">
         <div class="flex items-center gap-6">
-          <button class="text-on-surface-variant hover:text-primary p-2 rounded-lg transition-colors flex items-center bg-white/5 hover:bg-white/10 hover:scale-105 active:scale-95">
-            <span class="material-symbols-outlined text-sm">grid_view</span>
-          </button>
           <div class="text-headline-md font-headline-md font-semibold text-primary flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center animate-pulse-slow">
               <span class="material-symbols-outlined text-lg">radar</span>
@@ -528,21 +525,20 @@
         </div>
 
         <div class="flex items-center gap-4">
-          <div class="flex items-center gap-2 bg-white/5 hover:bg-white/10 transition-colors rounded-lg px-3 py-2 cursor-pointer hover:scale-105">
+          <div class="flex items-center gap-2 bg-white/5 hover:bg-white/10 transition-colors rounded-lg px-3 py-2 cursor-pointer hover:scale-105 relative">
             <span class="text-on-surface-variant text-sm material-symbols-outlined">public</span>
-            <select class="bg-transparent border-none text-on-surface text-sm focus:ring-0 p-0 pr-4 w-24 appearance-none font-data-md cursor-pointer outline-none">
-              <option>GLOBAL</option>
-              <option>MENA</option>
-              <option>APAC</option>
-            </select>
-            <span class="material-symbols-outlined text-on-surface-variant text-sm">expand_more</span>
+            <div class="relative">
+              <select class="bg-transparent border-none text-on-surface text-sm focus:ring-0 p-0 pr-6 w-24 font-data-md cursor-pointer outline-none" style="appearance:none !important;-webkit-appearance:none !important;-moz-appearance:none !important;background-image:none !important;">
+                <option>GLOBAL</option>
+                <option>MENA</option>
+                <option>APAC</option>
+              </select>
+              <span class="material-symbols-outlined text-on-surface-variant text-sm pointer-events-none absolute right-0 top-1/2 -translate-y-1/2">expand_more</span>
+            </div>
           </div>
           <button class="bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded-lg font-label-caps text-label-caps flex items-center gap-2 hover:bg-primary/40 hover:border-primary transition-all shadow-glow hover:shadow-glow-hover hover:-translate-y-0.5 active:translate-y-0">
             <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
             LIVE
-          </button>
-          <button class="text-on-surface-variant hover:text-primary bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-all hover:scale-105 active:scale-95">
-            <span class="material-symbols-outlined">account_circle</span>
           </button>
         </div>
       </div>

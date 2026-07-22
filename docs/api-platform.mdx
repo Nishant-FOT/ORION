@@ -21,7 +21,7 @@ Use this on initial page load to avoid 40 parallel RPC calls.
 
 ### `GET /api/version`
 
-Returns the latest **GitHub Release** of `orion-energy-resilience/orion`. Used by the desktop app to detect a newer published release and prompt the user to update. It is **not** the currently-deployed Vercel commit.
+Returns the latest **GitHub Release** of `orion-energy-resilience/orion`. Used by native clients to detect a newer published release and prompt the user to update. It is **not** the currently-deployed Vercel commit.
 
 ```json
 {
@@ -100,7 +100,7 @@ Internal probe that validates each seed producer's envelope shape matches its co
 
 ### `POST /api/user-prefs`
 
-Per-user dashboard preferences (layout, toggles, filters). Clerk bearer required. Backed by Convex.
+Per-user dashboard preferences (layout, toggles, filters). Session required. Backed by Convex.
 
 ```json
 {
@@ -114,7 +114,7 @@ Per-user dashboard preferences (layout, toggles, filters). Clerk bearer required
 
 ### `POST /api/invalidate-user-api-key-cache`
 
-Invalidates a user's entitlement cache after a subscription change (Dodo webhook → Convex → this endpoint). Internal — requires `RELAY_SHARED_SECRET`.
+Invalidates a user's API key cache. Internal — requires `RELAY_SHARED_SECRET`.
 
 ## Geo utilities
 
@@ -153,7 +153,6 @@ Redirects to the matching asset on the latest GitHub release of `orion-energy-re
 |-------|-----------------------|
 | `full` / `world` | `orion` |
 | `tech` | `techmonitor` |
-| `finance` | `financemonitor` |
 
 Caches the 302 for 5 minutes (`s-maxage=300`, `stale-while-revalidate=60`, `stale-if-error=600`).
 
@@ -165,9 +164,9 @@ Public enterprise contact form. Turnstile-verified, rate-limited per IP. Part of
 
 Captures email for Pro-waitlist signup. Writes to Convex and sends a confirmation email. Part of `LeadsService`.
 
-Browser callers must pass Turnstile. Desktop callers using `source: "desktop-settings"` bypass Turnstile only when the request is authenticated with the shared desktop secret:
+Browser callers must pass Turnstile. Native clients using `source: "desktop-settings"` bypass Turnstile only when the request is authenticated with the shared secret:
 
 - `X-ORION-Desktop-Timestamp`: Unix epoch milliseconds, within 5 minutes of server time.
 - `X-ORION-Desktop-Signature`: `sha256=<hex HMAC-SHA256>`.
 
-The HMAC input is `<timestamp>\n<canonical JSON>`, where canonical JSON contains `email`, `source`, `appVersion`, `referredBy`, `website`, and `turnstileToken` in that order. Configure `ORION_DESKTOP_SHARED_SECRET` on both the desktop sidecar and the cloud API. During rollout, `WM_DESKTOP_AUTH_ALLOW_LEGACY=true` only accepts unsigned legacy desktop requests while the cloud API has no `ORION_DESKTOP_SHARED_SECRET` configured. Once the cloud secret is set, desktop requests fail closed unless they include a valid signature, still subject to the tighter desktop rate limit.
+The HMAC input is `<timestamp>\n<canonical JSON>`, where canonical JSON contains `email`, `source`, `appVersion`, `referredBy`, `website`, and `turnstileToken` in that order. Configure `ORION_DESKTOP_SHARED_SECRET` on both the native client and the cloud API. During rollout, `WM_DESKTOP_AUTH_ALLOW_LEGACY=true` only accepts unsigned legacy requests while the cloud API has no `ORION_DESKTOP_SHARED_SECRET` configured. Once the cloud secret is set, native requests fail closed unless they include a valid signature, still subject to the tighter rate limit.

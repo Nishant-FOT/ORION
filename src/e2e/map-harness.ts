@@ -33,7 +33,6 @@ import type {
   AisDensityZone,
   AisDisruptionEvent,
   CableAdvisory,
-  CyberThreat,
   InternetOutage,
   MapLayers,
   MilitaryBaseEnriched,
@@ -172,7 +171,6 @@ const allLayersEnabled: MapLayers = {
   economic: true,
   waterways: true,
   outages: true,
-  cyberThreats: true,
   datacenters: true,
   protests: true,
   flights: true,
@@ -232,7 +230,6 @@ const allLayersDisabled: MapLayers = {
   economic: false,
   waterways: false,
   outages: false,
-  cyberThreats: false,
   datacenters: false,
   protests: false,
   flights: false,
@@ -625,7 +622,6 @@ const seededCameras = {
   ais: toCamera(55.0, 25.0, 5.2),
   weather: toCamera(-80.2, 25.7, 5.2),
   outages: toCamera(-0.1, 51.5, 5.2),
-  cyber: toCamera(-0.12, 51.5, 5.2),
   protests: toCamera(0.2, 20.1, 5.2),
   flights: toCamera(-73.9, 40.4, 5.2),
   military: toCamera(56.3, 26.1, 5.2),
@@ -769,14 +765,6 @@ const VISUAL_SCENARIOS: VisualScenario[] = [
     enabledLayers: ['outages'],
     camera: seededCameras.outages,
     expectedDeckLayers: ['outages-layer'],
-    expectedSelectors: [],
-  },
-  {
-    id: 'cyber-z5',
-    variant: 'both',
-    enabledLayers: ['cyberThreats'],
-    camera: seededCameras.cyber,
-    expectedDeckLayers: ['cyber-threats-layer'],
     expectedSelectors: [],
   },
   {
@@ -1218,24 +1206,6 @@ const seedAllDynamicData = (): void => {
     },
   ];
 
-  const cyberThreats: CyberThreat[] = [
-    {
-      id: 'e2e-cyber-1',
-      type: 'c2_server',
-      source: 'feodo',
-      indicator: '1.2.3.4',
-      indicatorType: 'ip',
-      lat: 51.5,
-      lon: -0.12,
-      country: 'GB',
-      severity: 'high',
-      malwareFamily: 'QakBot',
-      tags: ['botnet', 'c2'],
-      firstSeen: '2026-02-01T09:00:00.000Z',
-      lastSeen: '2026-02-01T10:00:00.000Z',
-    },
-  ];
-
   const aisDisruptions: AisDisruptionEvent[] = [
     {
       id: 'e2e-ais-disruption-1',
@@ -1409,7 +1379,6 @@ const seedAllDynamicData = (): void => {
   map.setEarthquakes(earthquakes);
   map.setWeatherAlerts(weather);
   map.setOutages(outages);
-  map.setCyberThreats(cyberThreats);
   map.setAisData(aisDisruptions, aisDensity);
   map.setCableActivity(cableAdvisories, repairShips);
   map.setProtests(buildProtests('alpha'));
@@ -1599,7 +1568,7 @@ const getCyberTooltipHtml = (indicator: string): string => {
       severity: 'high',
       source: 'feodo',
     },
-    layer: { id: 'cyber-threats-layer' },
+    layer: { id: 'nonexistent-layer' },
   });
   return typeof tooltip?.html === 'string' ? tooltip.html : '';
 };

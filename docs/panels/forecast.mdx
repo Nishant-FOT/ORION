@@ -36,7 +36,7 @@ Panel id is `forecast`; canonical component is `src/components/ForecastPanel.ts`
 ## How you reach it
 
 - **Cmd+K**: type *forecast*, *ai forecast*, or *predictions ai*. The command palette label is "AI Forecasts" even though the internal panel id is `forecast`.
-- **Availability by variant**: registered and enabled by default in the **full/geopolitical** variant only. Not present in the tech, finance, commodity, or happy variants. Source: `FULL_PANELS` in `src/config/panels.ts`.
+- **Availability**: registered and enabled by default in the **full/geopolitical** configuration only. Not present in the tech, finance, commodity, or happy configurations. Source: `FULL_PANELS` in `src/config/panels.ts`.
 
 ## Data sources
 
@@ -109,7 +109,7 @@ The seeder runs approximately **hourly**. The key is allowed up to **90 minutes*
 
 ## Tier & gating
 
-On **web**, AI Forecasts is currently in **trial** — free to anyone, including unauthenticated readers. On **desktop**, the same panel ships with `premium: 'locked'` in `src/config/panels.ts` so it is gated there. This split reflects the product's current trial positioning; expect the web gating to tighten over time.
+AI Forecasts is freely accessible on the web.
 
 ## API reference
 

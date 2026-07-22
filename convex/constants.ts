@@ -37,13 +37,6 @@ export const MAX_PREFS_BLOB_SIZE = 65536;
 // (U12) for context. These three constants are consumed by the
 // `convex/followedCountries.ts` mutations/queries (U13/U14).
 
-// Free-tier ceiling on the number of countries a single user can follow.
-// Enforced authoritatively in `followCountry` and `mergeAnonymousLocal`.
-// PRO users (entitlement tier >= 1) are unlimited. The cap is also the
-// "grandfather floor" — existing rows above the cap on downgrade are
-// never auto-deleted; only NEW follows are blocked while free.
-export const FREE_TIER_FOLLOW_LIMIT = 3;
-
 // Defensive ceiling on `mergeAnonymousLocal({ countries })` input length.
 // Prevents quadratic-cost abuse via patched localStorage shipping a
 // pathological array. Inputs larger than this are rejected with

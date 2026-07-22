@@ -93,7 +93,7 @@ const SOURCE_METADATA: Record<DataSourceId, { name: string; requiredForRisk: boo
   predictions: { name: 'Predictions Feed', requiredForRisk: false, panelId: 'polymarket' },
   pizzint: { name: 'PizzINT Monitoring', requiredForRisk: false, panelId: 'intel' },
   outages: { name: 'Internet Outages', requiredForRisk: false, panelId: 'outages' },
-  cyber_threats: { name: 'Cyber Threat IOCs', requiredForRisk: false, panelId: 'map' },
+
   weather: { name: 'Weather Alerts', requiredForRisk: false, panelId: 'weather' },
   economic: { name: 'Economic Data (FRED)', requiredForRisk: false, panelId: 'economic' },
   oil: { name: 'Oil Analytics (EIA)', requiredForRisk: false, panelId: 'economic' },
@@ -551,7 +551,7 @@ const INTELLIGENCE_GAP_MESSAGES: Record<DataSourceId, string> = {
   predictions: 'Prediction feed unavailable—scenario signals may be stale',
   pizzint: 'PizzINT monitor unavailable—location/tension tracking degraded',
   outages: 'Internet disruptions may be unreported—outage monitoring offline',
-  cyber_threats: 'Cyber IOC map points unavailable—malicious infrastructure visibility reduced',
+
   weather: 'Severe weather warnings may be missed—weather alerts unavailable',
   economic: 'Economic indicators stale—Fed/Treasury data not updating',
   oil: 'Oil market analytics unavailable—EIA data not updating',

@@ -1,10 +1,9 @@
 import { ConvexError, v } from "convex/values";
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { requireUserId, resolveUserId } from "./lib/auth";
-import { getFeaturesForPlan } from "./lib/entitlements";
 
 /**
- * Pro MCP token (non-key) identity rows.
+ * MCP token (non-key) identity rows.
  *
  * Mirrors the structure of `convex/apiKeys.ts` — same per-user 5-row cap,
  * same debounce on lastUsedAt — but stores no key material. The row's
@@ -13,7 +12,7 @@ import { getFeaturesForPlan } from "./lib/entitlements";
  * docs/plans/2026-05-10-001-feat-pro-mcp-clerk-auth-quota-plan.md.
  */
 
-/** Maximum number of active (non-revoked) Pro MCP tokens per user. */
+/** Maximum number of active (non-revoked) MCP tokens per user. */
 const MAX_TOKENS_PER_USER = 5;
 
 /** Debounce window for touchProMcpTokenLastUsed (matches apiKeys). */
@@ -24,12 +23,10 @@ const TOUCH_DEBOUNCE_MS = 5 * 60 * 1000;
 // ---------------------------------------------------------------------------
 
 /**
- * Issue a new Pro MCP token row.
+ * Issue a new MCP token row.
  *
  * Called from the edge at `/oauth/authorize-pro` after the cross-subdomain
- * Clerk grant has been validated. The caller passes the verified Clerk
- * `userId`. Verifies entitlement (tier ≥ 1, `validUntil >= now`) defensively
- * — the edge re-checks too, but the row insert is the authoritative gate.
+ * grant has been validated. The caller passes the verified `userId`.
  *
  * Per-user 5-row cap with silent oldest rotation: if the user already has
  * 5 active rows we revoke the oldest (by createdAt) before inserting the
@@ -44,36 +41,6 @@ export const issueProMcpToken = internalMutation({
   handler: async (ctx, args) => {
     if (!args.userId) {
       throw new ConvexError("INVALID_USER_ID");
-    }
-
-    // Entitlement gate: Pro is the minimum (tier ≥ 1). API_STARTER+ (tier 2+)
-    // also passes, since Pro is the floor — the plan explicitly notes
-    // "Pro is the minimum, not exclusive."
-    //
-    // Mirror downstream MCP-edge gate: BOTH tier ≥ 1 AND mcpAccess === true
-    // are required. Reviewer round-2 P2 — gating on tier alone allowed a
-    // tier-1 user without mcpAccess to mint a token that would then fail
-    // every tools/call at the gateway. PRE-FIELD legacy entitlement rows
-    // are handled by the read-time merge in convex/entitlements.ts; this
-    // direct ctx.db read of the row uses the catalog default explicitly.
-    const entitlement = await ctx.db
-      .query("entitlements")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .first();
-    const catalogDefaults = entitlement
-      ? getFeaturesForPlan(entitlement.planKey)
-      : null;
-    const mergedFeatures = entitlement && catalogDefaults
-      ? { ...catalogDefaults, ...entitlement.features }
-      : null;
-    if (
-      !entitlement ||
-      !mergedFeatures ||
-      entitlement.validUntil < Date.now() ||
-      mergedFeatures.tier < 1 ||
-      mergedFeatures.mcpAccess !== true
-    ) {
-      throw new ConvexError("PRO_REQUIRED");
     }
 
     // Enforce per-user cap with silent oldest rotation. Match the pattern

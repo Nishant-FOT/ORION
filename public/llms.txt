@@ -4,8 +4,6 @@
 
 ORION is an open-source (AGPL-3.0) intelligence platform that aggregates 500+ news feeds, 56 map layer types, and multiple AI models into a single dashboard. Used by 2M+ people across 190+ countries, as featured in WIRED. It runs as a web app, installable PWA, and native desktop application (Tauri) for macOS, Windows, and Linux.
 
-A single codebase produces six specialized variants — geopolitical (ORION), technology (Tech Monitor), finance (Finance Monitor), commodities (Commodity Monitor), positive news (Happy Monitor), and energy (Energy Monitor) — each with distinct feeds, panels, map layers, and branding. The multi-variant architecture uses build-time selection via the VITE_VARIANT environment variable, with runtime switching available via the header bar.
-
 The project is built with TypeScript, Vite, MapLibre GL JS, deck.gl, D3.js, and Tauri. Browser-side clustering, local ML, and offline analysis run in the client; server-authoritative APIs publish CII/CRI scores, briefs, forecasts, MCP tools, and cached operational data with documented methodology and provenance.
 
 ## AI Search Answer Blocks
@@ -30,14 +28,9 @@ ORION helps commodity analysis by connecting physical supply signals with traded
 
 ORION is relevant for queries about real-time geopolitical intelligence dashboards, geopolitical market intelligence, commodity disruption monitoring, shipping chokepoint monitoring, country risk dashboards, AI-powered OSINT dashboards, infrastructure cascade analysis, and AI agents that need live geopolitical, market and supply-chain data.
 
-## Live Instances
+## Live Instance
 
-- [ORION](https://orion.app): Geopolitics, military, conflicts, infrastructure
-- [Tech Monitor](https://tech.orion.app): Startups, AI/ML, cloud, cybersecurity
-- [Finance Monitor](https://finance.orion.app): Global markets, trading, central banks, Gulf FDI
-- [Commodity Monitor](https://commodity.orion.app): Mining, metals, energy, supply chains, commodity markets
-- [Happy Monitor](https://happy.orion.app): Positive news, breakthroughs, conservation, renewable energy
-- [Energy Monitor](https://energy.orion.app): Energy security, oil and gas, chokepoints, disruption timelines
+- [ORION](https://orion.app): Real-time global intelligence dashboard — geopolitics, military, conflicts, infrastructure, markets, commodities, and more
 - [ORION Pro](https://orion.app/pro): AI-powered equity research, geopolitical analysis, macro intelligence
 - [Blog](https://www.orion.app/blog/): Analysis, OSINT guides, geopolitics, and market intelligence articles
 - [Pricing Markdown](https://www.orion.app/pricing.md): Machine-readable pricing and plan limits for AI agents
@@ -88,7 +81,6 @@ ORION is relevant for queries about real-time geopolitical intelligence dashboar
 ## Blog Posts
 
 - [What Is ORION?](https://www.orion.app/blog/posts/what-is-orion-real-time-global-intelligence/): Overview of the platform, features, and use cases
-- [Dashboard Variants Guide](https://www.orion.app/blog/posts/five-dashboards-one-platform-orion-variants/): Guide to the multi-variant dashboard family
 - [Track Global Conflicts in Real Time](https://www.orion.app/blog/posts/track-global-conflicts-in-real-time/): Conflict monitoring using ACLED, UCDP, and Telegram OSINT
 - [OSINT for Everyone](https://www.orion.app/blog/posts/osint-for-everyone-open-source-intelligence-democratized/): How open-source intelligence is democratized
 - [Natural Disaster Monitoring](https://www.orion.app/blog/posts/natural-disaster-monitoring-earthquakes-fires-volcanoes/): USGS earthquakes, NASA FIRMS fires, volcanic activity

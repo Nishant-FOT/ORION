@@ -22,7 +22,6 @@ export const LAYER_PRESETS: Record<string, (keyof MapLayers)[]> = {
 
 // Maps command suffix → actual MapLayers key when they differ
 export const LAYER_KEY_MAP: Record<string, keyof MapLayers> = {
-  cyber: 'cyberThreats',
   ucdp: 'ucdpEvents',
   gps: 'gpsJamming',
   cii: 'ciiChoropleth',

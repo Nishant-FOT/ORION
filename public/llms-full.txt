@@ -4,18 +4,11 @@
 
 ORION is an open-source (AGPL-3.0) intelligence platform that aggregates 500+ curated news feeds, 56 map layer types, and multiple AI models into a single dashboard. It runs as a web app, installable PWA, and native desktop application (Tauri) for macOS, Windows, and Linux.
 
-A single codebase produces six specialized variants — geopolitical, technology, finance, commodity, happy, and energy — each with distinct feeds, panels, map layers, and branding. The multi-variant architecture uses build-time selection via the VITE_VARIANT environment variable, with runtime switching available via the header bar. Each variant tree-shakes unused data files so audience-specific builds can omit unrelated panels, feeds, and map registries.
-
 The project is built with TypeScript, Vite, MapLibre GL JS, deck.gl, D3.js, and Tauri. Browser-side clustering, local ML, and offline analysis run in the client; server-authoritative APIs publish CII/CRI scores, briefs, forecasts, MCP tools, and cached operational data with documented methodology and provenance.
 
-## Live Instances
+## Live Instance
 
-- [ORION](https://orion.app): Geopolitics, military, conflicts, infrastructure — ~25 RSS categories, 44 panels, military bases, nuclear facilities, hotspots
-- [Tech Monitor](https://tech.orion.app): Startups, AI/ML, cloud, cybersecurity — ~20 RSS categories, 31 panels, tech HQs, cloud regions, startup hubs
-- [Finance Monitor](https://finance.orion.app): Global markets, trading, central banks, Gulf FDI — ~18 RSS categories, 30 panels, stock exchanges, central banks, Gulf investments
-- [Commodity Monitor](https://commodity.orion.app): Mining, metals, energy, shipping, chokepoints, supply chains, commodity markets
-- [Happy Monitor](https://happy.orion.app): Positive news, breakthroughs, conservation, renewable energy
-- [Energy Monitor](https://energy.orion.app): Energy security, oil and gas, chokepoints, disruption timelines
+- [ORION](https://orion.app): Real-time global intelligence dashboard — geopolitics, military, conflicts, infrastructure, markets, commodities, and more
 
 ## Documentation
 
@@ -83,24 +76,6 @@ ORION helps commodity analysis by connecting physical supply signals with traded
 ### How is ORION different from a conflict map or market terminal?
 
 Conflict maps show events. Market terminals show prices. ORION shows whether geopolitical events have a plausible market or commodity transmission path by combining conflict, country risk, chokepoints, ships, aircraft, infrastructure, weather, cyber and market data in the same live surface.
-
-## Data Layers — Tech Ecosystem (Tech Variant)
-
-- **Tech HQs**: Headquarters of major tech companies (Big Tech, unicorns, public companies) — Silicon Valley, Seattle, New York, London, Tel Aviv, Dubai, Singapore, Berlin, Tokyo
-- **Startup Hubs**: Major startup ecosystems with ecosystem tier, funding data, and notable companies
-- **Cloud Regions**: AWS, Azure, GCP data center regions with zone counts
-- **Accelerators**: Y Combinator, Techstars, 500 Startups, and regional accelerator locations
-- **Tech Events**: Upcoming conferences and tech events with countdown timers
-
-## Data Layers — Finance & Markets (Finance Variant)
-
-- **Stock Exchanges**: 29 global exchanges — mega (NYSE, NASDAQ, Shanghai, Euronext, Tokyo), major (Hong Kong, London, NSE/BSE, Toronto, Korea, Saudi Tadawul), and emerging markets — with market caps and trading hours
-- **Financial Centers**: 19 centers ranked by Global Financial Centres Index (New York through offshore centers)
-- **Central Banks & Institutions**: 14 central-bank and supranational finance institutions — 12 policy-rate institutions (Federal Reserve, ECB, BoJ, BoE, PBoC, SNB, RBA, BoC, RBI, BoK, BCB, SAMA) plus BIS and IMF
-- **Commodity Hubs**: 10 exchanges and physical hubs (CME Group, ICE, LME, SHFE, DCE, TOCOM, DGCX, MCX, Rotterdam, Houston)
-- **Gulf FDI Investments**: 64 Saudi/UAE foreign direct investments plotted globally, color-coded by status (operational, under-construction, announced), sized by investment amount — across ports, energy, manufacturing, renewables, megaprojects, telecoms
-
-Unique layers: 29 stock exchanges, 19 financial centers, 14 central-bank and supranational finance institutions.
 
 ## AI-Powered Intelligence
 
@@ -178,19 +153,6 @@ Unique layers: 29 stock exchanges, 19 financial centers, 14 central-bank and sup
 ## Supported Languages
 
 English (en), French (fr), Spanish (es), German (de), Italian (it), Polish (pl), Portuguese (pt), Dutch (nl), Swedish (sv), Russian (ru), Arabic (ar) with RTL support, Chinese (zh), Japanese (ja), Turkish (tr), Korean (ko), Hindi (hi), Thai (th), Vietnamese (vi), Czech (cs), Romanian (ro), Bulgarian (bg), Greek (el), Croatian (hr), and Hungarian (hu). Language bundles are lazy-loaded on demand. Localized news feeds load region-specific RSS sources based on language preference. AI translation available for cross-language intelligence gathering.
-
-## Multi-Variant Build System
-
-A single codebase produces six specialized dashboards controlled by the VITE_VARIANT environment variable:
-
-- **ORION** (orion.app): geopolitics, military, conflicts, infrastructure security, regional intelligence, and global risk.
-- **Tech Monitor** (tech.orion.app): AI/ML, startups, cybersecurity, cloud, semiconductors, and technology policy.
-- **Finance Monitor** (finance.orion.app): global markets, trading, central banks, macro, Gulf finance, and equity research.
-- **Commodity Monitor** (commodity.orion.app): commodities, mining, metals, energy markets, shipping, and supply chains.
-- **Happy Monitor** (happy.orion.app): constructive news, science, climate progress, health, conservation, and positive public action.
-- **Energy Monitor** (energy.orion.app): energy security, oil and gas, chokepoints, policy response, and energy-market intelligence.
-
-Build-time: Vite HTML plugin transforms meta tags, Open Graph data, PWA manifest, and JSON-LD structured data. Each variant tree-shakes unused data files. Runtime: variant selector in header navigates between deployed domains (web) or sets localStorage preference (desktop).
 
 ## Architecture Principles
 

@@ -15,7 +15,6 @@
  */
 
 import { getConvexClient, getConvexApi, waitForConvexAuth } from './convex-client';
-import { getClerkToken } from './clerk';
 
 export interface McpClientInfo {
   id: string;
@@ -55,7 +54,7 @@ export async function listMcpClients(): Promise<McpClientInfo[]> {
  * Throws on non-2xx so the UI can surface the error.
  */
 export async function revokeMcpClient(tokenId: string): Promise<void> {
-  const token = await getClerkToken();
+  const token: string | null = null;
   if (!token) throw new Error('Sign in to revoke MCP clients.');
 
   const resp = await fetch('/api/user/mcp-revoke', {
@@ -92,7 +91,7 @@ export async function revokeMcpClient(tokenId: string): Promise<void> {
 export async function fetchMcpQuota(): Promise<McpQuota> {
   const fallback: McpQuota = { used: 0, limit: 50, resetsAt: nextUtcMidnightIso() };
 
-  const token = await getClerkToken();
+  const token: string | null = null;
   if (!token) return fallback;
 
   try {

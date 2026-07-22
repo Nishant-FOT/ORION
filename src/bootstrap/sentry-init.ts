@@ -486,16 +486,6 @@ function buildSentryInitOptions(): Parameters<SentryNs['init']>[0] {
       // pattern above) so an unrelated exception with a FireglassUtils frame
       // isn't silently dropped (ORION-MK).
       if (excType === 'RangeError' && frames.some(f => /FireglassUtils/.test(f.function ?? ''))) return null;
-      // Suppress Chrome Mobile WebView 105+ Request constructor quirk ONLY when
-      // the Dodo checkout lazy chunk is in the stack (ORION-MH). The
-      // exact message is unique to the Fetch § Request() duplex requirement, but
-      // src/services/runtime.ts (runtime fetch patch) also constructs `new
-      // Request(init)` at lines 861/869/902 — without this provenance guard the
-      // same filter would hide a real first-party streaming-fetch regression.
-      // Guard on the vendored chunk name (checkout-*.js = Dodo SDK, lazy-loaded
-      // only when startCheckout runs) so a runtime.ts failure still surfaces.
-      if (/Failed to construct 'Request': The `duplex` member must be specified/.test(msg)
-          && frames.some(f => /\/assets\/checkout-[A-Za-z0-9_-]+\.js/.test(f.filename ?? ''))) return null;
       // Suppress "options is not defined" from browser extension overriding Navigator getter (ORION-JN).
       // Only suppress when stack has no first-party frames (filename=<anonymous> is the extension getter).
       if (/^options is not defined$/.test(msg) && frames.every(f => !f.filename || f.filename === '<anonymous>' || f.filename === '[native code]')) return null;

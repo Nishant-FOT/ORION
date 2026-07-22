@@ -21,17 +21,17 @@ Panel id is `chat-analyst`; canonical component is `src/components/ChatAnalystPa
 ## How you reach it
 
 - **Cmd+K**: type *analyst* or *ask*.
-- **Availability by variant**: registered and enabled by default in the **full/geopolitical** variant only (`premium: 'locked'` at `src/config/panels.ts:52`). Not present in the tech, finance, commodity, or happy variants.
+- **Availability**: registered and enabled by default in the **full/geopolitical** configuration only. Not present in the tech, finance, commodity, or happy configurations.
 
 ## Data sources
 
-The panel POSTs to `/api/chat-analyst` (edge function backed by `api/chat-analyst.ts`) via `premiumFetch()`, which injects the caller's credentials (`ORION_API_KEY` on desktop, Clerk bearer + PRO in the browser). The edge function composes context from the intelligence, conflict, markets, forecasts, and risk caches (scoped to the selected domain), streams tokens back, and the panel renders incrementally.
+The panel POSTs to `/api/chat-analyst` (edge function backed by `api/chat-analyst.ts`), which injects the caller's credentials (`ORION_API_KEY` on native client, session cookie in the browser). The edge function composes context from the intelligence, conflict, markets, forecasts, and risk caches (scoped to the selected domain), streams tokens back, and the panel renders incrementally.
 
 No separate `/chat-analyst/v1/*` RPC surface — this is a first-class edge endpoint, not a proto-generated RPC.
 
 ## Dashboard control actions
 
-Dashboard control v1 is in-app and in-process only. `/api/chat-analyst` may stream validated action events alongside the answer, and `src/app/agent-bus-applier.ts` is the only client write boundary that mutates panels or the map. The applier enforces entitlement checks, live panel existence, map availability, variant-allowed layers, renderer executability, and premium layer gating before applying any action.
+Dashboard control v1 is in-app and in-process only. `/api/chat-analyst` may stream validated action events alongside the answer, and `src/app/agent-bus-applier.ts` is the only client write boundary that mutates panels or the map. The applier enforces authorization checks, live panel existence, map availability, allowed layers, renderer executability, and layer gating before applying any action.
 
 External MCP write tools, Convex action queues, and cross-user command delivery are not exposed in this version.
 
@@ -41,7 +41,7 @@ Each send is a fresh LLM call — no caching of analyst answers. Typical respons
 
 ## Tier & gating
 
-**PRO (hard-locked).** `premium: 'locked'` in `src/config/panels.ts:52`. `isPanelEntitled` unlocks it when **either** a valid `ORION_API_KEY` is present **or** `isPro` is true (`src/config/panels.ts:973` — `apiKeyPanels` allowlist includes `chat-analyst`).
+All panels are freely accessible. No subscription or API key required.
 
 ## API reference
 

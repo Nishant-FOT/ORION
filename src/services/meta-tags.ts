@@ -11,7 +11,7 @@ interface StoryMeta {
   type: 'ciianalysis' | 'crisisalert' | 'dailybrief' | 'marketfocus';
 }
 
-const variantMeta = VARIANT_META[SITE_VARIANT] ?? VARIANT_META.full;
+const variantMeta = VARIANT_META[SITE_VARIANT] ?? VARIANT_META.full!;
 const CANONICAL_URL = variantMeta.url;
 const PUBLIC_ORIGIN = new URL(variantMeta.url).origin;
 const API_ORIGIN = getCanonicalApiOrigin();

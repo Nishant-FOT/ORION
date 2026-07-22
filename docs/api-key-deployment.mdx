@@ -1,10 +1,10 @@
 ---
 title: "API Key Gating & Registration — Deployment Guide"
-description: "Desktop cloud fallback is gated on a ORION_API_KEY. Without a valid key, the desktop app operates local-only (sidecar). A registration form collects emails via Convex DB for future key distribution."
+description: "Cloud API access is gated on a ORION_API_KEY. Without a valid key, the native client operates local-only (sidecar). A registration form collects emails via Convex DB for future key distribution."
 ---
 ## Overview
 
-Desktop cloud fallback is gated on a `ORION_API_KEY`. Without a valid key, the desktop app operates local-only (sidecar). A registration form collects emails via Convex DB for future key distribution.
+Cloud API access is gated on a `ORION_API_KEY`. Without a valid key, the native client operates local-only (sidecar). A registration form collects emails via Convex DB for future key distribution.
 
 ## Architecture
 
@@ -87,13 +87,13 @@ The `registrations` table stores:
 | `normalizedEmail` | string | Lowercased email (for dedup) |
 | `registeredAt` | number | Unix timestamp |
 | `source` | string? | Where the registration came from |
-| `appVersion` | string? | Desktop app version |
+| `appVersion` | string? | Native client version |
 
 Indexed by `normalizedEmail` for duplicate detection.
 
 ## Security Model
 
-### Client-side (desktop app)
+### Client-side (native client)
 
 - `installRuntimeFetchPatch()` checks `ORION_API_KEY` before allowing cloud fallback
 - Key must be present AND valid (min 16 chars)
@@ -103,9 +103,9 @@ Indexed by `normalizedEmail` for duplicate detection.
 ### Server-side (Vercel edge)
 
 - `api/_api-key.js` validates `X-ORION-Key` header on sebuf routes
-- **Origin-aware**: desktop origins (`tauri.localhost`, `tauri://`, `asset://`) require a key
+- **Origin-aware**: native client origins (`tauri.localhost`, `tauri://`, `asset://`) require a key
 - Web origins (`orion.app`) pass through without a key
-- Non-desktop origin with key header: key is still validated
+- Non-native origin with key header: key is still validated
 - Invalid key returns `401 { error: "Invalid API key" }`
 
 ### CORS

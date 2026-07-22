@@ -24,7 +24,7 @@ Panel id is `stock-analysis`; canonical component is `src/components/StockAnalys
 ## How you reach it
 
 - **Cmd+K**: type *stock* or the ticker symbol.
-- **Availability by variant**: registered and enabled by default in the **full/geopolitical** and **finance** variants — locked in both. Not present in the tech, commodity, or happy variants. Source: `'stock-analysis'` entries in `FULL_PANELS` and `FINANCE_PANELS` at `src/config/panels.ts:49` and `:422`.
+- **Availability**: registered and enabled by default in the **full/geopolitical** and **finance** configurations — locked in both. Not present in the tech, commodity, or happy configurations. Source: `'stock-analysis'` entries in `FULL_PANELS` and `FINANCE_PANELS` at `src/config/panels.ts:49` and `:422`.
 
 ## Data sources
 
@@ -40,7 +40,7 @@ Analyses are on-demand; no polling. The panel caches previous analyses in `Stock
 
 ## Tier & gating
 
-**PRO (hard-locked).** `premium: 'locked'` on both variant registrations. `isPanelEntitled` unlocks it when **either** a valid `ORION_API_KEY` is present **or** `isPro` is true (`stock-analysis` is in the `apiKeyPanels` allowlist at `src/config/panels.ts:973`).
+All panels are freely accessible. No subscription or API key required.
 
 ## API reference
 

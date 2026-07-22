@@ -21,7 +21,7 @@
 12. [Map Rendering & Geospatial Stack](#12-map-rendering--geospatial-stack)
 13. [Machine Learning Pipeline](#13-machine-learning-pipeline)
 14. [Internationalization (i18n)](#14-internationalization-i18n)
-15. [Dashboard Variants](#15-dashboard-variants)
+15. [Dashboard](#15-dashboard)
 16. [Panel System (160+ Panels)](#16-panel-system-160-panels)
 17. [Data Pipeline & Seed Scripts](#17-data-pipeline--seed-scripts)
 18. [External Data Sources (30+)](#18-external-data-sources-30)
@@ -36,37 +36,36 @@
 27. [Configuration Files Reference](#27-configuration-files-reference)
 28. [Key Design Patterns](#28-key-design-patterns)
 29. [Feature Flags & Beta Features](#29-feature-flags--beta-features)
-30. [Desktop Application (Tauri)](#30-desktop-application-tauri)
-31. [Embed System](#31-embed-system)
-32. [Notification Channels](#32-notification-channels)
-33. [Broadcast System](#33-broadcast-system)
-34. [Referral System](#34-referral-system)
-35. [Circuit Breaker & Resilience](#35-circuit-breaker--resilience)
-36. [Storage Architecture](#36-storage-architecture)
-37. [Event System](#37-event-system)
-38. [Web Workers](#38-web-workers)
-39. [Progressive Web App (PWA)](#39-progressive-web-app-pwa)
-40. [OAuth 2.0 System](#40-oauth-20-system)
-41. [Data Freshness & Staleness](#41-data-freshness--staleness)
-42. [Entitlement & Gating System](#42-entitlement--gating-system)
-43. [Usage Telemetry](#43-usage-telemetry)
-44. [Error Handling](#44-error-handling)
-45. [Protocol Buffers & Code Generation](#45-protocol-buffers--code-generation)
-46. [Scripts & Tooling](#46-scripts--tooling)
-47. [Static Assets & Public Directory](#47-static-assets--public-directory)
-48. [Consumer Prices Core Module](#48-consumer-prices-core-module)
-49. [Railway Relay System](#49-railway-relay-system)
-50. [Cloudflare Worker](#50-cloudflare-worker)
-51. [Linting & Code Quality](#51-linting--code-quality)
-52. [Version Management & Changelog](#52-version-management--changelog)
-53. [Known Issues & Technical Debt](#53-known-issues--technical-debt)
-54. [Glossary](#54-glossary)
+30. [Embed System](#30-embed-system)
+31. [Notification Channels](#31-notification-channels)
+32. [Broadcast System](#32-broadcast-system)
+33. [Referral System](#33-referral-system)
+34. [Circuit Breaker & Resilience](#34-circuit-breaker--resilience)
+35. [Storage Architecture](#35-storage-architecture)
+36. [Event System](#36-event-system)
+37. [Web Workers](#37-web-workers)
+38. [Progressive Web App (PWA)](#38-progressive-web-app-pwa)
+39. [OAuth 2.0 System](#39-oauth-20-system)
+40. [Data Freshness & Staleness](#40-data-freshness--staleness)
+41. [Entitlement & Gating System](#41-entitlement--gating-system)
+42. [Usage Telemetry](#42-usage-telemetry)
+43. [Error Handling](#43-error-handling)
+44. [Protocol Buffers & Code Generation](#44-protocol-buffers--code-generation)
+45. [Scripts & Tooling](#45-scripts--tooling)
+46. [Static Assets & Public Directory](#46-static-assets--public-directory)
+47. [Consumer Prices Core Module](#47-consumer-prices-core-module)
+48. [Railway Relay System](#48-railway-relay-system)
+49. [Cloudflare Worker](#49-cloudflare-worker)
+50. [Linting & Code Quality](#50-linting--code-quality)
+51. [Version Management & Changelog](#51-version-management--changelog)
+52. [Known Issues & Technical Debt](#52-known-issues--technical-debt)
+53. [Glossary](#53-glossary)
 
 ---
 
 ## 1. Project Overview
 
-**ORION** (Operational Risk Intelligence & Optimization Network) is a large-scale, real-time global intelligence dashboard platform focused on **energy supply chain resilience** and **geopolitical risk monitoring**. It aggregates data from 30+ external APIs, processes it through 34 service domains, and displays it across 160+ dashboard panels in 6 branded variants — all from a single codebase.
+**ORION** (Operational Risk Intelligence & Optimization Network) is a large-scale, real-time global intelligence dashboard platform focused on **energy supply chain resilience** and **geopolitical risk monitoring**. It aggregates data from 30+ external APIs, processes it through 34 service domains, and displays it across 160+ dashboard panels — all from a single codebase.
 
 ### What It Does
 - **Real-time monitoring** of global events: conflicts, earthquakes, wildfires, disease outbreaks, cyber threats, supply chain disruptions
@@ -74,12 +73,11 @@
 - **Financial market intelligence**: stock quotes, commodities, crypto, yield curves, ETF flows, sentiment analysis
 - **Geopolitical analysis**: country briefs, escalation correlation, sanctions tracking, military posture
 - **AI-powered insights**: LLM summarization, scenario simulation, predictive modeling, anomaly detection
-- **Multi-format delivery**: Web dashboard, desktop app (Tauri), PWA, embeddable widgets, MCP server for AI tools
+- **Multi-format delivery**: Web dashboard (orion.app), PWA, embeddable widgets, MCP server for AI tools
 
 ### Key Numbers
 - **160+ panels** across 8 categories (map, signals, markets, energy, defense, climate, analysis, reports)
 - **34 service domains** with proto-first RPC contracts
-- **6 dashboard variants**: Full, Tech, Finance, Commodity, Happy, Energy
 - **30+ external data sources** (ACLED, USGS, Yahoo Finance, CoinGecko, NASA FIRMS, etc.)
 - **24 supported languages** with RTL support
 - **21 cron seed jobs** running on Railway
@@ -407,7 +405,7 @@ ORION/
 │   │   ├── live-data-service.ts # Unified live data streaming
 │   │   ├── storage.ts          # LocalStorage abstraction
 │   │   ├── settings-manager.ts # API key management
-│   │   ├── runtime.ts          # Runtime detection (web/Tauri)
+│   │   ├── runtime.ts          # Runtime detection
 │   │   ├── clerk.ts            # Authentication (Clerk)
 │   │   ├── auth-state.ts       # Auth state management
 │   │   ├── billing.ts          # Payment/subscription
@@ -544,7 +542,7 @@ ORION/
 ├── public/                     # Static assets (90+ files)
 │
 ├── index.html                  # SPA entry HTML (landing page + dashboard shell)
-├── middleware.ts                # Vercel Edge Middleware (bot filtering, variant routing)
+├── middleware.ts                # Vercel Edge Middleware (bot filtering)
 ├── vite.config.ts              # Vite configuration (2,118 lines)
 ├── tsconfig.json               # TypeScript config (frontend)
 ├── tsconfig.api.json           # TypeScript config (API/server)
@@ -939,7 +937,7 @@ These endpoints bypass bot filtering and authentication:
 #### Layer 2: Enterprise API Keys
 - **Source**: `ORION_VALID_KEYS` environment variable (comma-separated)
 - **Mechanism**: Operator-issued keys
-- **Purpose**: Bypasses entitlement checks; used by Tauri desktop
+- **Purpose**: Bypasses entitlement checks
 - **Auth kind**: `enterprise`
 
 #### Layer 3: User-Owned API Keys
@@ -1161,25 +1159,17 @@ Arabic (ar), Bulgarian (bg), Czech (cs), German (de), Greek (el), Spanish (es), 
 
 ---
 
-## 15. Dashboard Variants
+## 15. Dashboard
 
-### 6 Variants from One Deployment
+### Single Unified Platform
 
-| Variant | Domain | Theme Color | Focus |
-|---|---|---|---|
-| **Full** | `orion.app` | Green `#6bfb9a` | All 34 domains, complete dashboard |
-| **Tech** | `tech.orion.app` | Blue `#4a9eff` | Technology, AI, cybersecurity |
-| **Finance** | `finance.orion.app` | Gold `#ffd700` | Financial markets, economics |
-| **Commodity** | `commodity.orion.app` | Orange `#ff8c00` | Energy, materials, commodities |
-| **Happy** | `happy.orion.app` | Cream `#FAFAF5` | Positive news, feel-good stories |
-| **Energy** | `energy.orion.app` | Teal `#00bfa5` | Energy supply chain focus |
+ORION is delivered as a single platform at **orion.app** with all 34 service domains and 160+ panels available to every user based on their entitlement tier.
 
-### How Variants Work
-1. **Build time**: `VITE_VARIANT` env var selects which panels/data to include
-2. **Runtime**: `middleware.ts` maps subdomains to variants
-3. **Tree-shaking**: Each variant only includes relevant panels and data tables
-4. **Shared assets**: Identical SPA assets served from same CDN cache
-5. **HTML customization**: `htmlVariantPlugin` in vite.config.ts replaces title, meta, theme-color, favicon per variant
+### Build Configuration
+1. **Build time**: Standard Vite build produces the complete dashboard
+2. **HTML customization**: `htmlVariantPlugin` in vite.config.ts sets title, meta, theme-color, favicon
+3. **Shared assets**: Identical SPA assets served from CDN cache
+4. **Tree-shaking**: Feature gating via entitlement system controls panel visibility at runtime
 
 ---
 
@@ -1529,7 +1519,7 @@ Cross-Origin-Embedder-Policy-Report-Only: require-corp
 Three regex patterns:
 1. **BOT_UA**: Blocks crawlers/bots from `/api/*` and `/favico/*` (returns 403 JSON)
 2. **SOCIAL_PREVIEW_UA**: Permits social bots (Twitter, Facebook, LinkedIn) on OG routes
-3. **AI_CRAWLER_UA**: Permits AI crawlers (GPTBot, ClaudeBot) for variant-aware static stubs
+3. **AI_CRAWLER_UA**: Permits AI crawlers (GPTBot, ClaudeBot)
 
 ### Additional Security Measures
 
@@ -1555,7 +1545,7 @@ Three regex patterns:
 3. `tsc` — TypeScript type checking
 4. `vite build` — Vite production build
 5. **Brotli precompression** — All JS/CSS/HTML/SVG/JSON/WASM files >1KB compressed
-6. **HTML variant plugin** — Replace title, meta, theme-color per variant
+6. **HTML plugin** — Set title, meta, theme-color
 7. **Dashboard HTML output** — Rename `index.html` to `dashboard.html`
 
 **Build Outputs**:
@@ -1622,11 +1612,7 @@ Three regex patterns:
 - **Artifacts**: Trace, screenshot, video on failure only
 
 **Test Commands**:
-- `npm run test:e2e:full` — Full variant E2E
-- `npm run test:e2e:tech` — Tech variant E2E
-- `npm run test:e2e:finance` — Finance variant E2E
-- `npm run test:e2e:commodity` — Commodity variant E2E
-- `npm run test:e2e:energy` — Energy variant E2E
+- `npm run test:e2e:full` — Full dashboard E2E
 - `npm run test:e2e:visual` — Visual regression tests
 
 ### Custom Lint Scripts
@@ -1679,11 +1665,6 @@ npm run lint
 | Command | Description |
 |---|---|
 | `npm run dev` | Start dev server (port 3000) |
-| `npm run dev:tech` | Dev with tech variant |
-| `npm run dev:finance` | Dev with finance variant |
-| `npm run dev:commodity` | Dev with commodity variant |
-| `npm run dev:happy` | Dev with happy variant |
-| `npm run dev:energy` | Dev with energy variant |
 | `npm run build` | Production build |
 | `npm run preview` | Preview production build |
 | `npm run typecheck` | TypeScript type checking |
@@ -1783,7 +1764,6 @@ See `.env.example` (1,024 lines) for complete documentation.
 
 Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Convex table:
 
-- **Variant selection**: `VITE_VARIANT` (full/tech/finance/commodity/happy/energy)
 - **Map interaction mode**: `VITE_MAP_INTERACTION_MODE`
 - **PMTiles URL**: `VITE_PMTILES_URL`
 - **WebSocket API**: `VITE_WS_API_URL`
@@ -1799,26 +1779,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 30. Desktop Application (Tauri)
-
-### Tauri Integration
-
-- **Runtime detection**: `src/services/runtime.ts` detects Tauri vs web
-- **Sidecar API**: `src/services/tauri-bridge.ts` invokes Tauri commands
-- **Authentication**: Enterprise API keys (bypass Clerk)
-- **Platforms**: macOS, Linux, Windows
-- **WebView**: WKWebView (macOS), WebView2 (Windows), WebKitGTK (Linux)
-
-### Tauri-Specific Features
-- Native file system access
-- System tray integration
-- Auto-updater
-- Native notifications
-- Offline mode with local cache
-
----
-
-## 31. Embed System
+## 30. Embed System
 
 ### Embeddable Widget
 
@@ -1834,7 +1795,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 32. Notification Channels
+## 31. Notification Channels
 
 ### Channel Configuration
 
@@ -1855,7 +1816,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 33. Broadcast System
+## 32. Broadcast System
 
 ### Multi-Step Campaign Pipeline
 
@@ -1878,7 +1839,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 34. Referral System
+## 33. Referral System
 
 ### Dual Code Spaces
 
@@ -1897,7 +1858,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 35. Circuit Breaker & Resilience
+## 34. Circuit Breaker & Resilience
 
 ### Circuit Breaker Pattern
 
@@ -1917,7 +1878,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 36. Storage Architecture
+## 35. Storage Architecture
 
 ### Client-Side Storage
 
@@ -1943,7 +1904,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 37. Event System
+## 36. Event System
 
 ### CustomEvent Bus
 
@@ -1962,7 +1923,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 38. Web Workers
+## 37. Web Workers
 
 ### Worker Types
 
@@ -1979,7 +1940,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 39. Progressive Web App (PWA)
+## 38. Progressive Web App (PWA)
 
 ### PWA Configuration (VitePWA)
 
@@ -1997,7 +1958,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 40. OAuth 2.0 System
+## 39. OAuth 2.0 System
 
 ### OAuth Endpoints
 
@@ -2023,7 +1984,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 41. Data Freshness & Staleness
+## 40. Data Freshness & Staleness
 
 ### Freshness Tracking
 
@@ -2044,7 +2005,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 42. Entitlement & Gating System
+## 41. Entitlement & Gating System
 
 ### Tier Hierarchy
 
@@ -2074,7 +2035,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 43. Usage Telemetry
+## 42. Usage Telemetry
 
 ### Axiom-Based Telemetry (`server/_shared/usage.ts`)
 
@@ -2094,7 +2055,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 44. Error Handling
+## 43. Error Handling
 
 ### Error Mapper (`server/error-mapper.ts`)
 
@@ -2114,7 +2075,7 @@ Runtime feature toggles via `VITE_*` environment variables and `featureFlags` Co
 
 ---
 
-## 45. Protocol Buffers & Code Generation
+## 44. Protocol Buffers & Code Generation
 
 ### Proto Toolchain
 
@@ -2160,7 +2121,7 @@ service AviationService {
 
 ---
 
-## 46. Scripts & Tooling
+## 45. Scripts & Tooling
 
 ### Build Scripts
 
@@ -2220,28 +2181,28 @@ service AviationService {
 
 ---
 
-## 47. Static Assets & Public Directory
+## 46. Static Assets & Public Directory
 
 ### Public Assets (90+ files)
 
 | Directory | Content |
 |---|---|
-| `favico/` | Favicons for all variants |
+| `favico/` | Favicons |
 | `map-styles/` | MapLibre style definitions |
 | `textures/` | 3D textures for globe.gl |
 | `data/` | Static JSON data files |
-| `pro/` | Pre-built pro variant |
+| `pro/` | Pre-built pro tier assets |
 | `icons/` | UI icons |
 | `fonts/` | Custom fonts |
 
 ### Lazy-Loaded Assets
 - Map styles loaded on demand
 - Textures loaded when 3D view activated
-- Large data tables loaded per-variant
+- Large data tables loaded on demand
 
 ---
 
-## 48. Consumer Prices Core Module
+## 47. Consumer Prices Core Module
 
 ### Standalone Price Scraping Pipeline
 
@@ -2256,7 +2217,7 @@ service AviationService {
 
 ---
 
-## 49. Railway Relay System
+## 48. Railway Relay System
 
 ### AIS Relay (`scripts/ais-relay.cjs`)
 
@@ -2278,7 +2239,7 @@ service AviationService {
 
 ---
 
-## 50. Cloudflare Worker
+## 49. Cloudflare Worker
 
 ### CORS Preflight Worker
 
@@ -2295,7 +2256,7 @@ service AviationService {
 
 ---
 
-## 51. Linting & Code Quality
+## 50. Linting & Code Quality
 
 ### Biome Linter (v2.4.7)
 
@@ -2326,7 +2287,7 @@ service AviationService {
 
 ---
 
-## 52. Version Management & Changelog
+## 51. Version Management & Changelog
 
 ### Build Defines
 
@@ -2342,7 +2303,7 @@ __BUILD_HASH__    // Vercel commit SHA or 'dev'
 
 ---
 
-## 53. Known Issues & Technical Debt
+## 52. Known Issues & Technical Debt
 
 ### Documented Issues
 
@@ -2360,7 +2321,7 @@ __BUILD_HASH__    // Vercel commit SHA or 'dev'
 
 ---
 
-## 54. Glossary
+## 53. Glossary
 
 | Term | Definition |
 |---|---|
@@ -2382,7 +2343,6 @@ __BUILD_HASH__    // Vercel commit SHA or 'dev'
 | **sebuf** | Custom protoc plugins for TypeScript generation |
 | **Seed Script** | Cron job that fetches and caches external data |
 | **SmartPollLoop** | Adaptive polling with exponential backoff |
-| **Variant** | Branded dashboard build (full/tech/finance/commodity/happy/energy) |
 
 ---
 

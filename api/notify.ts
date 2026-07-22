@@ -14,7 +14,6 @@ import { getCorsHeaders, isDisallowedOrigin } from './_cors.js';
 // @ts-expect-error — JS module, no declaration file
 import { jsonResponse } from './_json-response.js';
 import { validateBearerToken } from '../server/auth-session';
-import { getEntitlements } from '../server/_shared/entitlement-check';
 
 const VALID_SEVERITIES = new Set(['critical', 'high', 'medium', 'low', 'info']);
 const INTERNAL_EVENT_TYPES = new Set(['flush_quiet_held', 'channel_welcome']);
@@ -43,11 +42,6 @@ export default async function handler(req: Request): Promise<Response> {
   const session = await validateBearerToken(token);
   if (!session.valid || !session.userId) {
     return jsonResponse({ error: 'UNAUTHENTICATED' }, 401, cors);
-  }
-
-  const ent = await getEntitlements(session.userId);
-  if (!ent || ent.features.tier < 1) {
-    return jsonResponse({ error: 'pro_required', message: 'Event publishing is available on the Pro plan.', upgradeUrl: 'https://orion.app/pro' }, 403, cors);
   }
 
   let body: { eventType?: unknown; payload?: unknown; severity?: unknown; variant?: unknown };

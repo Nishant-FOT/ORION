@@ -14,7 +14,7 @@ For source selection, filtering, deduplication, LLM grounding, and bias
 controls, see [News Digest and Briefing Methodology](/methodology/news-digest-and-briefing).
 
 <Info>
-All read routes require a valid Clerk session and a PRO tier, except the public share route (`/api/brief/public/{hash}`).
+All read routes require a valid session, except the public share route (`/api/brief/public/{hash}`).
 </Info>
 
 ## Latest brief (authenticated)
@@ -29,8 +29,8 @@ brief yet.
 |--------|----------|
 | 200 OK | `{ status: "ready", issueDate, issueSlot, dateLong, greeting, threadCount, magazineUrl }` |
 | 200 OK | `{ status: "composing", issueDate, issueSlot? }` — no brief for the current/requested slot yet |
-| 401 | Missing / invalid Clerk JWT |
-| 403 | `pro_required` |
+| 401 | Missing / invalid session |
+| 403 | `Forbidden` |
 | 503 | `BRIEF_URL_SIGNING_SECRET` not configured |
 
 `issueDate` remains the display/date field (`YYYY-MM-DD`). `issueSlot` is the
@@ -58,7 +58,7 @@ is a pure function of `{userId, issueSlot, BRIEF_SHARE_SECRET}`.
 | 200 | `{ shareUrl, hash, issueSlot }` |
 | 400 | `invalid_slot_shape` / `invalid_payload` |
 | 401 | `UNAUTHENTICATED` |
-| 403 | `pro_required` |
+| 403 | `Forbidden` |
 | 404 | `brief_not_found` — reader can't share what doesn't exist |
 | 503 | `service_unavailable` |
 
@@ -90,7 +90,7 @@ Open Graph preview image for `/api/story`. Returns `image/png`, cached aggressiv
 
 Streaming chat endpoint for the "Ask the analyst" in-dashboard assistant. Takes a user prompt + recent-signal context; returns SSE tokens.
 
-- Auth: Clerk JWT + PRO
+- Auth: Session required
 - Streams: `text/event-stream`
 - Back-end: `intelligence/v1/chat-analyst-*` handlers compose context + prompt
 

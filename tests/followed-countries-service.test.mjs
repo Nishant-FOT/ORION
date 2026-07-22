@@ -219,7 +219,6 @@ function makeFakeConvex({ tier, capLimit = 3 }) {
 // Default deps for tests: anonymous user (Clerk null), entitlement null.
 function setAnonymous() {
   _setDepsForTests({
-    getCurrentClerkUser: () => null,
     getEntitlementState: () => null,
     hasTier: () => false,
     featureFlagEnabled: true,
@@ -231,7 +230,6 @@ function setAnonymous() {
 async function setSignedInPro() {
   const fake = makeFakeConvex({ tier: 1 });
   _setDepsForTests({
-    getCurrentClerkUser: () => ({ id: 'user_pro' }),
     getEntitlementState: () => ({ features: { tier: 1 } }),
     hasTier: (n) => n <= 1,
     featureFlagEnabled: true,
@@ -248,7 +246,6 @@ async function setSignedInPro() {
 async function setSignedInFreeLoaded() {
   const fake = makeFakeConvex({ tier: 0 });
   _setDepsForTests({
-    getCurrentClerkUser: () => ({ id: 'user_free' }),
     getEntitlementState: () => ({ features: { tier: 0 } }),
     hasTier: () => false,
     featureFlagEnabled: true,
@@ -262,7 +259,6 @@ async function setSignedInFreeLoaded() {
 
 function setSignedInLoading() {
   _setDepsForTests({
-    getCurrentClerkUser: () => ({ id: 'user_loading' }),
     getEntitlementState: () => null,
     hasTier: () => false,
     featureFlagEnabled: true,

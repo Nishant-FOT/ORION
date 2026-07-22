@@ -32,7 +32,7 @@ Action-dispatched writer. The body's `action` field selects the mutation:
 
 | action | Purpose |
 |--------|---------|
-| `create-pairing-token` | Mint a one-time pairing token (optional `variant`) for the mobile / Tauri client to bind a push channel. |
+| `create-pairing-token` | Mint a one-time pairing token (optional `variant`) for the client to bind a push channel. |
 | `set-channel` | Register or update a channel. For `webhook` channels the `webhookEnvelope` URL is validated HTTPS-only, must not resolve to a private/loopback address, and is AES-256-GCM encrypted before storage. Optional `email`, `webhookLabel` (truncated to 100 chars). |
 | `set-web-push` | Register a browser Web Push subscription for the signed-in user. |
 | `delete-channel` | Remove a channel by type (`email`, `webhook`, `telegram`, `web-push`, etc.). |
@@ -40,7 +40,7 @@ Action-dispatched writer. The body's `action` field selects the mutation:
 | `set-quiet-hours` | Set do-not-disturb windows. |
 | `set-digest-settings` | Configure digest cadence and channel routing. |
 
-All actions require Clerk bearer + PRO (`tier >= 1`). Invalid actions return `400 Unknown action`. Requests are forwarded to Convex via `RELAY_SHARED_SECRET`.
+All actions require a valid session. Invalid actions return `400 Unknown action`. Requests are forwarded to Convex via `RELAY_SHARED_SECRET`.
 
 ## Webhook delivery contract
 
@@ -83,7 +83,7 @@ Returns the pre-rendered brief feed for a given Telegram-linked user. Used by th
 
 ### `GET /api/youtube/embed?videoId=...`
 
-SSR'd YouTube embed iframe with CSP-compatible wrapping. Used to bypass WKWebView autoplay restrictions on the desktop app.
+SSR'd YouTube embed iframe with CSP-compatible wrapping. Used to bypass WKWebView autoplay restrictions in native builds.
 
 ### `GET /api/youtube/live?channel=<handle>` or `?videoId=<11-char-id>`
 
@@ -95,13 +95,13 @@ Proxies to the Railway relay first (residential proxy for YouTube scraping). On 
 
 ### `POST /api/slack/oauth/start`
 
-Authenticated (Clerk JWT + PRO). Body is empty. Server generates a one-time CSRF state token, stores the caller's userId in Upstash keyed by that state (10-min TTL), and returns the Slack authorize URL for the frontend to open in a popup.
+Authenticated (session required). Body is empty. Server generates a one-time CSRF state token, stores the caller's userId in Upstash keyed by that state (10-min TTL), and returns the Slack authorize URL for the frontend to open in a popup.
 
 ```json
 { "oauthUrl": "https://slack.com/oauth/v2/authorize?client_id=...&scope=incoming-webhook&..." }
 ```
 
-Errors: 401 (missing/invalid JWT), 403 `pro_required`, 503 (OAuth not configured or Upstash unavailable).
+Errors: 401 (missing/invalid session), 403, 503 (OAuth not configured or Upstash unavailable).
 
 ### `GET /api/slack/oauth/callback`
 
@@ -111,7 +111,7 @@ Unauthenticated — the popup lands here after Slack redirects. Validates the st
 
 ### `POST /api/discord/oauth/start`
 
-Authenticated (Clerk JWT + PRO). Same shape as the Slack start route — returns `{ oauthUrl }` for a popup.
+Authenticated (session required). Same shape as the Slack start route — returns `{ oauthUrl }` for a popup.
 
 ### `GET /api/discord/oauth/callback`
 

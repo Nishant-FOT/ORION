@@ -2,12 +2,6 @@
  * GET /api/supply-chain/v1/get-route-impact
  *
  * Returns strategic-product impact data for a country-pair lane:
- * - Lane value in USD for the selected HS2 (from bilateral-hs4 store)
- * - Top 5 strategic products by import value with chokepoint exposure
- * - Resilience score (server-side, from Redis cache)
- * - Dependency flags (reuses get-sector-dependency logic)
- *
- * PRO-gated. Non-bootstrapped (request-varying cache key).
  */
 
 import type {
@@ -18,7 +12,6 @@ import type {
   DependencyFlag,
 } from '../../../../src/generated/server/orion/supply_chain/v1/service_server';
 
-import { isCallerPremium } from '../../../_shared/premium-check';
 import { cachedFetchJson, getCachedJson } from '../../../_shared/redis';
 import { lazyFetchBilateralHs4 } from './_bilateral-hs4-lazy';
 import { ROUTE_IMPACT_KEY } from '../../../_shared/cache-keys';
@@ -231,11 +224,10 @@ async function computeImpact(req: GetRouteImpactRequest): Promise<GetRouteImpact
 }
 
 export async function getRouteImpact(
-  ctx: ServerContext,
+  _ctx: ServerContext,
   req: GetRouteImpactRequest,
 ): Promise<GetRouteImpactResponse> {
-  const isPro = await isCallerPremium(ctx.request);
-  if (!isPro) return emptyResponse(req, 'missing');
+
 
   const fromIso2 = req.fromIso2?.trim().toUpperCase() ?? '';
   const toIso2 = req.toIso2?.trim().toUpperCase() ?? '';

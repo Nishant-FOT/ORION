@@ -19,7 +19,7 @@ Five tabs under a market + basket selector and a time-range control:
 
 Panel-level controls:
 
-- **Market bar** — a button per supported market (default `AE`; the full list comes from `MARKETS` in `src/services/consumer-prices`). Selecting a market implicitly sets the basket to that market's `essentials-<code>` variant (or the default basket when the `all` aggregate view is active) — there is no separate basket picker.
+- **Market bar** — a button per supported market (default `AE`; the full list comes from `MARKETS` in `src/services/consumer-prices`). Selecting a market implicitly sets the basket to that market's `essentials-<code>` configuration (or the default basket when the `all` aggregate view is active) — there is no separate basket picker.
 - **Range bar** — `7d`, `30d`, or `90d`.
 - **Category filter** — click a category row on the **Categories** tab to scope the **Movers** tab to that category. A clear-filter affordance resets it.
 
@@ -30,7 +30,7 @@ Panel id is `consumer-prices`; canonical component is `src/components/ConsumerPr
 ## How you reach it
 
 - **Cmd+K**: type *prices* or *consumer*.
-- **Availability by variant**: enabled by default in the **finance** and **commodity** variants. Registered but disabled (opt-in) in the **full/geopolitical** variant. Not registered in the tech or happy variants. Source: `FINANCE_PANELS`, `COMMODITY_PANELS`, `FULL_PANELS` in `src/config/panels.ts`.
+- **Availability**: enabled by default in the **finance** and **commodity** configurations. Registered but disabled (opt-in) in the **full/geopolitical** configuration. Not registered in the tech or happy configurations. Source: `FINANCE_PANELS`, `COMMODITY_PANELS`, `FULL_PANELS` in `src/config/panels.ts`.
 
 ## Data sources
 
@@ -54,7 +54,7 @@ The Health tab inside the panel shows the per-source fetched-at timestamps so yo
 
 ## Tier & gating
 
-Consumer Prices is **free**. The panel is registered without a `premium` flag in `src/config/panels.ts`, so anyone — including unauthenticated readers — can see it on variants where it is enabled.
+Consumer Prices is **free**. The panel is registered without a `premium` flag in `src/config/panels.ts`, so anyone — including unauthenticated readers — can see it on configurations where it is enabled.
 
 ## API reference
 

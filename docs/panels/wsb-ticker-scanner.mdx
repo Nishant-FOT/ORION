@@ -27,7 +27,7 @@ Panel id is `wsb-ticker-scanner`; canonical component is `src/components/WsbTick
 ## How you reach it
 
 - **Cmd+K**: type *wsb*, *retail sentiment*, or a ticker symbol.
-- **Availability by variant**: registered and enabled by default in the **full/geopolitical** and **finance** variants — locked in both, with `priority: 75` (surfacing lower in default panel grids than priority-1 panels). Not present in the tech, commodity, or happy variants. Source: `'wsb-ticker-scanner'` in `FULL_PANELS` at `src/config/panels.ts:91` and equivalent in `FINANCE_PANELS`.
+- **Availability**: registered and enabled by default in the **full/geopolitical** and **finance** configurations — locked in both, with `priority: 75` (surfacing lower in default panel grids than priority-1 panels). Not present in the tech, commodity, or happy configurations. Source: `'wsb-ticker-scanner'` in `FULL_PANELS` at `src/config/panels.ts:91` and equivalent in `FINANCE_PANELS`.
 
 ## Data sources
 
@@ -39,7 +39,7 @@ Aggregation runs on a scheduled cron (market-hours oriented). The panel reads th
 
 ## Tier & gating
 
-**PRO (hard-locked).** `premium: 'locked'` in variant registrations. `isPanelEntitled` unlocks it when **either** a valid `ORION_API_KEY` is present **or** `isPro` is true (`wsb-ticker-scanner` is in the `apiKeyPanels` allowlist at `src/config/panels.ts:973`).
+All panels are freely accessible. No subscription or API key required.
 
 ## API reference
 

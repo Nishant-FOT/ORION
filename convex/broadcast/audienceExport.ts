@@ -8,8 +8,7 @@
  * Dedup formula:
  *   registrations
  *     − emailSuppressions (hard bounces, complaints, manual)
- *     − customers (anyone who has been through Dodo checkout — never pitch
- *       PRO to people who already paid)
+ *     − customers (do not pitch launch offers to people who already paid)
  *
  * Join key: `normalizedEmail` (lowercased + trimmed). Defense in depth:
  * `getPaidEmails` falls back to deriving the key from `customers.email`
@@ -84,9 +83,7 @@ export const getSuppressedEmails = internalQuery({
 
 /**
  * Snapshot of paid (customer) normalizedEmails at call time.
- * Includes ALL customers regardless of subscription status — anyone who's
- * been through Dodo checkout is excluded from the launch pitch (active,
- * cancelled, expired all skip).
+ * Includes ALL customers regardless of subscription status.
  *
  * Defense-in-depth fallback: `customers.normalizedEmail` is OPTIONAL in
  * the schema (added by PR #3424; backfill populates existing rows), so a
@@ -100,15 +97,9 @@ export const getSuppressedEmails = internalQuery({
  */
 export const getPaidEmails = internalQuery({
   args: {},
-  handler: async (ctx) => {
-    const all = await ctx.db.query("customers").collect();
-    return all
-      .map((row) => {
-        const stored = row.normalizedEmail;
-        if (stored && stored.length > 0) return stored;
-        return (row.email ?? "").trim().toLowerCase();
-      })
-      .filter((e): e is string => typeof e === "string" && e.length > 0);
+  handler: async (_ctx) => {
+    // Customers table removed — no paid emails to exclude.
+    return [] as string[];
   },
 });
 

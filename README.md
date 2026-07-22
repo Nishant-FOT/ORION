@@ -82,8 +82,6 @@ The platform monitors global events — conflicts, natural disasters, market mov
 | **ML Runtime** | ONNX Runtime Web, Xenova Transformers |
 | **Backend** | Vercel Serverless Functions, Convex Realtime DB |
 | **Cache** | Upstash Redis (serverless, pay-per-request) |
-| **Auth** | Clerk (OAuth, JWT, session management) |
-| **Payments** | Dodo Payments (Pro tier) |
 | **Error Tracking** | Sentry |
 | **Analytics** | Vercel Analytics |
 | **PWA** | vite-plugin-pwa, Workbox |
@@ -177,10 +175,6 @@ AVIATIONSTACK_API_KEY=your_aviation_key
 # Cache (Upstash Redis — free tier)
 UPSTASH_REDIS_REST_URL=your_redis_url
 UPSTASH_REDIS_REST_TOKEN=your_redis_token
-
-# Auth (Clerk)
-CLERK_PUBLISHABLE_KEY=your_clerk_key
-CLERK_SECRET_KEY=your_clerk_secret
 ```
 
 See [`.env.example`](.env.example) for the full list of 50+ configurable variables.
@@ -381,5 +375,4 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 - [deck.gl](https://deck.gl/) — WebGL-powered data visualization
 - [Groq](https://groq.com/) — Fast LLM inference
 - [Upstash](https://upstash.com/) — Serverless Redis
-- [Clerk](https://clerk.com/) — Authentication
 - [Vercel](https://vercel.com/) — Deployment platform

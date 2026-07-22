@@ -17,7 +17,7 @@ import { fileURLToPath } from 'url';
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const DIST_DIR = resolve(__dirname, '..', 'dist');
-const IS_PROD = process.env.NODE_ENV === 'production';
+const APP_ENTRY = 'dashboard.html';
 
 // ---------------------------------------------------------------------------
 // MIME types for static files
@@ -56,18 +56,19 @@ const MIME: Record<string, string> = {
 // Route definitions
 // ---------------------------------------------------------------------------
 
-type GatewayFn = (req: Request, ctx?: { waitUntil: (p: Promise<unknown>) => void }) => Promise<Response>;
+type GatewayCtx = { waitUntil: (p: Promise<unknown>) => void };
+type GatewayFn = (req: Request, ctx: GatewayCtx) => Response | Promise<Response>;
 
 interface ExactRoute {
   kind: 'exact';
   path: string;
-  load: () => Promise<{ default: GatewayFn }>;
+  load: () => Promise<{ default?: GatewayFn }>;
 }
 
 interface PrefixRoute {
   kind: 'prefix';
   prefix: string;
-  load: () => Promise<{ default: GatewayFn }>;
+  load: () => Promise<{ default?: GatewayFn }>;
 }
 
 type Route = ExactRoute | PrefixRoute;
@@ -148,21 +149,16 @@ const ROUTES: Route[] = [
   { kind: 'exact', path: '/api/mcp-proxy', load: () => import('../api/mcp-proxy') },
   { kind: 'exact', path: '/api/chat-analyst', load: () => import('../api/chat-analyst') },
   { kind: 'exact', path: '/api/latest-brief', load: () => import('../api/latest-brief') },
-  { kind: 'exact', path: '/api/create-checkout', load: () => import('../api/create-checkout') },
-  { kind: 'exact', path: '/api/customer-portal', load: () => import('../api/customer-portal') },
   { kind: 'exact', path: '/api/oauth-protected-resource', load: () => import('../api/oauth-protected-resource') },
   { kind: 'exact', path: '/api/user-prefs', load: () => import('../api/user-prefs') },
-  { kind: 'exact', path: '/api/me/entitlement', load: () => import('../api/me/entitlement') },
   { kind: 'exact', path: '/api/notify', load: () => import('../api/notify') },
   { kind: 'exact', path: '/api/notification-channels', load: () => import('../api/notification-channels') },
   { kind: 'exact', path: '/api/referral/me', load: () => import('../api/referral/me') },
   { kind: 'exact', path: '/api/symbol-search', load: () => import('../api/symbol-search') },
   { kind: 'exact', path: '/api/seed-contract-probe', load: () => import('../api/seed-contract-probe') },
   { kind: 'exact', path: '/api/widget-agent', load: () => import('../api/widget-agent') },
-  { kind: 'exact', path: '/api/data/city-coords', load: () => import('../api/data/city-coords') },
   { kind: 'exact', path: '/api/invalidate-user-api-key-cache', load: () => import('../api/invalidate-user-api-key-cache') },
   { kind: 'exact', path: '/api/skills/fetch-agentskills', load: () => import('../api/skills/fetch-agentskills') },
-  { kind: 'exact', path: '/api/mcp-grant', load: () => import('../api/_mcp-grant-hmac') },
 ];
 
 // ---------------------------------------------------------------------------
@@ -177,9 +173,10 @@ async function resolveHandler(route: Route): Promise<GatewayFn | null> {
 
   try {
     const mod = await route.load();
-    handlerCache.set(key, mod.default);
+    const handler = mod.default ?? null;
+    handlerCache.set(key, handler);
     console.log(`[railway] loaded handler: ${key}`);
-    return mod.default;
+    return handler;
   } catch (err) {
     console.error(`[railway] FAILED to load handler: ${key}`, err);
     handlerCache.set(key, null);
@@ -192,7 +189,7 @@ async function resolveHandler(route: Route): Promise<GatewayFn | null> {
 // ---------------------------------------------------------------------------
 
 async function serveStatic(pathname: string): Promise<Response | null> {
-  let fp = join(DIST_DIR, pathname === '/' ? 'index.html' : pathname);
+  let fp = join(DIST_DIR, pathname === '/' ? APP_ENTRY : pathname);
 
   try {
     let s = await stat(fp);
@@ -327,7 +324,7 @@ async function handleRequest(nodeReq: IncomingMessage, nodeRes: ServerResponse):
     if (staticRes) return await sendWebResponse(nodeRes, staticRes);
 
     // 3. SPA fallback
-    const indexContent = await readFile(join(DIST_DIR, 'index.html'));
+    const indexContent = await readFile(join(DIST_DIR, APP_ENTRY));
     nodeRes.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     nodeRes.end(indexContent);
   } catch (err) {

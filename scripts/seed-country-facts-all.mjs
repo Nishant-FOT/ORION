@@ -146,7 +146,7 @@ const ALL_COUNTRIES = [
   { c:'NI',n:'Nicaragua',p:6624554,cap:'Managua',a:130373,lang:['Spanish'],cur:['Nicaraguan córdoba'],hos:'Daniel Ortega',ht:'President',w:'Nicaragua is the largest country in the Central American isthmus.' },
   { c:'NL',n:'Netherlands',p:17134872,cap:'Amsterdam',a:41543,lang:['Dutch'],cur:['Euro'],hos:'King Willem-Alexander',ht:'King',w:'The Netherlands is a country in Northwestern Europe.' },
   { c:'NO',n:'Norway',p:5421241,cap:'Oslo',a:323802,lang:['Norwegian'],cur:['Norwegian krone'],hos:'King Harald V',ht:'King',w:'Norway is a Nordic country in Northern Europe.' },
-  { c:'NP',n:'Nepal',p:29136808,c:'Kathmandu',cap:'Kathmandu',a:147181,lang:['Nepali'],cur:['Nepalese rupee'],hos:'Ram Chandra Paudel',ht:'President',w:'Nepal is a landlocked country in South Asia.' },
+  { c:'NP',n:'Nepal',p:29136808,cap:'Kathmandu',a:147181,lang:['Nepali'],cur:['Nepalese rupee'],hos:'Ram Chandra Paudel',ht:'President',w:'Nepal is a landlocked country in South Asia.' },
   { c:'NR',n:'Nauru',p:10824,cap:'Yaren',a:21,lang:['Nauruan','English'],cur:['Australian dollar'],hos:'David Adeang',ht:'President',w:'Nauru is a tiny island country in Micronesia in the Central Pacific.' },
   { c:'NZ',n:'New Zealand',p:5084300,cap:'Wellington',a:268021,lang:['English','Māori'],cur:['New Zealand dollar'],hos:'King Charles III',ht:'King',w:'New Zealand is an island country in the southwestern Pacific Ocean.' },
   { c:'OM',n:'Oman',p:5106626,cap:'Muscat',a:309500,lang:['Arabic'],cur:['Omani rial'],hos:'Sultan Haitham bin Tariq',ht:'Sultan',w:'Oman is a country on the southeastern coast of the Arabian Peninsula.' },

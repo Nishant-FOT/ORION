@@ -1,5 +1,5 @@
 /**
- * Streaming chat analyst edge function — Pro only.
+ * Streaming chat analyst edge function.
  *
  * POST /api/chat-analyst
  * Body: { history: {role,content}[], query: string, domainFocus?: string, geoContext?: string }
@@ -18,7 +18,6 @@ export const config = { runtime: 'edge', regions: ['iad1', 'lhr1', 'fra1', 'sfo1
 import { getCorsHeaders } from './_cors.js';
 // @ts-expect-error — JS module, no declaration file
 import { captureSilentError } from './_sentry-edge.js';
-import { isCallerPremium } from '../server/_shared/premium-check';
 import { checkRateLimit } from '../server/_shared/rate-limit';
 import { assembleAnalystContext } from '../server/orion/intelligence/v1/chat-analyst-context';
 import { buildAnalystSystemPrompt } from '../server/orion/intelligence/v1/chat-analyst-prompt';
@@ -91,20 +90,9 @@ export default async function handler(req: Request): Promise<Response> {
   // escape: an uncaught throw becomes an opaque Vercel platform 500 that — for
   // the cross-origin api.orion.app caller — also drops our CORS headers,
   // so the browser sees an opaque failure rather than a readable status. The
-  // pre-stream auth/entitlement lookups (isCallerPremium) are network-backed
-  // and, while individually fail-soft today, this route had NO server-side
-  // capture, so any 5xx surfaced only as the browser's `API 500` message with
-  // no stack (ORION-SV). Mirror the sibling premium edge route
-  // (api/latest-brief.ts): capture server-side for a real trace, and return a
-  // CORS-correct transient 503 the panel can render. 503 (not 403) so a
-  // transient dependency blip never misclassifies a paying Pro user as
-  // unsubscribed.
+  // pre-stream setup must stay inside this boundary so failures include CORS
+  // headers and a captured server-side trace.
   try {
-    const isPremium = await isCallerPremium(req);
-    if (!isPremium) {
-      return json({ error: 'Pro subscription required' }, 403, corsHeaders);
-    }
-
     // Streaming LLM endpoint — the rate-limit IS the abuse defence (each
     // call hits a frontier model). This route doesn't go through gateway
     // checkEndpointRateLimit, so opt into fail-closed explicitly: a Redis

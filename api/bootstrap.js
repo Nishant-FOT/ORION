@@ -104,7 +104,6 @@ const BOOTSTRAP_CACHE_KEYS = {
   crudeInventories:  'economic:crude-inventories:v1',
   natGasStorage:     'economic:nat-gas-storage:v1',
   ecbFxRates:        'economic:ecb-fx-rates:v1',
-  euFsi:             'economic:fsi-eu:v1',
   shippingStress:    'supply_chain:shipping_stress:v1',
   socialVelocity:    'intelligence:social:reddit:v1',
   wsbTickers:        'intelligence:wsb-tickers:v1',

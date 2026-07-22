@@ -9,7 +9,7 @@
  */
 
 export type AuthKind =
-  | 'clerk_jwt'
+  | 'bearer_session'
   | 'user_api_key'
   | 'enterprise_api_key'
   | 'widget_key'
@@ -27,7 +27,6 @@ export interface UsageIdentityInput {
   isUserApiKey: boolean;
   enterpriseApiKey: string | null;
   widgetKey: string | null;
-  clerkOrgId: string | null;
   userApiKeyCustomerRef: string | null;
   tier: number | null;
 }
@@ -53,9 +52,9 @@ export function buildUsageIdentity(input: UsageIdentityInput): UsageIdentity {
 
   if (input.sessionUserId) {
     return {
-      auth_kind: 'clerk_jwt',
+      auth_kind: 'bearer_session',
       principal_id: input.sessionUserId,
-      customer_id: input.clerkOrgId ?? input.sessionUserId,
+      customer_id: input.sessionUserId,
       tier,
     };
   }

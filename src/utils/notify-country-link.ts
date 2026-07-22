@@ -69,10 +69,9 @@ export interface OpenNotificationsForCountryDetail {
 // ---------------------------------------------------------------------------
 // Test-injection seam — a swappable open-helper closure.
 //
-// Mirrors the `_setUpgradeTriggerForTests` pattern in
-// `src/utils/follow-button.ts`. Tests assert "click invokes the
-// helper" without needing a real window event listener; production
-// uses the default closure that dispatches the CustomEvent.
+// Tests assert "click invokes the helper" without needing a real window
+// event listener; production uses the default closure that dispatches the
+// CustomEvent.
 // ---------------------------------------------------------------------------
 
 type OpenHelper = (countryCode: string) => void;

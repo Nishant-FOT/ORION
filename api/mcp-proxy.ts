@@ -1,19 +1,13 @@
-// @ts-nocheck — Migrated from .js to .ts only to unlock the
-// `isCallerPremium` import from server/ (PR #3768 review). Body remains
-// JS-shaped; not annotating types in this commit. Future PR can add
-// types incrementally; behaviour is unchanged.
+// @ts-nocheck — JS-shaped edge proxy; types can be added incrementally.
 import { getCorsHeaders, isDisallowedOrigin } from './_cors.js';
 import { jsonResponse } from './_json-response.js';
-import { isCallerPremium } from '../server/_shared/premium-check';
 import { ENDPOINT_RATE_POLICIES, checkScopedRateLimit } from '../server/_shared/rate-limit';
 
 export const config = { runtime: 'edge' };
 
 // Per-IP rate limit for the MCP proxy (issue #3805 defense-in-depth).
 // 30/min/IP is generous for normal MCP polling (most clients refresh every
-// 30-60s) while bounding abuse to ~1800 calls/hour/IP — well below the
-// global 600/min cap. Auth gate already requires a Pro caller; this limit
-// closes the residual surface where a single Pro key cycles the proxy.
+// 30-60s) while bounding abuse to ~1800 calls/hour/IP.
 //
 // PR #3821 r2: source the limit from ENDPOINT_RATE_POLICIES so the
 // `enforce-rate-limit-policies` audit can see this endpoint. mcp-proxy is a
@@ -458,41 +452,12 @@ export default async function handler(req) {
   if (req.method === 'OPTIONS')
     return new Response(null, { status: 204, headers: cors });
 
-  // Auth gate (issue #3723). The proxy can relay arbitrary customHeaders
-  // (Authorization, API keys) to any public MCP server under ORION's
-  // outbound IP, and consume our outbound-IP reputation / quota — so the
-  // gate must accept ONLY paying / authorised callers.
-  //
-  // Pre-this-PR the endpoint was open. The first cut accepted ors_
-  // anonymous session tokens which are freely mintable via /api/orion-session
-  // → two-step bypass. The second cut went enterprise-key-only via
-  // validateApiKey forceKey:true, which broke the Pro "Connect MCP" UI
-  // for normal web Pro users (no enterprise key path).
-  //
-  // isCallerPremium is the project's canonical premium-caller check. It
-  // accepts: enterprise key (ORION_VALID_KEYS), wm_ user API key
-  // (Convex-validated + entitlement check), and Clerk Pro Bearer JWT
-  // (role==='pro' or entitlement tier>=1). It rejects ors_ session tokens
-  // by requiring keyCheck.required === true (ors_ short-circuits at
-  // required:false). isDisallowedOrigin already blocked cross-origin
-  // browser callers; this closes the curl + ors_ farm paths too.
-  //
-  // Pair: src/components/McpConnectModal.ts + McpDataPanel.ts must use
-  // premiumFetch (not plain fetch) so the renderer attaches the Bearer
-  // for Pro users; /api/mcp-proxy is now in PREMIUM_RPC_PATHS for that
-  // path-gated injection.
-  if (!(await isCallerPremium(req)))
-    return jsonResponse({ error: 'Pro authentication required' }, 401, cors);
-
   const started = Date.now();
   const ip = getClientIp(req);
   const meta: ProxyMeta = { targetHost: '', targetPath: '', headerNames: [] };
 
-  // Per-IP rate limit (#3805). Runs AFTER auth/CORS so unauthenticated and
-  // cross-origin callers are still rejected first (cheaper to short-circuit
-  // without a Redis round-trip). This endpoint is already premium-auth gated,
-  // so Redis-degraded scoped limits intentionally stay availability-first;
-  // checkScopedRateLimit logs/Sentry-captures the degraded path.
+  // Per-IP rate limit (#3805). Runs after CORS/origin rejection; Redis-degraded
+  // scoped limits intentionally stay availability-first.
   const scoped = await checkScopedRateLimit(RATE_LIMIT_SCOPE, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW, ip);
   if (!scoped.allowed) {
     const retryAfter = Math.max(1, Math.ceil((scoped.reset - Date.now()) / 1000));

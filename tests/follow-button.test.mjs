@@ -257,7 +257,6 @@ function makeFakeConvex({ tier = 1, capLimit = 3, initialRows = [] } = {}) {
 
 function setupAnonymousFree() {
   _setDepsForTests({
-    getCurrentClerkUser: () => null,
     getEntitlementState: () => null,
     hasTier: () => false,
     featureFlagEnabled: true,
@@ -268,7 +267,6 @@ function setupAnonymousFree() {
 
 function setupSignedIn(userId, { tier = 1, fakeClient }) {
   _setDepsForTests({
-    getCurrentClerkUser: () => ({ id: userId }),
     getEntitlementState: () => ({ features: { tier } }),
     hasTier: (n) => n <= tier,
     featureFlagEnabled: true,
@@ -283,7 +281,6 @@ function setupSignedIn(userId, { tier = 1, fakeClient }) {
  */
 function setupSignedInLoading(userId) {
   _setDepsForTests({
-    getCurrentClerkUser: () => ({ id: userId }),
     getEntitlementState: () => null,
     hasTier: () => false,
     featureFlagEnabled: true,
@@ -499,7 +496,6 @@ describe('renderFollowButton — entitlement-loading window', () => {
     let _entState = null;
     let _tier = 0;
     _setDepsForTests({
-      getCurrentClerkUser: () => ({ id: 'user-1' }),
       getEntitlementState: () => _entState,
       hasTier: (n) => n <= _tier,
       featureFlagEnabled: true,
@@ -515,10 +511,7 @@ describe('renderFollowButton — entitlement-loading window', () => {
     const teardown = handle.attach(host);
     assert.match(host.innerHTML, /data-state="loading"/);
 
-    // Resolve to PRO and drive a re-render. The button's onEntitlementChange
-    // hook only fires when entitlements.ts's listeners are notified; in
-    // tests we instead nudge a re-render via the watchlist event (the
-    // button rerenders on either signal — both call computeViewState()).
+    // Resolve to PRO and drive a re-render via the watchlist event.
     _entState = { features: { tier: 1 } };
     _tier = 1;
     _window.dispatchEvent(new CustomEvent(WM_FOLLOWED_COUNTRIES_CHANGED));
@@ -551,7 +544,6 @@ describe('renderFollowButton — entitlement-loading window', () => {
     let _entState = null;
     let _tier = 0;
     _setDepsForTests({
-      getCurrentClerkUser: () => ({ id: 'user-1' }),
       getEntitlementState: () => _entState,
       hasTier: (n) => n <= _tier,
       featureFlagEnabled: true,

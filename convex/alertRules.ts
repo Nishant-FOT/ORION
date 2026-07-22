@@ -2,7 +2,6 @@ import { ConvexError, v } from "convex/values";
 import {
   internalMutation,
   internalQuery,
-  type MutationCtx,
   mutation,
   query,
 } from "./_generated/server";
@@ -10,49 +9,6 @@ import { channelTypeValidator, digestModeValidator, quietHoursOverrideValidator,
 
 type DigestMode = "realtime" | "daily" | "twice_daily" | "weekly";
 type Sensitivity = "all" | "high" | "critical";
-
-/**
- * Layer-2 entitlement gate: notifications are a PRO feature, but until now
- * the only enforcement was at layer 1 (UI paywall) and layer 3 (relay
- * isUserPro filter). Layer 1 has had at least one hole — a 2026-04-28
- * audit found 7 of 28 enabled `alertRules` rows belonged to free-tier
- * users (`tier=0`, never been PRO). The relay's PRO filter has been
- * masking the bug at delivery time, but it fail-opens on entitlement-
- * service errors and shouldn't be the only line of defense.
- *
- * This helper is the WRITE-PATH gate. Throws ConvexError with structured
- * `{code: "PRO_REQUIRED"}` data so the client can detect it and route to
- * the upgrade flow rather than surface a generic 500.
- *
- * Mirrors the FREE_TIER_DEFAULTS semantics in `convex/entitlements.ts`:
- *   - no entitlement row → tier 0 (free)
- *   - validUntil < Date.now() → expired, treat as tier 0
- *   - tier >= 1 → PRO, allowed
- *
- * Kept inline (not imported from entitlements.ts) for security-review
- * readability: every alertRules mutation that calls this should be
- * trivially auditable in one file.
- */
-async function assertProEntitlement(
-  ctx: MutationCtx,
-  userId: string,
-): Promise<void> {
-  const entitlement = await ctx.db
-    .query("entitlements")
-    .withIndex("by_userId", (q) => q.eq("userId", userId))
-    .first();
-  const tier =
-    entitlement && entitlement.validUntil >= Date.now()
-      ? entitlement.features.tier
-      : 0;
-  if (tier < 1) {
-    throw new ConvexError({
-      code: "PRO_REQUIRED",
-      message:
-        "Notifications are a PRO feature. Upgrade to enable real-time and digest alerts.",
-    });
-  }
-}
 
 // Cross-field invariant enforcement for (digestMode, sensitivity).
 //
@@ -162,7 +118,6 @@ export const setAlertRules = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
     const userId = identity.subject;
-    await assertProEntitlement(ctx, userId);
 
     const existing = await ctx.db
       .query("alertRules")
@@ -229,7 +184,6 @@ export const setDigestSettings = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
     const userId = identity.subject;
-    await assertProEntitlement(ctx, userId);
 
     if (args.digestHour !== undefined && (args.digestHour < 0 || args.digestHour > 23 || !Number.isInteger(args.digestHour))) {
       throw new ConvexError("digestHour must be an integer 0–23");
@@ -384,7 +338,6 @@ export const setQuietHours = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
     const userId = identity.subject;
-    await assertProEntitlement(ctx, userId);
     validateQuietHoursArgs(args);
 
     const existing = await ctx.db
@@ -574,18 +527,6 @@ export const setNotificationConfigForUser = internalMutation({
   },
   handler: async (ctx, args) => {
     const { userId, variant } = args;
-    // Layer-2 gate: this internal mutation is reachable from the public
-    // `set-notification-config` HTTP action in convex/http.ts. Even though
-    // the HTTP action verifies the Clerk JWT, the entitlement check belongs
-    // on the same transaction as the write — defense-in-depth against any
-    // future caller (a different HTTP action, a webhook handler, etc.).
-    // Sister *ForUser internal mutations (setAlertRulesForUser, etc.) are
-    // INTENTIONALLY left ungated: they are invoked by trusted operator paths
-    // (admin migration scripts, cleanup jobs) where the operator's intent
-    // is "manage another user's settings," and entitlement-gating those
-    // would block the very cleanup we need to do for free-tier rows that
-    // got created before this gate existed.
-    await assertProEntitlement(ctx, userId);
 
     if (args.digestHour !== undefined && (args.digestHour < 0 || args.digestHour > 23 || !Number.isInteger(args.digestHour))) {
       throw new ConvexError("digestHour must be an integer 0–23");

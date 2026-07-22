@@ -1,9 +1,9 @@
 ---
 title: "News Feeds"
-description: "Catalogue of regional, topical, and variant-specific news-feed panels — content-stream surfaces that share a common panel framework with per-topic or per-region scoping."
+description: "Catalogue of regional, topical, and configuration-specific news-feed panels — content-stream surfaces that share a common panel framework with per-topic or per-region scoping."
 ---
 
-Every variant of ORION ships a set of **content-stream panels** — regional news, topical news, tech / startup feeds, finance and commodity streams, energy headlines, and happy-variant feel-good streams. They share a common panel framework: ranked headlines, source attribution, activity tracking, and Cmd+K / custom-monitor highlighting. This page is the collective reference so the per-panel behaviour is findable without writing one page per feed.
+ORION ships a set of **content-stream panels** — regional news, topical news, tech / startup feeds, finance and commodity streams, energy headlines, and feel-good streams. They share a common panel framework: ranked headlines, source attribution, activity tracking, and Cmd+K / custom-monitor highlighting. This page is the collective reference so the per-panel behaviour is findable without writing one page per feed.
 
 Every panel name in the tables below is also registered in at least one `*_PANELS` block in `src/config/panels.ts`. When you open a panel and the content is empty, check [Data Sources](/data-sources) and the global [health endpoint](/health-endpoints) for the underlying feed's status.
 
@@ -25,7 +25,7 @@ Regional panels scope the world to one macro-region's news stream, with language
 | `latam` | Latin America | Full |
 | `asia` | Asia-Pacific | Full |
 
-All free. Source curation and entitlement live in `src/config/variants/full.ts` (and equivalents).
+All free. Source curation lives in `src/config/variants/full.ts` (and equivalents).
 
 ## Topical news
 
@@ -43,9 +43,9 @@ Topic-scoped news feeds — each panel is the canonical news view for its domain
 
 All free.
 
-## Tech / startup streams (tech variant)
+## Tech / startup streams (tech configuration)
 
-The tech variant ships a large family of content streams covering the startup ecosystem, infrastructure trends, and tech-policy signals. They appear in the tech variant's panel grid and are reachable from Cmd+K.
+The tech configuration ships a large family of content streams covering the startup ecosystem, infrastructure trends, and tech-policy signals. They appear in the tech configuration's panel grid and are reachable from Cmd+K.
 
 | Panel id | Title |
 |---|---|
@@ -71,9 +71,9 @@ The tech variant ships a large family of content streams covering the startup ec
 
 All free. Specific sub-feeds are configured in `src/config/variants/tech.ts`.
 
-## Finance streams (finance variant)
+## Finance streams (finance configuration)
 
-The finance variant's content-stream panels are tighter and market-focused.
+The finance configuration's content-stream panels are tighter and market-focused.
 
 | Panel id | Title |
 |---|---|
@@ -89,9 +89,9 @@ The finance variant's content-stream panels are tighter and market-focused.
 
 All free. Stream configuration lives in `src/config/variants/finance.ts`.
 
-## Energy streams (energy variant)
+## Energy streams (energy configuration)
 
-The energy variant ships a focused set of content streams for live energy
+The energy configuration ships a focused set of content streams for live energy
 headlines, oil and gas markets, and supply-chain chokepoints. The site has
 client-side `ENERGY_FEEDS`; the server digest currently normalises
 `variant=energy` to `full`, so energy-only categories can use direct per-feed
@@ -131,7 +131,7 @@ All free. Stream configuration lives in `src/config/variants/happy.ts`.
 - **Activity tracking** — newly arrived items get the standard new-item visual treatment.
 - **Custom Monitor highlighting** — matching articles surface their [monitor](/panels/monitors) colour as an accent (including inside clusters).
 - **Cmd+K discoverability** — each panel is searchable by its title and category.
-- **Free by default** — none of the news-feed panels are PRO-gated.
+- **Free by default** — all news-feed panels are freely accessible.
 
 ## Related
 

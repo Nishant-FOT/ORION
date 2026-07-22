@@ -1,4 +1,1517 @@
 {
   "note": "Baseline of legacy direct innerHTML/outerHTML assignments for scripts/enforce-safe-html.mjs. Do not add entries for new code; route through src/utils/dom-utils.ts, Panel.setSafeContent(), or add a orion-safe-html audited comment for narrow exceptions.",
-  "entries": []
+  "entries": [
+    {
+      "file": "src/App.ts",
+      "line": 55,
+      "kind": "direct-html-assignment",
+      "code": "header.innerHTML = `",
+      "fingerprint": "src/App.ts:0e4c2afbd5e3cfec"
+    },
+    {
+      "file": "src/App.ts",
+      "line": 137,
+      "kind": "direct-html-assignment",
+      "code": "header.innerHTML = `",
+      "fingerprint": "src/App.ts:0e4c2afbd5e3cfec"
+    },
+    {
+      "file": "src/components/ChokepointsPanel.ts",
+      "line": 98,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/ChokepointsPanel.ts:33b1b6e6c860fcf5"
+    },
+    {
+      "file": "src/components/EnergySupplyPanel.ts",
+      "line": 88,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/EnergySupplyPanel.ts:c37cded91d16401b"
+    },
+    {
+      "file": "src/components/IntelTicker.ts",
+      "line": 123,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `<div class=\"ticker-track\">${itemsHtml}</div>`;",
+      "fingerprint": "src/components/IntelTicker.ts:36fc88450a533c23"
+    },
+    {
+      "file": "src/components/MapContainer.ts",
+      "line": 427,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/MapContainer.ts:341dd766e50aaa32"
+    },
+    {
+      "file": "src/components/MapContainer.ts",
+      "line": 835,
+      "kind": "direct-html-assignment",
+      "code": "list.innerHTML = html;",
+      "fingerprint": "src/components/MapContainer.ts:6f647be643057e42"
+    },
+    {
+      "file": "src/components/MapContainer.ts",
+      "line": 891,
+      "kind": "direct-html-assignment",
+      "code": "cardEl.innerHTML = renderLayerExplanationCard(layerDef?.label || layerKey, explanation);",
+      "fingerprint": "src/components/MapContainer.ts:eb1046c33aa5b0a0"
+    },
+    {
+      "file": "src/components/MarketsPanel.ts",
+      "line": 101,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/MarketsPanel.ts:47c97f124f9175cf"
+    },
+    {
+      "file": "src/components/PanelFactory.ts",
+      "line": 336,
+      "kind": "direct-html-assignment",
+      "code": "element.innerHTML = `",
+      "fingerprint": "src/components/PanelFactory.ts:5099c504ec23ad01"
+    },
+    {
+      "file": "src/components/PanelFactory.ts",
+      "line": 355,
+      "kind": "direct-html-assignment",
+      "code": "element.innerHTML = `",
+      "fingerprint": "src/components/PanelFactory.ts:5099c504ec23ad01"
+    },
+    {
+      "file": "src/components/ResizablePanel.ts",
+      "line": 152,
+      "kind": "direct-html-assignment",
+      "code": "h.innerHTML = `",
+      "fingerprint": "src/components/ResizablePanel.ts:cb07e024937eaa26"
+    },
+    {
+      "file": "src/components/panels/AaiiSentimentPanel.ts",
+      "line": 92,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/AaiiSentimentPanel.ts:1936108014574fd9"
+    },
+    {
+      "file": "src/components/panels/AiScenarioSimulatorPanel.ts",
+      "line": 85,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/AiScenarioSimulatorPanel.ts:407bea5f304acfd7"
+    },
+    {
+      "file": "src/components/panels/AirlineIntelPanel.ts",
+      "line": 143,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/AirlineIntelPanel.ts:af56b39bca69277d"
+    },
+    {
+      "file": "src/components/panels/AirlineIntelPanel.ts",
+      "line": 163,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/AirlineIntelPanel.ts:de6bb297aa1c8c67"
+    },
+    {
+      "file": "src/components/panels/AisShippingPanel.ts",
+      "line": 58,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/AisShippingPanel.ts:9782ccec9518e4e3"
+    },
+    {
+      "file": "src/components/panels/AisShippingPanel.ts",
+      "line": 108,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/AisShippingPanel.ts:46588da4ed9d5e83"
+    },
+    {
+      "file": "src/components/panels/AlertCenterPanel.ts",
+      "line": 123,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/AlertCenterPanel.ts:ccfac6639f426d9c"
+    },
+    {
+      "file": "src/components/panels/AlternativeRoutesPanel.ts",
+      "line": 94,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/AlternativeRoutesPanel.ts:de0309d054312ef4"
+    },
+    {
+      "file": "src/components/panels/AlternativeRoutesPanel.ts",
+      "line": 136,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/AlternativeRoutesPanel.ts:f0380a8c5ccf614d"
+    },
+    {
+      "file": "src/components/panels/BigMacIndexPanel.ts",
+      "line": 64,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/BigMacIndexPanel.ts:5b5a8505726cc909"
+    },
+    {
+      "file": "src/components/panels/BigMacIndexPanel.ts",
+      "line": 97,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/BigMacIndexPanel.ts:23699954ac006115"
+    },
+    {
+      "file": "src/components/panels/BreakingNewsPanel.ts",
+      "line": 105,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/BreakingNewsPanel.ts:7233e6ed8e98c863"
+    },
+    {
+      "file": "src/components/panels/BreakingNewsPanel.ts",
+      "line": 142,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/BreakingNewsPanel.ts:f2ecd4b8805befb6"
+    },
+    {
+      "file": "src/components/panels/BreakthroughsPanel.ts",
+      "line": 145,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/BreakthroughsPanel.ts:6b72b2f2f2addec4"
+    },
+    {
+      "file": "src/components/panels/BreakthroughsPanel.ts",
+      "line": 174,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/BreakthroughsPanel.ts:f019b84f0131d25d"
+    },
+    {
+      "file": "src/components/panels/CascadeAnalysisPanel.ts",
+      "line": 108,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/CascadeAnalysisPanel.ts:7072237c5d1d477a"
+    },
+    {
+      "file": "src/components/panels/CascadeAnalysisPanel.ts",
+      "line": 157,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/CascadeAnalysisPanel.ts:4f44a69c5fe90848"
+    },
+    {
+      "file": "src/components/panels/ChatAnalystPanel.ts",
+      "line": 93,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ChatAnalystPanel.ts:68845a9cb811930f"
+    },
+    {
+      "file": "src/components/panels/ChatAnalystPanel.ts",
+      "line": 162,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ChatAnalystPanel.ts:a7a0a98650613e42"
+    },
+    {
+      "file": "src/components/panels/ChokepointMonitoringPanel.ts",
+      "line": 109,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ChokepointMonitoringPanel.ts:559aeb3724afc990"
+    },
+    {
+      "file": "src/components/panels/ChokepointMonitoringPanel.ts",
+      "line": 121,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ChokepointMonitoringPanel.ts:559aeb3724afc990"
+    },
+    {
+      "file": "src/components/panels/ChokepointMonitoringPanel.ts",
+      "line": 180,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ChokepointMonitoringPanel.ts:23c8fde965e9840f"
+    },
+    {
+      "file": "src/components/panels/ChokepointStripPanel.ts",
+      "line": 60,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ChokepointStripPanel.ts:093c434634f3c0dd"
+    },
+    {
+      "file": "src/components/panels/ChokepointStripPanel.ts",
+      "line": 87,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ChokepointStripPanel.ts:08b6e265a468ece5"
+    },
+    {
+      "file": "src/components/panels/ChokepointsPanel.ts",
+      "line": 44,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ChokepointsPanel.ts:a417d99a0ce9d498"
+    },
+    {
+      "file": "src/components/panels/ChokepointsPanel.ts",
+      "line": 68,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ChokepointsPanel.ts:f39e1626aede556e"
+    },
+    {
+      "file": "src/components/panels/ClimateAnomalyPanel.ts",
+      "line": 83,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ClimateAnomalyPanel.ts:aae92bf908989eee"
+    },
+    {
+      "file": "src/components/panels/ClimateAnomalyPanel.ts",
+      "line": 121,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ClimateAnomalyPanel.ts:b073bbee81008cb9"
+    },
+    {
+      "file": "src/components/panels/ConsumerPricesPanel.ts",
+      "line": 183,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ConsumerPricesPanel.ts:652ffaf643f60077"
+    },
+    {
+      "file": "src/components/panels/ConsumerPricesPanel.ts",
+      "line": 198,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ConsumerPricesPanel.ts:29361194df50ad3c"
+    },
+    {
+      "file": "src/components/panels/CorrelationPanel.ts",
+      "line": 45,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/CorrelationPanel.ts:2aca2f132ab2bb33"
+    },
+    {
+      "file": "src/components/panels/CorrelationPanel.ts",
+      "line": 81,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/CorrelationPanel.ts:2e7395b03e736a14"
+    },
+    {
+      "file": "src/components/panels/CorridorRiskMonitorPanel.ts",
+      "line": 126,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/CorridorRiskMonitorPanel.ts:e1362dd5811b6a14"
+    },
+    {
+      "file": "src/components/panels/CotPositioningPanel.ts",
+      "line": 73,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/CotPositioningPanel.ts:0dfdae9216c557e0"
+    },
+    {
+      "file": "src/components/panels/CotPositioningPanel.ts",
+      "line": 81,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/CotPositioningPanel.ts:710047ffb434d1fb"
+    },
+    {
+      "file": "src/components/panels/CountryBriefPanel.ts",
+      "line": 107,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/CountryBriefPanel.ts:ed8af8228c09b980"
+    },
+    {
+      "file": "src/components/panels/CountryBriefPanel.ts",
+      "line": 144,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/CountryBriefPanel.ts:ed8af8228c09b980"
+    },
+    {
+      "file": "src/components/panels/CountryBriefPanel.ts",
+      "line": 172,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/CountryBriefPanel.ts:ed8af8228c09b980"
+    },
+    {
+      "file": "src/components/panels/CountryBriefPanel.ts",
+      "line": 228,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/CountryBriefPanel.ts:5d9d4b260d3a874e"
+    },
+    {
+      "file": "src/components/panels/CountryDeepDivePanel.ts",
+      "line": 137,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/CountryDeepDivePanel.ts:81ca6ecde02f0add"
+    },
+    {
+      "file": "src/components/panels/CountryDeepDivePanel.ts",
+      "line": 173,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/CountryDeepDivePanel.ts:db5ae4ab5cf3fe4c"
+    },
+    {
+      "file": "src/components/panels/CountryInstabilityIndexPanel.ts",
+      "line": 92,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/CountryInstabilityIndexPanel.ts:75f3595bb5a246b9"
+    },
+    {
+      "file": "src/components/panels/CountryInstabilityIndexPanel.ts",
+      "line": 132,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/CountryInstabilityIndexPanel.ts:93d090f0f70436ba"
+    },
+    {
+      "file": "src/components/panels/CountryTimelinePanel.ts",
+      "line": 33,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/CountryTimelinePanel.ts:3cb5f678865781f4"
+    },
+    {
+      "file": "src/components/panels/CountryTimelinePanel.ts",
+      "line": 59,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/CountryTimelinePanel.ts:2088d755a99ae4fa"
+    },
+    {
+      "file": "src/components/panels/CrossSourceSignalsPanel.ts",
+      "line": 86,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/CrossSourceSignalsPanel.ts:db57e885937fdb08"
+    },
+    {
+      "file": "src/components/panels/CrossSourceSignalsPanel.ts",
+      "line": 112,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/CrossSourceSignalsPanel.ts:b554bdbcfd79b7a9"
+    },
+    {
+      "file": "src/components/panels/DailyMarketBriefPanel.ts",
+      "line": 160,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/DailyMarketBriefPanel.ts:72fac552245fa198"
+    },
+    {
+      "file": "src/components/panels/DailyMarketBriefPanel.ts",
+      "line": 192,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/DailyMarketBriefPanel.ts:03c1109ec84ccc49"
+    },
+    {
+      "file": "src/components/panels/DeductionPanel.ts",
+      "line": 52,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/DeductionPanel.ts:8e755a68dc1ce4d1"
+    },
+    {
+      "file": "src/components/panels/DeductionPanel.ts",
+      "line": 86,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/DeductionPanel.ts:27c6cae3cebfd6b3"
+    },
+    {
+      "file": "src/components/panels/DefensePatentsPanel.ts",
+      "line": 34,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/DefensePatentsPanel.ts:2217d7c2d0f27465"
+    },
+    {
+      "file": "src/components/panels/DisasterCorrelationPanel.ts",
+      "line": 139,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/DisasterCorrelationPanel.ts:48657f3550aa3a6d"
+    },
+    {
+      "file": "src/components/panels/DisasterCorrelationPanel.ts",
+      "line": 179,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/DisasterCorrelationPanel.ts:b8dce929586aa9e4"
+    },
+    {
+      "file": "src/components/panels/DiseaseOutbreaksPanel.ts",
+      "line": 62,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/DiseaseOutbreaksPanel.ts:1cd5421df965b6b9"
+    },
+    {
+      "file": "src/components/panels/DiseaseOutbreaksPanel.ts",
+      "line": 85,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/DiseaseOutbreaksPanel.ts:4cbd746b149f98b6"
+    },
+    {
+      "file": "src/components/panels/DisplacementPanel.ts",
+      "line": 82,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/DisplacementPanel.ts:e5883f563f1443a8"
+    },
+    {
+      "file": "src/components/panels/DisplacementPanel.ts",
+      "line": 109,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/DisplacementPanel.ts:16dce864659ebbd5"
+    },
+    {
+      "file": "src/components/panels/EarthquakesPanel.ts",
+      "line": 80,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/EarthquakesPanel.ts:7cef605cd88c22fa"
+    },
+    {
+      "file": "src/components/panels/EarthquakesPanel.ts",
+      "line": 99,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/EarthquakesPanel.ts:59e9b9722b4e27a2"
+    },
+    {
+      "file": "src/components/panels/EconomicCalendarPanel.ts",
+      "line": 128,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/EconomicCalendarPanel.ts:fa8540a59f2deb94"
+    },
+    {
+      "file": "src/components/panels/EconomicCalendarPanel.ts",
+      "line": 136,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/EconomicCalendarPanel.ts:8339697aebe4b8ab"
+    },
+    {
+      "file": "src/components/panels/EconomicCorrelationPanel.ts",
+      "line": 145,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/EconomicCorrelationPanel.ts:519efbf434fc03ae"
+    },
+    {
+      "file": "src/components/panels/EconomicCorrelationPanel.ts",
+      "line": 183,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/EconomicCorrelationPanel.ts:428bebc2d677c236"
+    },
+    {
+      "file": "src/components/panels/EconomicIndicatorsPanel.ts",
+      "line": 117,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/EconomicIndicatorsPanel.ts:11038ac54811b980"
+    },
+    {
+      "file": "src/components/panels/EnergyComplexPanel.ts",
+      "line": 76,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/EnergyComplexPanel.ts:1f382a97be2a57f3"
+    },
+    {
+      "file": "src/components/panels/EnergyCrisisPanel.ts",
+      "line": 96,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/EnergyCrisisPanel.ts:8ed4f3dd028bf17c"
+    },
+    {
+      "file": "src/components/panels/EnergyCrisisPanel.ts",
+      "line": 142,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/EnergyCrisisPanel.ts:038ce84354b059d5"
+    },
+    {
+      "file": "src/components/panels/EnergyDisruptionsPanel.ts",
+      "line": 88,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/EnergyDisruptionsPanel.ts:243b818d0475d810"
+    },
+    {
+      "file": "src/components/panels/EnergyDisruptionsPanel.ts",
+      "line": 132,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/EnergyDisruptionsPanel.ts:b1c84d36196643ee"
+    },
+    {
+      "file": "src/components/panels/EnergyRiskPanel.ts",
+      "line": 59,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/EnergyRiskPanel.ts:8f52e646556d6bf1"
+    },
+    {
+      "file": "src/components/panels/EnergyRiskPanel.ts",
+      "line": 99,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/EnergyRiskPanel.ts:04a66baa632eb0ab"
+    },
+    {
+      "file": "src/components/panels/EnergySupplyPanel.ts",
+      "line": 88,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/EnergySupplyPanel.ts:d2c8470774aa6aee"
+    },
+    {
+      "file": "src/components/panels/EnergySupplyPanel.ts",
+      "line": 138,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/EnergySupplyPanel.ts:8a8625d1b90d9c7e"
+    },
+    {
+      "file": "src/components/panels/EscalationCorrelationPanel.ts",
+      "line": 48,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/EscalationCorrelationPanel.ts:b571188acb50693f"
+    },
+    {
+      "file": "src/components/panels/EscalationCorrelationPanel.ts",
+      "line": 87,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/EscalationCorrelationPanel.ts:308a22b8dd06ffc3"
+    },
+    {
+      "file": "src/components/panels/EtfFlowsPanel.ts",
+      "line": 60,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/EtfFlowsPanel.ts:fed2e1f703f3198d"
+    },
+    {
+      "file": "src/components/panels/EtfFlowsPanel.ts",
+      "line": 93,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/EtfFlowsPanel.ts:17e94763262233ee"
+    },
+    {
+      "file": "src/components/panels/ExecutiveActionPanel.ts",
+      "line": 84,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ExecutiveActionPanel.ts:8b6dc524c1f07b7e"
+    },
+    {
+      "file": "src/components/panels/ExecutiveActionPanel.ts",
+      "line": 105,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ExecutiveActionPanel.ts:e99f7d1303ebdfe6"
+    },
+    {
+      "file": "src/components/panels/ExecutiveReportsPanel.ts",
+      "line": 77,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ExecutiveReportsPanel.ts:73a9c2f7a04b7e1b"
+    },
+    {
+      "file": "src/components/panels/ExecutiveReportsPanel.ts",
+      "line": 114,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ExecutiveReportsPanel.ts:43f6761676f3f12f"
+    },
+    {
+      "file": "src/components/panels/FearGreedPanel.ts",
+      "line": 90,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/FearGreedPanel.ts:656933c8eec3680e"
+    },
+    {
+      "file": "src/components/panels/FinancialStressPanel.ts",
+      "line": 100,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/FinancialStressPanel.ts:3fbe2f289ae1f521"
+    },
+    {
+      "file": "src/components/panels/FinancialStressPanel.ts",
+      "line": 118,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/FinancialStressPanel.ts:d28ad100b38674e3"
+    },
+    {
+      "file": "src/components/panels/ForecastPanel.ts",
+      "line": 110,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ForecastPanel.ts:743875263b9f2c1b"
+    },
+    {
+      "file": "src/components/panels/ForecastPanel.ts",
+      "line": 131,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ForecastPanel.ts:7649ab7a52f140df"
+    },
+    {
+      "file": "src/components/panels/FuelPricesPanel.ts",
+      "line": 83,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/FuelPricesPanel.ts:952e587918c0fd5d"
+    },
+    {
+      "file": "src/components/panels/FuelShortagesPanel.ts",
+      "line": 80,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/FuelShortagesPanel.ts:9b02f263a128f5e3"
+    },
+    {
+      "file": "src/components/panels/FuelShortagesPanel.ts",
+      "line": 128,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/FuelShortagesPanel.ts:46a8522771a96d6f"
+    },
+    {
+      "file": "src/components/panels/GdeltIntelPanel.ts",
+      "line": 95,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/GdeltIntelPanel.ts:7c01964877aaad2e"
+    },
+    {
+      "file": "src/components/panels/GdeltIntelPanel.ts",
+      "line": 140,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/GdeltIntelPanel.ts:6ead7dbc6655399c"
+    },
+    {
+      "file": "src/components/panels/GeopoliticalHubsPanel.ts",
+      "line": 97,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/GeopoliticalHubsPanel.ts:0913d8dd3e9411f5"
+    },
+    {
+      "file": "src/components/panels/GeopoliticalRiskPanel.ts",
+      "line": 91,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/GeopoliticalRiskPanel.ts:9d6702db36012ee8"
+    },
+    {
+      "file": "src/components/panels/GeopoliticalRiskPanel.ts",
+      "line": 119,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/GeopoliticalRiskPanel.ts:4fc10bc0773ec855"
+    },
+    {
+      "file": "src/components/panels/GoldIntelligencePanel.ts",
+      "line": 62,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/GoldIntelligencePanel.ts:5a17bd3cea502fd9"
+    },
+    {
+      "file": "src/components/panels/GoodThingsDigestPanel.ts",
+      "line": 104,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/GoodThingsDigestPanel.ts:4ec5211e76492d47"
+    },
+    {
+      "file": "src/components/panels/GoodThingsDigestPanel.ts",
+      "line": 139,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/GoodThingsDigestPanel.ts:359e3eb2902c48a7"
+    },
+    {
+      "file": "src/components/panels/GulfEconomiesPanel.ts",
+      "line": 53,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/GulfEconomiesPanel.ts:cf8ba8e1d3264660"
+    },
+    {
+      "file": "src/components/panels/GulfEconomiesPanel.ts",
+      "line": 72,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/GulfEconomiesPanel.ts:d171309321ee9925"
+    },
+    {
+      "file": "src/components/panels/HeroSpotlightPanel.ts",
+      "line": 86,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/HeroSpotlightPanel.ts:cd9513773254ed57"
+    },
+    {
+      "file": "src/components/panels/HeroSpotlightPanel.ts",
+      "line": 102,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/HeroSpotlightPanel.ts:cd9513773254ed57"
+    },
+    {
+      "file": "src/components/panels/HeroSpotlightPanel.ts",
+      "line": 135,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/HeroSpotlightPanel.ts:13fbcb550d679bfc"
+    },
+    {
+      "file": "src/components/panels/HistoricalIntelPanel.ts",
+      "line": 41,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/HistoricalIntelPanel.ts:8607e946606eb594"
+    },
+    {
+      "file": "src/components/panels/HistoricalIntelPanel.ts",
+      "line": 76,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/HistoricalIntelPanel.ts:a468182e7929c845"
+    },
+    {
+      "file": "src/components/panels/HormuzTrackerPanel.ts",
+      "line": 61,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/HormuzTrackerPanel.ts:ede1d6c649bfcf38"
+    },
+    {
+      "file": "src/components/panels/HormuzTrackerPanel.ts",
+      "line": 111,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/HormuzTrackerPanel.ts:50bbc4f1856a75d6"
+    },
+    {
+      "file": "src/components/panels/IndiaEnergyHubPanel.ts",
+      "line": 98,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/IndiaEnergyHubPanel.ts:98719970085a3740"
+    },
+    {
+      "file": "src/components/panels/IndiaSprTimelinePanel.ts",
+      "line": 116,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/IndiaSprTimelinePanel.ts:ca7a8d2347cc86b6"
+    },
+    {
+      "file": "src/components/panels/InsightsPanel.ts",
+      "line": 143,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/InsightsPanel.ts:705f94eb82a381fb"
+    },
+    {
+      "file": "src/components/panels/InsightsPanel.ts",
+      "line": 169,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/InsightsPanel.ts:f5f33ac3b097a67a"
+    },
+    {
+      "file": "src/components/panels/InternetOutagesPanel.ts",
+      "line": 51,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/InternetOutagesPanel.ts:bc5cb8931caadcd7"
+    },
+    {
+      "file": "src/components/panels/InternetOutagesPanel.ts",
+      "line": 86,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/InternetOutagesPanel.ts:4e7befe0b19d4079"
+    },
+    {
+      "file": "src/components/panels/InvestmentsPanel.ts",
+      "line": 133,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/InvestmentsPanel.ts:3d36e94cd7941058"
+    },
+    {
+      "file": "src/components/panels/InvestmentsPanel.ts",
+      "line": 141,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/InvestmentsPanel.ts:5a09f93c04cbd8b7"
+    },
+    {
+      "file": "src/components/panels/LiquidityShiftsPanel.ts",
+      "line": 86,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/LiquidityShiftsPanel.ts:e97ea0b5b4468ba1"
+    },
+    {
+      "file": "src/components/panels/LiquidityShiftsPanel.ts",
+      "line": 124,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/LiquidityShiftsPanel.ts:17315766b4762af8"
+    },
+    {
+      "file": "src/components/panels/LiveDisruptionProbabilityPanel.ts",
+      "line": 156,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/LiveDisruptionProbabilityPanel.ts:c96cc2954520c7e3"
+    },
+    {
+      "file": "src/components/panels/LiveIntelligencePanel.ts",
+      "line": 129,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/LiveIntelligencePanel.ts:13a92ca795a752ff"
+    },
+    {
+      "file": "src/components/panels/LiveNewsPanel.ts",
+      "line": 39,
+      "kind": "direct-html-assignment",
+      "code": "playerSlot.innerHTML = `<div class=\"flex items-center justify-center h-[320px] rounded-xl bg-white/5 text-on-surface-variant/40 text-xs\"><span class=\"material-symbols-outlined text-lg mr-1 animate-spin\">progress_activity</span> Connecting…</div>`;",
+      "fingerprint": "src/components/panels/LiveNewsPanel.ts:2be7f41a7786a206"
+    },
+    {
+      "file": "src/components/panels/LiveNewsPanel.ts",
+      "line": 57,
+      "kind": "direct-html-assignment",
+      "code": "() => { playerSlot.innerHTML = ''; playerSlot.appendChild(iframe); this.activeChannel = handle; this.updateActiveBtn(); },",
+      "fingerprint": "src/components/panels/LiveNewsPanel.ts:3ed6c0329a03818b"
+    },
+    {
+      "file": "src/components/panels/LiveNewsPanel.ts",
+      "line": 58,
+      "kind": "direct-html-assignment",
+      "code": "() => { playerSlot.innerHTML = this.placeholderHtml(); this.activeChannel = null; this.updateActiveBtn(); },",
+      "fingerprint": "src/components/panels/LiveNewsPanel.ts:345eb9fcb2cca976"
+    },
+    {
+      "file": "src/components/panels/LiveNewsPanel.ts",
+      "line": 73,
+      "kind": "direct-html-assignment",
+      "code": "() => { playerSlot.innerHTML = ''; playerSlot.appendChild(iframe); this.activeChannel = handle; this.updateActiveBtn(); },",
+      "fingerprint": "src/components/panels/LiveNewsPanel.ts:3ed6c0329a03818b"
+    },
+    {
+      "file": "src/components/panels/LiveNewsPanel.ts",
+      "line": 74,
+      "kind": "direct-html-assignment",
+      "code": "() => { playerSlot.innerHTML = this.placeholderHtml(); this.activeChannel = null; this.updateActiveBtn(); },",
+      "fingerprint": "src/components/panels/LiveNewsPanel.ts:345eb9fcb2cca976"
+    },
+    {
+      "file": "src/components/panels/LiveNewsPanel.ts",
+      "line": 113,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/LiveNewsPanel.ts:f95c071b690db478"
+    },
+    {
+      "file": "src/components/panels/MacroSignalsPanel.ts",
+      "line": 55,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/MacroSignalsPanel.ts:f51cdef61a9ef4b2"
+    },
+    {
+      "file": "src/components/panels/MacroSignalsPanel.ts",
+      "line": 78,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/MacroSignalsPanel.ts:7c7040612c7aba65"
+    },
+    {
+      "file": "src/components/panels/MacroTilesPanel.ts",
+      "line": 75,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/MacroTilesPanel.ts:e0f217f110725a3c"
+    },
+    {
+      "file": "src/components/panels/MacroTilesPanel.ts",
+      "line": 97,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/MacroTilesPanel.ts:0375fd2937d397ab"
+    },
+    {
+      "file": "src/components/panels/MarketBreadthPanel.ts",
+      "line": 93,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/MarketBreadthPanel.ts:44111bd70003555b"
+    },
+    {
+      "file": "src/components/panels/MarketBreadthPanel.ts",
+      "line": 101,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/MarketBreadthPanel.ts:0fdd383fb44a6774"
+    },
+    {
+      "file": "src/components/panels/MarketImplicationsPanel.ts",
+      "line": 136,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/MarketImplicationsPanel.ts:4348ab85a4af6ebc"
+    },
+    {
+      "file": "src/components/panels/MarketImplicationsPanel.ts",
+      "line": 166,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/MarketImplicationsPanel.ts:9741b8fb2135d032"
+    },
+    {
+      "file": "src/components/panels/MarketOverviewPanel.ts",
+      "line": 120,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/MarketOverviewPanel.ts:79ed1497f37ff59e"
+    },
+    {
+      "file": "src/components/panels/McpDataPanel.ts",
+      "line": 67,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/McpDataPanel.ts:903e520e5720266e"
+    },
+    {
+      "file": "src/components/panels/McpDataPanel.ts",
+      "line": 108,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/McpDataPanel.ts:6c1d7e656ad4b995"
+    },
+    {
+      "file": "src/components/panels/MilitaryCorrelationPanel.ts",
+      "line": 52,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/MilitaryCorrelationPanel.ts:079a1cd15d815a8b"
+    },
+    {
+      "file": "src/components/panels/MilitaryCorrelationPanel.ts",
+      "line": 88,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/MilitaryCorrelationPanel.ts:7ec312adc4bb9e05"
+    },
+    {
+      "file": "src/components/panels/NationalDebtPanel.ts",
+      "line": 101,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/NationalDebtPanel.ts:81ea53cf078b6ba2"
+    },
+    {
+      "file": "src/components/panels/NationalDebtPanel.ts",
+      "line": 109,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/NationalDebtPanel.ts:bc07ea7fb675d93b"
+    },
+    {
+      "file": "src/components/panels/OilInventoriesPanel.ts",
+      "line": 72,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/OilInventoriesPanel.ts:efc2346a29af7289"
+    },
+    {
+      "file": "src/components/panels/OrefSirensPanel.ts",
+      "line": 54,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/OrefSirensPanel.ts:82432cd965094a39"
+    },
+    {
+      "file": "src/components/panels/OrefSirensPanel.ts",
+      "line": 108,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/OrefSirensPanel.ts:e5c12ae241d85296"
+    },
+    {
+      "file": "src/components/panels/OrionDecisionDeskPanel.ts",
+      "line": 74,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/OrionDecisionDeskPanel.ts:b66208fc9d0cb592"
+    },
+    {
+      "file": "src/components/panels/OrionDecisionDeskPanel.ts",
+      "line": 116,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/OrionDecisionDeskPanel.ts:ef18f794e6350160"
+    },
+    {
+      "file": "src/components/panels/PipelineStatusPanel.ts",
+      "line": 72,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/PipelineStatusPanel.ts:b7f3594d506ff23e"
+    },
+    {
+      "file": "src/components/panels/PipelineStatusPanel.ts",
+      "line": 117,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/PipelineStatusPanel.ts:49677bfcb79bc14b"
+    },
+    {
+      "file": "src/components/panels/PopulationExposurePanel.ts",
+      "line": 33,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/PopulationExposurePanel.ts:3efd58b2a8f6d646"
+    },
+    {
+      "file": "src/components/panels/PositioningPanel.ts",
+      "line": 58,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/PositioningPanel.ts:71d11a38e4d6ae80"
+    },
+    {
+      "file": "src/components/panels/PositioningPanel.ts",
+      "line": 85,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/PositioningPanel.ts:2ffd8f8508879d78"
+    },
+    {
+      "file": "src/components/panels/PositiveNewsPanel.ts",
+      "line": 140,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/PositiveNewsPanel.ts:cf09f0eac911a46a"
+    },
+    {
+      "file": "src/components/panels/PositiveNewsPanel.ts",
+      "line": 169,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/PositiveNewsPanel.ts:87186ad13b92b672"
+    },
+    {
+      "file": "src/components/panels/ProcurementActionCenterPanel.ts",
+      "line": 107,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ProcurementActionCenterPanel.ts:9920e296bd67b486"
+    },
+    {
+      "file": "src/components/panels/ProcurementAdvisorPanel.ts",
+      "line": 95,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ProcurementAdvisorPanel.ts:8ba280da19f97d62"
+    },
+    {
+      "file": "src/components/panels/ProcurementAdvisorPanel.ts",
+      "line": 146,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ProcurementAdvisorPanel.ts:5ab7fa9d1d8e3d86"
+    },
+    {
+      "file": "src/components/panels/QuantitativeRiskPanel.ts",
+      "line": 78,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/QuantitativeRiskPanel.ts:f2b0a3475eeb9c65"
+    },
+    {
+      "file": "src/components/panels/QuantitativeRiskPanel.ts",
+      "line": 141,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/QuantitativeRiskPanel.ts:d2f1d6663efbfda1"
+    },
+    {
+      "file": "src/components/panels/RadiationPanel.ts",
+      "line": 47,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/RadiationPanel.ts:3e11a218b0f0b495"
+    },
+    {
+      "file": "src/components/panels/RadiationPanel.ts",
+      "line": 69,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/RadiationPanel.ts:bd73601df5ec2ae4"
+    },
+    {
+      "file": "src/components/panels/RefineryCompatibilityPanel.ts",
+      "line": 117,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/RefineryCompatibilityPanel.ts:16c6579de064d26e"
+    },
+    {
+      "file": "src/components/panels/RegionalIntelPanel.ts",
+      "line": 61,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/RegionalIntelPanel.ts:2d7532232ed3f01a"
+    },
+    {
+      "file": "src/components/panels/RegionalIntelPanel.ts",
+      "line": 94,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/RegionalIntelPanel.ts:dfd27b75f5de77f1"
+    },
+    {
+      "file": "src/components/panels/RenewableEnergyPanel.ts",
+      "line": 98,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/RenewableEnergyPanel.ts:a4cabb1a028848fa"
+    },
+    {
+      "file": "src/components/panels/RenewableEnergyPanel.ts",
+      "line": 148,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/RenewableEnergyPanel.ts:5cd9f944b835bdc6"
+    },
+    {
+      "file": "src/components/panels/ReserveOptimizationPanel.ts",
+      "line": 100,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ReserveOptimizationPanel.ts:a44a9c8757461516"
+    },
+    {
+      "file": "src/components/panels/ReserveOptimizationPanel.ts",
+      "line": 162,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ReserveOptimizationPanel.ts:f6e878eea9cfebbb"
+    },
+    {
+      "file": "src/components/panels/SanctionsPanel.ts",
+      "line": 50,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/SanctionsPanel.ts:a05d47f9b02b5752"
+    },
+    {
+      "file": "src/components/panels/SanctionsPanel.ts",
+      "line": 88,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/SanctionsPanel.ts:5226a7d3ea80708c"
+    },
+    {
+      "file": "src/components/panels/ScenarioSimulatorPanel.ts",
+      "line": 78,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ScenarioSimulatorPanel.ts:2238c0621fb397a7"
+    },
+    {
+      "file": "src/components/panels/ScenarioSimulatorPanel.ts",
+      "line": 112,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ScenarioSimulatorPanel.ts:5cd166a96338e2c7"
+    },
+    {
+      "file": "src/components/panels/SecurityAdvisoriesPanel.ts",
+      "line": 61,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/SecurityAdvisoriesPanel.ts:24382ef5b11be922"
+    },
+    {
+      "file": "src/components/panels/ServiceStatusPanel.ts",
+      "line": 75,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ServiceStatusPanel.ts:64d2d109bc615b27"
+    },
+    {
+      "file": "src/components/panels/ServiceStatusPanel.ts",
+      "line": 88,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ServiceStatusPanel.ts:64d2d109bc615b27"
+    },
+    {
+      "file": "src/components/panels/ServiceStatusPanel.ts",
+      "line": 105,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ServiceStatusPanel.ts:64d2d109bc615b27"
+    },
+    {
+      "file": "src/components/panels/ServiceStatusPanel.ts",
+      "line": 148,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ServiceStatusPanel.ts:159ba0423b23ed9c"
+    },
+    {
+      "file": "src/components/panels/SocialVelocityPanel.ts",
+      "line": 89,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/SocialVelocityPanel.ts:cdfc3a9b94bc8b54"
+    },
+    {
+      "file": "src/components/panels/SocialVelocityPanel.ts",
+      "line": 109,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/SocialVelocityPanel.ts:e711645c90b76ff4"
+    },
+    {
+      "file": "src/components/panels/SpeciesPanel.ts",
+      "line": 108,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/SpeciesPanel.ts:6e9f03bfa93a161c"
+    },
+    {
+      "file": "src/components/panels/SpeciesPanel.ts",
+      "line": 150,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/SpeciesPanel.ts:2f06d83ebc2ee0fa"
+    },
+    {
+      "file": "src/components/panels/StablecoinsPanel.ts",
+      "line": 117,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/StablecoinsPanel.ts:30292d6ceb3f6644"
+    },
+    {
+      "file": "src/components/panels/StablecoinsPanel.ts",
+      "line": 128,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/StablecoinsPanel.ts:b7d65254d86acdb7"
+    },
+    {
+      "file": "src/components/panels/StorageFacilitiesPanel.ts",
+      "line": 74,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/StorageFacilitiesPanel.ts:1810f1d004fa42bc"
+    },
+    {
+      "file": "src/components/panels/StrategicPosturePanel.ts",
+      "line": 85,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/StrategicPosturePanel.ts:d620c946787d76ad"
+    },
+    {
+      "file": "src/components/panels/StrategicPosturePanel.ts",
+      "line": 123,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/StrategicPosturePanel.ts:6252614fdc3d0c6c"
+    },
+    {
+      "file": "src/components/panels/StrategicRiskPanel.ts",
+      "line": 137,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/StrategicRiskPanel.ts:93fe798d425a1221"
+    },
+    {
+      "file": "src/components/panels/StrategicRiskPanel.ts",
+      "line": 178,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/StrategicRiskPanel.ts:99c48ced26742601"
+    },
+    {
+      "file": "src/components/panels/SupplyChainPanel.ts",
+      "line": 84,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/SupplyChainPanel.ts:270671df992dbf4b"
+    },
+    {
+      "file": "src/components/panels/SupplyChainPanel.ts",
+      "line": 128,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/SupplyChainPanel.ts:b079fb0db88bbc8b"
+    },
+    {
+      "file": "src/components/panels/ThermalEscalationPanel.ts",
+      "line": 49,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ThermalEscalationPanel.ts:ff42801578f64ec7"
+    },
+    {
+      "file": "src/components/panels/ThreatTimelinePanel.ts",
+      "line": 101,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/ThreatTimelinePanel.ts:4270e2640e65592f"
+    },
+    {
+      "file": "src/components/panels/ThreatTimelinePanel.ts",
+      "line": 146,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/ThreatTimelinePanel.ts:0417bfc47ce1187b"
+    },
+    {
+      "file": "src/components/panels/TradePolicyPanel.ts",
+      "line": 91,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/TradePolicyPanel.ts:29311057476e255a"
+    },
+    {
+      "file": "src/components/panels/TradePolicyPanel.ts",
+      "line": 114,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/TradePolicyPanel.ts:b6700bcba27e8e91"
+    },
+    {
+      "file": "src/components/panels/UcdpEventsPanel.ts",
+      "line": 50,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/UcdpEventsPanel.ts:49a739aa3662e6d4"
+    },
+    {
+      "file": "src/components/panels/UcdpEventsPanel.ts",
+      "line": 75,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/UcdpEventsPanel.ts:87f5cc656c035b94"
+    },
+    {
+      "file": "src/components/panels/WeatherAlertsPanel.ts",
+      "line": 40,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/WeatherAlertsPanel.ts:3ebe375645f8afc6"
+    },
+    {
+      "file": "src/components/panels/WeatherAlertsPanel.ts",
+      "line": 60,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/WeatherAlertsPanel.ts:2717fdf7b8ba29e0"
+    },
+    {
+      "file": "src/components/panels/WebcamsPanel.ts",
+      "line": 91,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/WebcamsPanel.ts:6320c55dc195ba09"
+    },
+    {
+      "file": "src/components/panels/WorldClockPanel.ts",
+      "line": 100,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/WorldClockPanel.ts:0173e40b634bca8f"
+    },
+    {
+      "file": "src/components/panels/WsbTickersPanel.ts",
+      "line": 39,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/WsbTickersPanel.ts:691ad9e070aa9916"
+    },
+    {
+      "file": "src/components/panels/WsbTickersPanel.ts",
+      "line": 64,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/WsbTickersPanel.ts:e7f29d28dc117029"
+    },
+    {
+      "file": "src/components/panels/YieldCurvePanel.ts",
+      "line": 80,
+      "kind": "direct-html-assignment",
+      "code": "this.container.innerHTML = `",
+      "fingerprint": "src/components/panels/YieldCurvePanel.ts:effa6b3f9edb39e2"
+    },
+    {
+      "file": "src/components/panels/YieldCurvePanel.ts",
+      "line": 127,
+      "kind": "direct-html-assignment",
+      "code": "destroy(): void { this.container.innerHTML = ''; }",
+      "fingerprint": "src/components/panels/YieldCurvePanel.ts:e2d732a96ade7310"
+    },
+    {
+      "file": "src/services/notifications-settings.ts",
+      "line": 483,
+      "kind": "direct-html-assignment",
+      "code": "loadingEl.innerHTML = isAuth",
+      "fingerprint": "src/services/notifications-settings.ts:c4e309d826c3e728"
+    }
+  ]
 }

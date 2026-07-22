@@ -21,7 +21,7 @@ Panel id is `daily-market-brief`; canonical component is `src/components/DailyMa
 ## How you reach it
 
 - **Cmd+K**: type *brief* or *market brief*.
-- **Availability by variant**: registered and enabled by default in the **full/geopolitical** and **finance** variants, both as `premium: 'locked'`. Not present in the tech, commodity, or happy variants.
+- **Availability by variant**: registered and enabled by default in the **full/geopolitical** and **finance** variants. Not present in the tech, commodity, or happy variants.
 
 ## Data sources
 
@@ -36,10 +36,10 @@ Daily cadence, refreshed as part of the forecast cron. The panel surfaces `descr
 
 ## Tier & gating
 
-**PRO (hard-locked).** `premium: 'locked'` in `src/config/panels.ts:51`. `isPanelEntitled` unlocks it when **either** a valid `ORION_API_KEY` is present **or** `isPro` is true (`daily-market-brief` is in the `apiKeyPanels` allowlist at `src/config/panels.ts:973`).
+All panels are freely accessible. No subscription or API key required.
 
 ## API reference
 
 - [Intelligence service](/api/IntelligenceService.openapi.yaml) — the backing family for LLM-composed daily content.
-- Related: [Latest Brief](/panels/latest-brief) — world-intelligence equivalent; same PRO gating semantics, different domain.
+- Related: [Latest Brief](/panels/latest-brief) — world-intelligence equivalent.
 - Related: [News Digest and Briefing Methodology](/methodology/news-digest-and-briefing) — source and LLM controls for the world-intelligence brief.

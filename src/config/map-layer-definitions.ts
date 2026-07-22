@@ -14,14 +14,6 @@ export interface LayerDefinition {
   fallbackLabel: string;
   renderers: MapRenderer[];
   premium?: 'locked' | 'enhanced';
-  /**
-   * When true, this layer only renders under DeckGL — neither the SVG/mobile
-   * fallback in Map.ts nor the WebGL GlobeMap has a code path for its data.
-   * `renderers: ['flat']` is not sufficient because `'flat'` covers both
-   * DeckGL-flat and SVG-flat. Consumers (layer picker, CMD+K dispatcher)
-   * must additionally gate on `isDeckGLActive()` for these layers.
-   */
-  deckGLOnly?: boolean;
 }
 
 export type LayerExplanationCoverage = 'curated' | 'fallback';
@@ -46,11 +38,9 @@ const def = (
   fallbackLabel: string,
   renderers: MapRenderer[] = ['flat', 'globe'],
   premium?: 'locked' | 'enhanced',
-  deckGLOnly?: boolean,
 ): LayerDefinition => ({
   key, icon, i18nSuffix, fallbackLabel, renderers,
   ...(premium && { premium }),
-  ...(deckGLOnly && { deckGLOnly: true }),
 });
 
 export const LAYER_REGISTRY: Record<keyof MapLayers, LayerDefinition> = {
@@ -78,7 +68,6 @@ export const LAYER_REGISTRY: Record<keyof MapLayers, LayerDefinition> = {
   climate:                  def('climate',                  '&#127787;', 'climateAnomalies',         'Climate Anomalies'),
   weather:                  def('weather',                  '&#9928;',   'weatherAlerts',            'Weather Alerts'),
   outages:                  def('outages',                  '&#128225;', 'internetOutages',          'Internet Disruptions'),
-  cyberThreats:             def('cyberThreats',             '&#128737;', 'cyberThreats',             'Cyber Threats'),
   natural:                  def('natural',                  '&#127755;', 'naturalEvents',            'Natural Events'),
   fires:                    def('fires',                    '&#128293;', 'fires',                    'Fires'),
   waterways:                def('waterways',                '&#9875;',   'strategicWaterways',       'Chokepoints'),
@@ -88,7 +77,7 @@ export const LAYER_REGISTRY: Record<keyof MapLayers, LayerDefinition> = {
   ciiChoropleth:            def('ciiChoropleth',            '&#127758;', 'ciiChoropleth',            'CII Instability', ['flat'], _desktop ? 'enhanced' : undefined),
   // DeckGLMap owns the resilience choropleth; Map.ts/MapContainer strip it
   // on SVG/mobile fallback.
-  resilienceScore:          def('resilienceScore',          '&#128200;', 'resilienceScore',          'Resilience', ['flat'], 'locked', true),
+  resilienceScore:          def('resilienceScore',          '&#128200;', 'resilienceScore',          'Resilience', ['flat'], 'locked'),
   dayNight:                 def('dayNight',                 '&#127763;', 'dayNight',                 'Day/Night', ['flat']),
   sanctions:                def('sanctions',                '&#128683;', 'sanctions',                'Sanctions', ['flat']),
   startupHubs:              def('startupHubs',              '&#128640;', 'startupHubs',              'Startup Hubs'),
@@ -111,18 +100,12 @@ export const LAYER_REGISTRY: Record<keyof MapLayers, LayerDefinition> = {
   commodityPorts:           def('commodityPorts',           '&#9973;',   'commodityPorts',           'Commodity Ports'),
   webcams:                  def('webcams',                  '&#128247;', 'webcams',                  'Live Webcams'),
   // weatherRadar removed — radar tiles now auto-start when Weather Alerts layer is toggled on
-  diseaseOutbreaks:         def('diseaseOutbreaks',         '&#129440;', 'diseaseOutbreaks',         'Disease Outbreaks', ['flat'], undefined, true),
-  // DeckGL-only layers. `renderers: ['flat']` hides them from the globe
-  // picker (GlobeMap has no branch in ensureStaticDataForLayer / no entry
-  // in the layer-channel map). `deckGLOnly: true` also hides them from
-  // the SVG/mobile fallback's CMD+K dispatch (Map.ts has no SVG render
-  // path for either marker/pin type). Restore to `['flat', 'globe']`
-  // without `deckGLOnly` once both renderers gain real support.
-  storageFacilities:        def('storageFacilities',        '&#127959;', 'storageFacilities',        'Storage Facilities', ['flat'], undefined, true),
-  fuelShortages:            def('fuelShortages',            '&#9881;',   'fuelShortages',            'Fuel Shortages', ['flat'], undefined, true),
-  liveTankers:              def('liveTankers',              '&#128674;', 'liveTankers',              'Live Tanker Positions', ['flat'], undefined, true),
-  energySupplyNetwork:      def('energySupplyNetwork',      '&#9889;',   'energySupplyNetwork',      'Energy Supply Network', ['flat'], undefined, true),
-  chokepointMonitoring:     def('chokepointMonitoring',     '&#9875;',   'chokepointMonitoring',     'Chokepoint Monitoring', ['flat'], undefined, true),
+  diseaseOutbreaks:         def('diseaseOutbreaks',         '&#129440;', 'diseaseOutbreaks',         'Disease Outbreaks', ['flat']),
+  storageFacilities:        def('storageFacilities',        '&#127959;', 'storageFacilities',        'Storage Facilities', ['flat']),
+  fuelShortages:            def('fuelShortages',            '&#9881;',   'fuelShortages',            'Fuel Shortages', ['flat']),
+  liveTankers:              def('liveTankers',              '&#128674;', 'liveTankers',              'Live Tanker Positions', ['flat']),
+  energySupplyNetwork:      def('energySupplyNetwork',      '&#9889;',   'energySupplyNetwork',      'Energy Supply Network', ['flat']),
+  chokepointMonitoring:     def('chokepointMonitoring',     '&#9875;',   'chokepointMonitoring',     'Chokepoint Monitoring', ['flat']),
 };
 
 export const V1_LAYER_EXPLANATION_KEYS = [
@@ -134,7 +117,6 @@ export const V1_LAYER_EXPLANATION_KEYS = [
   'ais',
   'waterways',
   'tradeRoutes',
-  'cyberThreats',
   'hotspots',
 ] as const satisfies readonly (keyof MapLayers)[];
 
@@ -259,21 +241,6 @@ export const LAYER_EXPLANATIONS: Partial<Record<keyof MapLayers, LayerExplanatio
     related: ['Supply Chain panel', 'Route Explorer', 'Scenario Engine', 'Waterways layer'],
     evidence: ['docs/data-sources.mdx', 'docs/architecture.mdx', 'src/config/trade-routes.ts', 'src/services/supply-chain/index.ts'],
   },
-  cyberThreats: {
-    key: 'cyberThreats',
-    coverage: 'curated',
-    category: 'Cyber',
-    purpose: 'Maps geo-enriched indicators of compromise such as C2 servers, malware hosts, phishing, malicious URLs, and ransomware infrastructure.',
-    source: 'abuse.ch Feodo Tracker and URLhaus, C2IntelFeeds, AlienVault OTX, AbuseIPDB, ransomware.live RSS/news feed, and IP geolocation enrichment.',
-    freshness: 'Cyber threat seeds run every 2 hours; displayed IOCs use a 14-day rolling window and are capped for map performance.',
-    confidence: 'Good for infrastructure visibility, but attribution and IP geolocation can be noisy.',
-    limitations: [
-      'IP geolocation can point to hosting infrastructure rather than an operator or victim.',
-      'Feed availability, API keys, and per-feed abuse reports can bias coverage.',
-    ],
-    related: ['Cyber Threats map popups', 'CII cyber supplemental boost', 'Data freshness status'],
-    evidence: ['docs/data-sources.mdx', 'docs/architecture.mdx', 'scripts/seed-cyber-threats.mjs', 'server/orion/cyber/v1/list-cyber-threats.ts'],
-  },
   hotspots: {
     key: 'hotspots',
     coverage: 'curated',
@@ -304,14 +271,14 @@ const VARIANT_LAYER_ORDER: Record<MapVariant, Array<keyof MapLayers>> = {
   ],
   tech: [
     'startupHubs', 'techHQs', 'accelerators', 'cloudRegions',
-    'datacenters', 'cables', 'outages', 'cyberThreats',
+    'datacenters', 'cables', 'outages',
     'techEvents', 'natural', 'fires',
   ],
   finance: [
     'stockExchanges', 'financialCenters', 'centralBanks', 'commodityHubs',
     'gulfInvestments', 'tradeRoutes', 'cables', 'pipelines',
     'outages', 'weather', 'economic', 'waterways',
-    'natural', 'cyberThreats', 'sanctions',
+    'natural', 'sanctions',
   ],
   happy: [
     'positiveEvents', 'kindness', 'happiness',
@@ -353,26 +320,21 @@ export function sanitizeLayersForVariant(layers: MapLayers, variant: MapVariant)
 }
 
 /**
- * Checks whether a layer can actually render under the given renderer +
- * DeckGL state. Used by both the layer picker UI and the CMD+K dispatcher
- * to hide / silently-skip toggles that would be a no-op.
+ * Checks whether a layer can actually render under the given renderer.
+ * Used by both the layer picker UI and the CMD+K dispatcher to
+ * hide / silently-skip toggles that would be a no-op.
  *
  * Rules:
  *   - The layer's declared `renderers` must include `currentRenderer`
  *     (catches globe toggles for flat-only layers).
- *   - If `deckGLOnly: true`, the SVG/mobile fallback can't render either,
- *     so DeckGL must be active (catches flat-only layers whose data
- *     shape is DeckGL-specific — see storageFacilities, fuelShortages).
  */
 export function isLayerExecutable(
   layerKey: keyof MapLayers,
   currentRenderer: MapRenderer,
-  isDeckGLActive: boolean,
 ): boolean {
   const def = LAYER_REGISTRY[layerKey];
   if (!def) return false;
   if (!def.renderers.includes(currentRenderer)) return false;
-  if (def.deckGLOnly && !isDeckGLActive) return false;
   return true;
 }
 
@@ -399,9 +361,8 @@ export const LAYER_SYNONYMS: Record<string, Array<keyof MapLayers>> = {
   anomaly: ['radiationWatch', 'climate'],
   space: ['spaceports', 'satellites'],
   orbit: ['satellites'],
-  internet: ['outages', 'cables', 'cyberThreats'],
-  cyber: ['cyberThreats', 'outages'],
-  hack: ['cyberThreats'],
+  internet: ['outages', 'cables'],
+  cyber: ['outages'],
   earthquake: ['natural'],
   volcano: ['natural'],
   tsunami: ['natural'],

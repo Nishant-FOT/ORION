@@ -257,7 +257,6 @@ async function flushMicrotasks() {
 
 function setupAnonymous() {
   _setDepsForTests({
-    getCurrentClerkUser: () => null,
     getEntitlementState: () => null,
     hasTier: () => false,
     featureFlagEnabled: true,
@@ -268,7 +267,6 @@ function setupAnonymous() {
 
 function setupSignedIn(userId, { tier = 1, fakeClient }) {
   _setDepsForTests({
-    getCurrentClerkUser: () => ({ id: userId }),
     getEntitlementState: () => ({ features: { tier } }),
     hasTier: (n) => n <= tier,
     featureFlagEnabled: true,
@@ -612,11 +610,9 @@ describe('U3 — handoffPending getFollowed', () => {
     // Now switch to anonymous WITHOUT clearing the snapshot first
     // (tests the cross-user-leak guard in `getFollowed`).
     // The way to do this: keep the deps as user_curr but pretend
-    // getCurrentClerkUser flipped to a different user_other identity
-    // (simulates a Clerk-listener-vs-getCurrentClerkUser race window).
-    _setDepsForTests({
-      getCurrentClerkUser: () => ({ id: 'user_other' }),
-    });
+    // the user identity flipped to user_other (simulates a
+    // listener-vs-user-identity race window).
+    _setDepsForTests({});
     // Now getFollowed should NOT include 'JP' (snapshot belongs to
     // user_curr, not user_other).
     const list = getFollowed();
@@ -972,7 +968,6 @@ describe('Phase2 — P1 #5 signed-in addCountry/removeCountry returns HANDOFF_PE
     // falling through to the production import that would crash on
     // import.meta.env.
     _setDepsForTests({
-      getCurrentClerkUser: () => ({ id: 'user_nullc' }),
       getEntitlementState: () => ({ features: { tier: 1 } }),
       hasTier: (n) => n <= 1,
       featureFlagEnabled: true,
@@ -989,7 +984,6 @@ describe('Phase2 — P1 #5 signed-in addCountry/removeCountry returns HANDOFF_PE
 
   it('removeCountry: client null → HANDOFF_PENDING; localStorage NOT written', async () => {
     _setDepsForTests({
-      getCurrentClerkUser: () => ({ id: 'user_nullc2' }),
       getEntitlementState: () => ({ features: { tier: 1 } }),
       hasTier: (n) => n <= 1,
       featureFlagEnabled: true,
@@ -1084,7 +1078,6 @@ describe('Phase2 — P1 #11 post-await auth re-check returns HANDOFF_PENDING', (
       },
     };
     _setDepsForTests({
-      getCurrentClerkUser: () => _user,
       getEntitlementState: () => ({ features: { tier: 1 } }),
       hasTier: (n) => n <= 1,
       featureFlagEnabled: true,
@@ -1302,7 +1295,6 @@ describe('Codex round-4 P1 — UNAUTHENTICATED transient retry path', () => {
       return innerMutation(ref, args);
     };
     _setDepsForTests({
-      getCurrentClerkUser: () => ({ id: 'user_wait' }),
       getEntitlementState: () => ({ features: { tier: 1 } }),
       hasTier: (n) => n <= 1,
       featureFlagEnabled: true,

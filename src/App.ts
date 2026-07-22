@@ -16,8 +16,6 @@ export class App {
   }
 
   async init(): Promise<void> {
-    console.log('[ORION] Initializing new UI...');
-
     this.contentContainer = document.getElementById('main-content');
 
     const tickerContainer = document.getElementById('intel-ticker');

@@ -230,15 +230,9 @@ export const _getSuppressedEmails = internalQuery({
 
 export const _getPaidEmails = internalQuery({
   args: {},
-  handler: async (ctx) => {
-    const all = await ctx.db.query("customers").collect();
-    return all
-      .map((row) => {
-        const stored = row.normalizedEmail;
-        if (stored && stored.length > 0) return stored;
-        return (row.email ?? "").trim().toLowerCase();
-      })
-      .filter((e): e is string => typeof e === "string" && e.length > 0);
+  handler: async (_ctx) => {
+    // Customers table removed — no paid emails to exclude.
+    return [] as string[];
   },
 });
 

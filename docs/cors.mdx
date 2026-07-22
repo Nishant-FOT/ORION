@@ -20,11 +20,11 @@ Both files use the same regex patterns:
 
 | Pattern | Matches |
 | --- | --- |
-| `(*.)?orion.app` | Production + subdomains (`tech.`, `finance.`, etc.) |
+| `(*.)?orion.app` | Production + subdomains |
 | `orion-*-elie-*.vercel.app` | Vercel preview deploys |
 | `localhost:*` / `127.0.0.1:*` | Local development only when `NODE_ENV !== "production"` |
-| `tauri.localhost:*` / `*.tauri.localhost:*` | Desktop app (Tauri v2) |
-| `tauri://localhost` / `asset://localhost` | Desktop app (Tauri v2 asset protocol) |
+| `tauri.localhost:*` / `*.tauri.localhost:*` | Native client (Tauri v2) |
+| `tauri://localhost` / `asset://localhost` | Native client (Tauri v2 asset protocol) |
 
 Requests from any other origin receive a 403 response when the handler calls `isDisallowedOrigin(req)`. Requests with **no** `Origin` header (server-to-server, curl) are allowed through — the `isDisallowedOrigin` check only blocks when an origin is present and not on the allowlist.
 
@@ -82,7 +82,7 @@ Both implementations allow these request headers:
 
 - `Content-Type`
 - `Authorization`
-- `X-ORION-Key` (API key for desktop/third-party access). See [API Key Gating](/api-key-deployment) for key management details.
+- `X-ORION-Key` (API key for native client/third-party access). See [API Key Gating](/api-key-deployment) for key management details.
 - `X-Api-Key`
 - `X-Widget-Key`
 - `X-Pro-Key`

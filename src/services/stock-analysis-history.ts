@@ -3,12 +3,12 @@ import {
   MarketServiceClient,
   type AnalyzeStockResponse,
 } from '@/generated/client/orion/market/v1/service_client';
-import { premiumFetch } from '@/services/premium-fetch';
+
 
 export type StockAnalysisSnapshot = AnalyzeStockResponse;
 export type StockAnalysisHistory = Record<string, StockAnalysisSnapshot[]>;
 
-const client = new MarketServiceClient(getRpcBaseUrl(), { fetch: premiumFetch });
+const client = new MarketServiceClient(getRpcBaseUrl());
 
 const DEFAULT_LIMIT_PER_SYMBOL = 4;
 const MAX_SNAPSHOTS_PER_SYMBOL = 32;

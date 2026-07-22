@@ -49,13 +49,6 @@ export const INTEL_TOPICS: IntelTopic[] = [
     description: 'Military exercises, deployments, and operations',
   },
   {
-    id: 'cyber',
-    name: 'Cyber Threats',
-    query: '(cyberattack OR ransomware OR hacking OR "data breach" OR APT) sourcelang:eng',
-    icon: '🔓',
-    description: 'Cyber attacks, ransomware, and digital threats',
-  },
-  {
     id: 'nuclear',
     name: 'Nuclear',
     query: '(nuclear OR uranium enrichment OR IAEA OR "nuclear weapon" OR plutonium) sourcelang:eng',

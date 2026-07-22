@@ -163,7 +163,6 @@ export const PANEL_REGISTRY: PanelConfig[] = [
   { id: 'security-advisories', name: 'Security Advisories', category: 'defense', icon: 'security', description: 'Government security alerts', defaultEnabled: true, priority: 7, defaultWidth: 1, defaultHeight: 1 },
   { id: 'sanctions', name: 'Sanctions Pressure', category: 'defense', icon: 'block', description: 'OFAC/EU sanctions monitoring', defaultEnabled: true, priority: 8, defaultWidth: 2, defaultHeight: 1 },
   { id: 'radiation', name: 'Radiation Watch', category: 'defense', icon: 'radioactive', description: 'Nuclear radiation monitoring', defaultEnabled: true, priority: 9, defaultWidth: 1, defaultHeight: 1 },
-  { id: 'cyber-threats-panel', name: 'Cyber Threats', category: 'defense', icon: 'security', description: 'Cyber threat intelligence monitoring', defaultEnabled: true, priority: 10, defaultWidth: 1, defaultHeight: 1 },
 
   // ═══════════════════════════════════════════════════════════════
   // CLIMATE (6 panels)

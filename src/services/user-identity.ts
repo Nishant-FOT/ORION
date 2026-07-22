@@ -26,7 +26,6 @@
  * @see https://github.com/orion-energy-resilience/orion/issues/2078
  */
 
-import { getCurrentClerkUser } from './clerk';
 import { migrateLegacyKeysToHttpOnlySession, readLegacySessionKey } from './browser-key-session';
 
 const ANON_KEY = 'orion-anon-id';
@@ -69,16 +68,12 @@ export function getOrCreateAnonId(): string {
  * reading localStorage keys.
  */
 export function getUserId(): string | null {
-  // 1. Clerk auth — returns real Clerk user ID when signed in
-  const clerkUser = getCurrentClerkUser();
-  if (clerkUser?.id) return clerkUser.id;
-
-  // 2. Legacy orion-pro-key: preserve existing identity behavior while moving the
+  // Legacy orion-pro-key: preserve existing identity behavior while moving the
   // key into a server-issued HttpOnly cookie and clearing JS-readable storage.
   const proKey = legacyProKeyForMigration();
   if (proKey) return proKey;
 
-  // 3. Stable anonymous ID — always available
+  // Stable anonymous ID — always available
   return getOrCreateAnonId();
 }
 
@@ -87,10 +82,5 @@ export function getUserId(): string | null {
  * Checks for Clerk auth or legacy pro key — not the auto-generated anon ID.
  */
 export function hasUserIdentity(): boolean {
-  // 1. Clerk auth
-  const clerkUser = getCurrentClerkUser();
-  if (clerkUser?.id) return true;
-
-  // 2. Legacy pro key
-  return !!legacyProKeyForMigration();
+  return true;
 }

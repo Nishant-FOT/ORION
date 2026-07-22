@@ -10,9 +10,6 @@ export const SIGNUP_URLS: Partial<Record<RuntimeSecretKey, string>> = {
   EIA_API_KEY: 'https://www.eia.gov/opendata/register.php',
   CLOUDFLARE_API_TOKEN: 'https://dash.cloudflare.com/profile/api-tokens',
   ACLED_ACCESS_TOKEN: 'https://developer.acleddata.com/',
-  URLHAUS_AUTH_KEY: 'https://auth.abuse.ch/',
-  OTX_API_KEY: 'https://otx.alienvault.com/',
-  ABUSEIPDB_API_KEY: 'https://www.abuseipdb.com/login',
   WINGBITS_API_KEY: 'https://wingbits.com/register',
   AISSTREAM_API_KEY: 'https://aisstream.io/authenticate',
   OPENSKY_CLIENT_ID: 'https://opensky-network.org/login?view=registration',
@@ -46,9 +43,6 @@ export const HUMAN_LABELS: Record<RuntimeSecretKey, string> = {
   EIA_API_KEY: 'EIA API Key',
   CLOUDFLARE_API_TOKEN: 'Cloudflare API Token',
   ACLED_ACCESS_TOKEN: 'ACLED Access Token',
-  URLHAUS_AUTH_KEY: 'URLhaus Auth Key',
-  OTX_API_KEY: 'AlienVault OTX Key',
-  ABUSEIPDB_API_KEY: 'AbuseIPDB API Key',
   WINGBITS_API_KEY: 'Wingbits API Key',
   WS_RELAY_URL: 'WebSocket Relay URL',
   VITE_OPENSKY_RELAY_URL: 'OpenSky Relay URL',
@@ -91,7 +85,7 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
   {
     id: 'security',
     label: 'Security & Threats',
-    features: ['internetOutages', 'acledConflicts', 'ucdpConflicts', 'abuseChThreatIntel', 'alienvaultOtxThreatIntel', 'abuseIpdbThreatIntel'],
+    features: ['internetOutages', 'acledConflicts', 'ucdpConflicts'],
   },
   {
     id: 'tracking',

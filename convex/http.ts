@@ -1,7 +1,6 @@
 import { anyApi, httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
-import { webhookHandler } from "./payments/webhookHandlers";
 import { resendWebhookHandler } from "./resendWebhookHandler";
 
 const TRUSTED = [
@@ -84,51 +83,6 @@ function extractConvexErrorCode(err: unknown): string | null {
 }
 
 const http = httpRouter();
-
-http.route({
-  path: "/api/internal-entitlements",
-  method: "POST",
-  handler: httpAction(async (ctx, request) => {
-    const providedSecret = request.headers.get("x-convex-shared-secret") ?? "";
-    const expectedSecret = process.env.CONVEX_SERVER_SHARED_SECRET ?? "";
-    if (!expectedSecret || !(await timingSafeEqualStrings(providedSecret, expectedSecret))) {
-      return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    let body: { userId?: unknown };
-    try {
-      body = await request.json() as { userId?: unknown };
-    } catch {
-      return new Response(JSON.stringify({ error: "INVALID_JSON" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    if (
-      typeof body.userId !== "string" ||
-      body.userId.length === 0 ||
-      body.userId.length > 256
-    ) {
-      return new Response(JSON.stringify({ error: "MISSING_USER_ID" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const result = await ctx.runQuery(
-      internal.entitlements.getEntitlementsByUserId,
-      { userId: body.userId },
-    );
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  }),
-});
 
 http.route({
   path: "/api/user-prefs",
@@ -811,45 +765,6 @@ http.route({
   }),
 });
 
-http.route({
-  path: "/relay/entitlement",
-  method: "POST",
-  handler: httpAction(async (ctx, request) => {
-    const secret = process.env.RELAY_SHARED_SECRET ?? "";
-    const provided = (request.headers.get("Authorization") ?? "").replace(/^Bearer\s+/, "");
-    if (!secret || !(await timingSafeEqualStrings(provided, secret))) {
-      return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-    let body: { userId?: string };
-    try {
-      body = await request.json() as typeof body;
-    } catch {
-      return new Response(JSON.stringify({ error: "INVALID_BODY" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-    if (!body.userId) {
-      return new Response(JSON.stringify({ error: "userId required" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-    const ent = await ctx.runQuery(
-      internal.entitlements.getEntitlementsByUserId,
-      { userId: body.userId },
-    );
-    const tier = ent?.features?.tier ?? 0;
-    return new Response(JSON.stringify({ tier }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  }),
-});
-
 // ---------------------------------------------------------------------------
 // Referral code registration (Phase 9 / Todo #223)
 // ---------------------------------------------------------------------------
@@ -1219,159 +1134,7 @@ http.route({
   }),
 });
 
-http.route({
-  path: "/dodopayments-webhook",
-  method: "POST",
-  handler: webhookHandler,
-});
-
-// Service-to-service: Vercel edge gateway creates Dodo checkout sessions.
-// Authenticated via RELAY_SHARED_SECRET; edge endpoint validates Clerk JWT
-// and forwards the verified userId.
-http.route({
-  path: "/relay/create-checkout",
-  method: "POST",
-  handler: httpAction(async (ctx, request) => {
-    const secret = process.env.RELAY_SHARED_SECRET ?? "";
-    const provided = (request.headers.get("Authorization") ?? "").replace(
-      /^Bearer\s+/,
-      "",
-    );
-    if (!secret || !(await timingSafeEqualStrings(provided, secret))) {
-      return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    let body: {
-      userId?: string;
-      email?: string;
-      name?: string;
-      productId?: string;
-      returnUrl?: string;
-      discountCode?: string;
-      referralCode?: string;
-    };
-    try {
-      body = await request.json() as typeof body;
-    } catch {
-      return new Response(JSON.stringify({ error: "INVALID_JSON" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    if (!body.userId || !body.productId) {
-      return new Response(
-        JSON.stringify({ error: "MISSING_FIELDS", required: ["userId", "productId"] }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
-      );
-    }
-
-    try {
-      const result = await ctx.runAction(
-        internal.payments.checkout.internalCreateCheckout,
-        {
-          userId: body.userId,
-          email: body.email,
-          name: body.name,
-          productId: body.productId,
-          returnUrl: body.returnUrl,
-          discountCode: body.discountCode,
-          referralCode: body.referralCode,
-        },
-      );
-      if (
-        result &&
-        typeof result === "object" &&
-        "blocked" in result &&
-        result.blocked === true
-      ) {
-        return new Response(
-          JSON.stringify({
-            error: result.code,
-            message: result.message,
-            subscription: result.subscription,
-          }),
-          {
-            status: 409,
-            headers: { "Content-Type": "application/json" },
-          },
-        );
-      }
-      return new Response(JSON.stringify(result), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Checkout creation failed";
-      return new Response(JSON.stringify({ error: msg }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-  }),
-});
-
-// Service-to-service: Vercel edge gateway creates Dodo customer portal sessions.
-// Authenticated via RELAY_SHARED_SECRET; edge endpoint validates Clerk JWT
-// and forwards the verified userId.
-http.route({
-  path: "/relay/customer-portal",
-  method: "POST",
-  handler: httpAction(async (ctx, request) => {
-    const secret = process.env.RELAY_SHARED_SECRET ?? "";
-    const provided = (request.headers.get("Authorization") ?? "").replace(
-      /^Bearer\s+/,
-      "",
-    );
-    if (!secret || !(await timingSafeEqualStrings(provided, secret))) {
-      return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    let body: { userId?: string };
-    try {
-      body = await request.json() as typeof body;
-    } catch {
-      return new Response(JSON.stringify({ error: "INVALID_JSON" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    if (!body.userId) {
-      return new Response(
-        JSON.stringify({ error: "MISSING_FIELDS", required: ["userId"] }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
-      );
-    }
-
-    try {
-      const result = await ctx.runAction(
-        internal.payments.billing.internalGetCustomerPortalUrl,
-        { userId: body.userId },
-      );
-      return new Response(JSON.stringify(result), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Customer portal creation failed";
-      const status = msg === "No Dodo customer found for this user" ? 404 : 500;
-      return new Response(JSON.stringify({ error: msg }), {
-        status,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-  }),
-});
-
 // Resend webhook: captures bounce/complaint events and suppresses emails.
-// Signature verification + internal mutation, same pattern as Dodo webhook.
 http.route({
   path: "/resend-webhook",
   method: "POST",

@@ -1,5 +1,4 @@
 import { SITE_VARIANT } from '@/config/variant';
-import { getClerkToken } from '@/services/clerk';
 
 const ENV = (() => {
   try {
@@ -482,7 +481,6 @@ export function installRuntimeFetchPatch(): void {
   (window as unknown as Record<string, unknown>).__wmFetchPatched = true;
 }
 
-import { PREMIUM_RPC_PATHS as WEB_PREMIUM_API_PATHS } from '@/shared/premium-paths';
 
 const ALLOWED_REDIRECT_HOSTS = /^https:\/\/([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)*orion\.app(:\d+)?$/;
 
@@ -511,45 +509,7 @@ export function installWebApiRedirect(): void {
     { ...(init ?? {}), credentials: init?.credentials ?? 'include' }
   );
 
-  /**
-   * For premium API paths, inject auth when the user has premium access but no
-   * existing auth header is present. Priority order:
-   *   1. Existing auth headers — left unchanged (API key users keep their flow)
-   *   2. ORION_API_KEY from runtime config → X-ORION-Key
-   *   3. Tester session (orion-pro-key / orion-widget-key HttpOnly cookie)
-   *   4. Clerk Pro session → Authorization: Bearer <token>
-   * Runs on every web deployment (with or without API base redirect).
-   * Returns the original init unchanged for non-premium paths (zero overhead).
-   */
-  const enrichInitForPremium = async (pathWithQuery: string, init?: RequestInit): Promise<RequestInit | undefined> => {
-    const path = pathWithQuery.split('?')[0] ?? pathWithQuery;
-    if (!WEB_PREMIUM_API_PATHS.has(path)) return init;
-    const headers = new Headers(init?.headers);
-    // Don't overwrite existing auth headers
-    if (headers.has('Authorization') || headers.has('X-ORION-Key')) return init;
-    // ORION_API_KEY from env or runtime config
-    try {
-      const { getRuntimeConfigSnapshot } = await import('@/services/runtime-config');
-      const wmKey = getRuntimeConfigSnapshot().secrets['ORION_API_KEY']?.value;
-      if (wmKey) {
-        headers.set('X-ORION-Key', wmKey);
-        return { ...withCredentials(init), headers };
-      }
-    } catch { /* runtime-config unavailable — fall through */ }
-    // Legacy test seam. In production, tester keys live in HttpOnly cookies
-    // and are sent through credentials: 'include'.
-    const { getBrowserTesterKey } = await import('@/services/widget-store');
-    const testerKey = getBrowserTesterKey();
-    if (testerKey) {
-      headers.set('X-ORION-Key', testerKey);
-      return { ...withCredentials(init), headers };
-    }
-    // Clerk Pro: inject Bearer token (fallback for users without a tester key)
-    const token = await getClerkToken();
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
-      return { ...withCredentials(init), headers };
-    }
+  const enrichInitForPremium = async (_pathWithQuery: string, init?: RequestInit): Promise<RequestInit | undefined> => {
     return init;
   };
 

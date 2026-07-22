@@ -1,4 +1,4 @@
-import type { SocialUnrestEvent, MilitaryFlight, MilitaryVessel, ClusteredEvent, InternetOutage, AisDisruptionEvent, CyberThreat } from '@/types';
+import type { SocialUnrestEvent, MilitaryFlight, MilitaryVessel, ClusteredEvent, InternetOutage, AisDisruptionEvent } from '@/types';
 import type { AirportDelayAlert } from '@/services/aviation';
 import type { SecurityAdvisory } from '@/services/security-advisories';
 import type { TemporalAnomaly } from '@/services/temporal-baseline';
@@ -64,9 +64,6 @@ interface CountryData {
   aisDisruptionLowCount: number;
   satelliteFireCount: number;
   satelliteFireHighCount: number;
-  cyberThreatCriticalCount: number;
-  cyberThreatHighCount: number;
-  cyberThreatMediumCount: number;
   temporalAnomalyCount: number;
   temporalAnomalyCriticalCount: number;
   earthquakeSignificantCount: number;
@@ -109,9 +106,6 @@ export function hasAnyIntelligenceData(): boolean {
       data.aisDisruptionLowCount > 0 ||
       data.satelliteFireCount > 0 ||
       data.satelliteFireHighCount > 0 ||
-      data.cyberThreatCriticalCount > 0 ||
-      data.cyberThreatHighCount > 0 ||
-      data.cyberThreatMediumCount > 0 ||
       data.temporalAnomalyCount > 0 ||
       data.temporalAnomalyCriticalCount > 0 ||
       data.earthquakeSignificantCount > 0 ||
@@ -223,9 +217,6 @@ function initCountryData(): CountryData {
     aisDisruptionLowCount: 0,
     satelliteFireCount: 0,
     satelliteFireHighCount: 0,
-    cyberThreatCriticalCount: 0,
-    cyberThreatHighCount: 0,
-    cyberThreatMediumCount: 0,
     temporalAnomalyCount: 0,
     temporalAnomalyCriticalCount: 0,
     earthquakeSignificantCount: 0,
@@ -644,15 +635,11 @@ function getSupplementalSignalBoost(data: CountryData): number {
     8,
     data.satelliteFireHighCount * 1.5 + Math.min(20, data.satelliteFireCount) * 0.25,
   );
-  const cyberBoost = Math.min(
-    12,
-    data.cyberThreatCriticalCount * 3 + data.cyberThreatHighCount * 1.8 + data.cyberThreatMediumCount * 0.9,
-  );
   const temporalBoost = Math.min(
     6,
     data.temporalAnomalyCriticalCount * 2 + data.temporalAnomalyCount * 0.75,
   );
-  return aisBoost + fireBoost + cyberBoost + temporalBoost;
+  return aisBoost + fireBoost + temporalBoost;
 }
 
 const h3CountryCache = new Map<string, string>();
@@ -734,25 +721,6 @@ export function ingestSatelliteFiresForCII(fires: Array<{
     if (fire.brightness >= 360 || fire.frp >= 50) {
       data.satelliteFireHighCount++;
     }
-  }
-}
-
-export function ingestCyberThreatsForCII(threats: CyberThreat[]): void {
-  for (const [, data] of countryDataMap) {
-    data.cyberThreatCriticalCount = 0;
-    data.cyberThreatHighCount = 0;
-    data.cyberThreatMediumCount = 0;
-  }
-
-  for (const threat of threats) {
-    processedCount++;
-    const code = resolveCountryForSignal(threat.country, threat.lat, threat.lon);
-    if (!code) { unmappedCount++; continue; }
-    if (!countryDataMap.has(code)) countryDataMap.set(code, initCountryData());
-    const data = countryDataMap.get(code)!;
-    if (threat.severity === 'critical') data.cyberThreatCriticalCount++;
-    else if (threat.severity === 'high') data.cyberThreatHighCount++;
-    else if (threat.severity === 'medium') data.cyberThreatMediumCount++;
   }
 }
 

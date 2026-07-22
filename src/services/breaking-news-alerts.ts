@@ -8,7 +8,6 @@ import type { NewsItem } from '@/types';
 import type { OrefAlert } from '@/services/oref-alerts';
 import { getSourceTier } from '@/config/feeds';
 import { isDesktopRuntime, getRemoteApiBaseUrl } from '@/services/runtime';
-import { getClerkToken } from '@/services/clerk';
 import { SITE_VARIANT } from '@/config/variant';
 import { effectivePubDateMs } from '@/services/feed-date';
 
@@ -177,7 +176,6 @@ function isGlobalCooldown(candidateLevel: 'critical' | 'high'): boolean {
 }
 
 function dispatchAlert(alert: BreakingAlert): void {
-  console.log('[breaking-news-alerts] dispatching:', alert.origin, alert.threatLevel, alert.headline.slice(0, 60));
   pruneDedupeMap();
   dedupeMap.set(alert.id, Date.now());
   lastGlobalAlertMs = Date.now();
@@ -187,8 +185,8 @@ function dispatchAlert(alert: BreakingAlert): void {
 
   if (!RELAY_GATES_READY) {
     void (async () => {
-      const token = await getClerkToken();
-      if (!token) { console.warn('[breaking-news-alerts] no Clerk token, skipping notify'); return; }
+      const token: string | null = null;
+      if (!token) { console.warn('[breaking-news-alerts] no auth token, skipping notify'); return; }
       // source: rss (list-feed-digest) — RSS-origin producer; carries
       // `description` when the upstream NewsItem had a snippet so the relay
       // can render a context line without a secondary Redis lookup.
@@ -218,7 +216,6 @@ function dispatchAlert(alert: BreakingAlert): void {
           body,
         }).then((res) => {
           if (!res.ok) console.warn('[breaking-news-alerts] notify returned', res.status, alert.origin);
-          else console.log('[breaking-news-alerts] notify queued:', alert.origin, alert.threatLevel);
         }).catch((err) => { console.warn('[breaking-news-alerts] notify network error:', err); });
       }
     })();

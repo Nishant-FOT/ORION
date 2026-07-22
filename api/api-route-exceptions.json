@@ -427,13 +427,6 @@
       "removal_issue": null
     },
     {
-      "path": "api/me/entitlement.ts",
-      "category": "internal-helper",
-      "reason": "Thin wrapper over the canonical server/_shared/premium-check.ts isCallerPremium helper — returns { isPro: boolean } for the /pro marketing bundle so it can swap upgrade CTAs for a dashboard link when the visitor is already a paying Pro user. Not a product data API: the authoritative gates live in panel-gating.ts (frontend), isCallerPremium (per-handler), and gateway.ts PREMIUM_RPC_PATHS (Bearer gate). This endpoint exists purely to let the separate pro-test bundle (no Convex client, no gateway client) ask the same question without reimplementing the two-signal check. Shape is unversioned by design — flip a boolean and ship.",
-      "owner": "@SebastienMelki",
-      "removal_issue": null
-    },
-    {
       "path": "api/user/mcp-quota.ts",
       "category": "internal-helper",
       "reason": "Settings-UI-only read of the caller's Pro MCP daily-quota counter (plan 2026-05-10-001 U9). Clerk-authenticated; reads the SAME `mcp:pro-usage:<userId>:<YYYY-MM-DD>` Redis key that api/mcp.ts U7 writes via INCR-first reservation. Returns `{used, limit:50, resetsAt}` — informational, not authoritative; the hard cap is enforced server-side at INCR time. Shape exists purely so the Connected MCP clients tab can show `X / 50 used today, resets in <countdown>` without exposing the underlying Redis schema. Modeling as a sebuf RPC would publish a per-user counter implementation detail as user-facing API surface for a single-feature display widget.",
@@ -487,27 +480,6 @@
       "path": "api/user-prefs.ts",
       "category": "deferred",
       "reason": "Reads / writes user dashboard preferences. Auth-gated; part of user/v1 service work pending Clerk migration.",
-      "owner": "@SebastienMelki",
-      "removal_issue": "TBD"
-    },
-    {
-      "path": "api/create-checkout.ts",
-      "category": "deferred",
-      "reason": "Creates a Dodo Payments checkout session. Payments domain is still stabilizing (Clerk + Dodo integration); migrate once shape is frozen.",
-      "owner": "@SebastienMelki",
-      "removal_issue": "TBD"
-    },
-    {
-      "path": "api/customer-portal.ts",
-      "category": "deferred",
-      "reason": "Issues a Dodo customer-portal redirect URL. Paired with create-checkout.ts; migrate together.",
-      "owner": "@SebastienMelki",
-      "removal_issue": "TBD"
-    },
-    {
-      "path": "api/product-catalog.js",
-      "category": "deferred",
-      "reason": "Returns Dodo product catalog (pricing tiers). Migrate alongside the rest of the payments surface.",
       "owner": "@SebastienMelki",
       "removal_issue": "TBD"
     },

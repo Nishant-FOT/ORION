@@ -37,7 +37,6 @@ import { readRawJsonFromUpstash, redisPipeline } from '../_upstash-json.js';
 // @ts-expect-error — JS module, no declaration file
 import { captureSilentError } from '../_sentry-edge.js';
 import { validateBearerToken } from '../../server/auth-session';
-import { getEntitlements } from '../../server/_shared/entitlement-check';
 import {
   BriefShareUrlError,
   BRIEF_PUBLIC_POINTER_PREFIX,
@@ -90,15 +89,6 @@ export default async function handler(
   const session = await validateBearerToken(jwt);
   if (!session.valid || !session.userId) {
     return jsonResponse({ error: 'UNAUTHENTICATED' }, 401, cors);
-  }
-
-  const ent = await getEntitlements(session.userId);
-  if (!ent || ent.features.tier < 1) {
-    return jsonResponse(
-      { error: 'pro_required', message: 'Sharing is available on the Pro plan.' },
-      403,
-      cors,
-    );
   }
 
   const secret = process.env.BRIEF_SHARE_SECRET ?? '';

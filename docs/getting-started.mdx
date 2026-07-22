@@ -155,7 +155,7 @@ src/
 ├── App.ts                    # Main application orchestrator
 ├── main.ts                   # Entry point
 ├── components/
-│   ├── DeckGLMap.ts          # WebGL map with deck.gl + MapLibre (desktop)
+│   ├── DeckGLMap.ts          # WebGL map with deck.gl + MapLibre
 │   ├── Map.ts                # D3.js SVG map (mobile fallback)
 │   ├── MapContainer.ts       # Map wrapper with platform detection
 │   ├── MapPopup.ts           # Contextual info popups
@@ -246,8 +246,8 @@ api/                          # Vercel Edge Functions (two kinds, see Architectu
 ├── bootstrap.js              # Two-tier Redis hydration for the SPA
 ├── health/                   # Per-key freshness + cascade status
 ├── mcp.ts / mcp-proxy.ts     # Model Context Protocol server endpoints
-├── create-checkout.ts        # Stripe checkout (hand-written operational)
-├── customer-portal.ts        # Stripe billing portal (hand-written operational)
+├── create-checkout.ts        # Checkout endpoint (hand-written operational)
+├── customer-portal.ts        # Customer portal endpoint (hand-written operational)
 ├── user-prefs.ts             # User preference sync (hand-written operational)
 └── notify.ts                 # Notification dispatch (hand-written operational)
 server/                       # Server-side handlers (bundled into Edge functions)
@@ -301,7 +301,7 @@ Original dashboard concept inspired by Reggie James ([@HipCityReg](https://x.com
 
 Special thanks to **Yanal at [Wingbits](https://wingbits.com)** for providing API access for aircraft enrichment data, enabling military aircraft classification and ownership tracking.
 
-Thanks to **[@fai9al](https://github.com/fai9al)** for the inspiration and original PR that led to the Tech Monitor variant.
+Thanks to **[@fai9al](https://github.com/fai9al)** for the inspiration and original PR that led to the Tech Monitor configuration.
 
 ## Limitations & Caveats
 

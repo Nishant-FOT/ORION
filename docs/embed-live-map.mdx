@@ -20,7 +20,7 @@ ORION exposes a public map-only iframe at `/embed`.
 
 | Parameter | Example | Notes |
 | --- | --- | --- |
-| `layers` | `conflicts,earthquakes,weather` | Allow-listed public layers only. Supported values: `conflicts`, `earthquakes`, `protests`, `weather`. Unknown, premium, authenticated, or high-frequency layers are ignored. |
+| `layers` | `conflicts,earthquakes,weather` | Allow-listed public layers only. Supported values: `conflicts`, `earthquakes`, `protests`, `weather`. Unknown or high-frequency layers are ignored. |
 | `center` | `25.2,55.3` | Latitude and longitude, clamped to valid ranges. |
 | `zoom` | `4` | Clamped between `1` and `10`. |
 | `theme` | `dark` | `dark` or `light`. |
@@ -28,6 +28,6 @@ ORION exposes a public map-only iframe at `/embed`.
 
 ## Scope
 
-The embed route is intentionally map-only. It does not expose arbitrary panels, account state, premium layers, saved preferences, Clerk auth, or notification state. Use the dashboard's **Embed** button to generate a snippet for the current public map view.
+The embed route is intentionally map-only. It does not expose arbitrary panels, account state, saved preferences, or notification state. Use the dashboard's **Embed** button to generate a snippet for the current public map view.
 
 Each embed includes a permanent attribution link back to ORION with source campaign parameters.

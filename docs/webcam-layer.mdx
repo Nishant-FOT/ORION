@@ -54,7 +54,7 @@ The webcam layer requires a `WINDY_API_KEY` environment variable. Get a free key
 |-------------|-------------|---------|
 | **Vercel** (production) | Project Settings > Environment Variables | `get-webcam-image.ts` (on-demand image/player URL fetches) |
 | **Railway** (cron seeder) | Service Variables | `seed-webcams.mjs` (bulk metadata fetch) |
-| **Tauri sidecar** (desktop) | Keychain via Settings > API Keys | On-demand image fetches via sidecar |
+| **Native client** | Keychain via Settings > API Keys | On-demand image fetches via sidecar |
 | **Local dev** | `.env` file | Both seeder and dev server |
 
 Without the key:

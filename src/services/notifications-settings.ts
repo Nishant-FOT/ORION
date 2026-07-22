@@ -18,7 +18,6 @@ import {
   type QuietHoursOverride,
   type DigestMode,
 } from '@/services/notification-channels';
-import { getCurrentClerkUser } from '@/services/clerk';
 import { SITE_VARIANT } from '@/config/variant';
 import { mountCountryChipPicker, loadFollowedCountriesSafe, type CountryChipPickerHandle } from '@/utils/country-chip-picker';
 import { setTrustedHtml, trustedHtml } from '@/utils/dom-utils';
@@ -90,7 +89,7 @@ export function renderNotificationsSettings(host: NotificationsSettingsHost): No
         const signInBtn = container.querySelector<HTMLButtonElement>('#usNotifSignInBtn');
         if (signInBtn) {
           signInBtn.addEventListener('click', () => {
-            import('@/services/clerk').then(m => m.openSignIn()).catch(() => {});
+            console.warn('[notifications] Sign-in not available — Clerk has been removed');
           }, { signal });
         }
         return () => ac.abort();
@@ -486,7 +485,7 @@ export function renderNotificationsSettings(host: NotificationsSettingsHost): No
               : `<div class="ai-flow-toggle-desc">Unable to load notification settings. Please try again.</div><button type="button" class="panel-locked-cta" id="usNotifRetryBtn">Retry</button>`;
             if (isAuth) {
               loadingEl.querySelector<HTMLButtonElement>('#usNotifSignInBtn')?.addEventListener('click', () => {
-                import('@/services/clerk').then(m => m.openSignIn()).catch(() => {});
+                console.warn('[notifications] Sign-in not available — Clerk has been removed');
               }, { signal });
             } else {
               loadingEl.querySelector<HTMLButtonElement>('#usNotifRetryBtn')?.addEventListener('click', () => {
@@ -853,8 +852,7 @@ export function renderNotificationsSettings(host: NotificationsSettingsHost): No
         }
 
         if (target.closest('#usConnectEmail')) {
-          const user = getCurrentClerkUser();
-          const email = user?.email;
+          const email: string | null = null;
           if (!email) {
             const rowEl = target.closest('.us-notif-ch-row') as HTMLElement | null;
             if (rowEl) {

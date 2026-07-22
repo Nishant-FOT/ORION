@@ -25,7 +25,7 @@ Panel id is `oref-sirens`; canonical component is `src/components/OrefSirensPane
 ## How you reach it
 
 - **Cmd+K**: type *siren* or *oref*.
-- **Availability by variant**: registered and enabled by default in the **full/geopolitical** variant only (`priority: 2`). The full-variant registration layers `premium: 'locked'` on desktop (`_desktop && { premium: 'locked' as const }`), so the panel is **free on web** and **PRO-locked on desktop**. Not present in the tech, finance, commodity, or happy variants. Source: `'oref-sirens'` in `FULL_PANELS` of `src/config/panels.ts`.
+- **Availability**: registered and enabled by default in the **full/geopolitical** configuration only (`priority: 2`). Not present in the tech, finance, commodity, or happy configurations. Source: `'oref-sirens'` in `FULL_PANELS` of `src/config/panels.ts`.
 
 ## Data sources
 
@@ -38,7 +38,7 @@ Real-time for active sirens. History is client-cached for 3 minutes to damp re-f
 
 ## Tier & gating
 
-**Free on web; PRO-locked on desktop.** Registered without `premium` on the web path; the desktop variant spreads `premium: 'locked'` via the `_desktop &&` clause.
+All panels are freely accessible. No subscription or API key required.
 
 ## API reference
 

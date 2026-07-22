@@ -127,9 +127,6 @@ const HIGH_KEYWORDS: KeywordMap = {
   'terrorist': 'terrorism',
   'terror attack': 'terrorism',
   'assassination': 'crime',
-  'cyber attack': 'cyber',
-  'ransomware': 'cyber',
-  'data breach': 'cyber',
   'sanctions': 'economic',
   'embargo': 'economic',
   'earthquake': 'disaster',
@@ -232,17 +229,11 @@ const TECH_HIGH_KEYWORDS: KeywordMap = {
   'major outage': 'infrastructure',
   'service down': 'infrastructure',
   'global outage': 'infrastructure',
-  'zero-day': 'cyber',
-  'critical vulnerability': 'cyber',
-  'supply chain attack': 'cyber',
   'mass layoff': 'economic',
 };
 
 const TECH_MEDIUM_KEYWORDS: KeywordMap = {
   'outage': 'infrastructure',
-  'breach': 'cyber',
-  'hack': 'cyber',
-  'vulnerability': 'cyber',
   'layoff': 'economic',
   'layoffs': 'economic',
   'antitrust': 'economic',
