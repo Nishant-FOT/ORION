@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-6.4-purple.svg)](https://vitejs.dev)
 
-[Live Demo](https://orion.app) · [Architecture](ARCHITECTURE.md) · [API Docs](docs/api/) · [Contributing](CONTRIBUTING.md)
+[Live Demo](https://orion-eight-beta.vercel.app/) · [Architecture](ARCHITECTURE.md) · [API Docs](docs/api/) · [Contributing](CONTRIBUTING.md)
 
 </div>
 
