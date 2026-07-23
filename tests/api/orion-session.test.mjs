@@ -7,8 +7,8 @@ process.env.WIDGET_AGENT_KEY = 'widget-secret';
 process.env.PRO_WIDGET_KEY = 'pro-secret';
 process.env.ORION_VALID_KEYS = 'enterprise-secret';
 
-const { default: handler } = await import('./orion-session.js');
-const { validateSessionToken } = await import('./_session.js');
+const { default: handler } = await import('../../api/orion-session.js');
+const { validateSessionToken } = await import('../../api/_session.js');
 
 function makeReq(method, { origin } = {}) {
   const headers = new Headers();

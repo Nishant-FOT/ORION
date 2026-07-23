@@ -1,2 +1,13 @@
 # Common local artifacts
 .DS_Store
+
+# The root API is deployed as the independent Railway service at api.orion.app.
+# Vite evaluates a few shared server modules while loading its configuration,
+# so retain just their dependency closure. These underscore-prefixed files are
+# helpers, not Vercel entrypoints; all routable API handlers remain excluded.
+/api/*
+!/api/_api-key.js
+!/api/_crypto.js
+!/api/_session.js
+!/api/_sentry-common.js
+!/api/_sentry-edge.js

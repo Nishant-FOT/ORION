@@ -13,7 +13,7 @@ for (const k of [
   'UPSTASH_REDIS_REST_TOKEN', 'KV_REST_API_TOKEN', 'REDIS_REST_TOKEN',
 ]) delete process.env[k];
 
-const { default: handler } = await import('./health.js');
+const { default: handler } = await import('../../api/health.js');
 
 function makePreflight(origin) {
   return new Request('https://api.orion.app/api/health?compact=1', {

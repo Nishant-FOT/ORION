@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import test from 'node:test';
-import { getCorsHeaders, getPublicCorsHeaders, isDisallowedOrigin } from './_cors.js';
+import { getCorsHeaders, getPublicCorsHeaders, isDisallowedOrigin } from '../../api/_cors.js';
 
 function makeRequest(origin) {
   const headers = new Headers();

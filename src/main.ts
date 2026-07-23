@@ -1,3 +1,4 @@
+import './styles/tailwind.css';
 import { App } from './App';
 
 // Initialize the app

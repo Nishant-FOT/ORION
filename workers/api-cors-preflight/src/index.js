@@ -24,11 +24,16 @@
 // echoed back and fail CORS at the browser.
 const ALLOWED_ORIGIN_PATTERNS = [
   /^https:\/\/(.*\.)?orion\.app$/,
-  // Vercel previews under the "eliewm" team scope, e.g.
-  //   orion-git-<branch>-eliewm.vercel.app / orion-<hash>-eliewm.vercel.app
+  // Vercel deployments under the production team scope, e.g.
+  //   orion-git-<branch>-nishant-fots-projects.vercel.app /
+  //   orion-<hash>-nishant-fots-projects.vercel.app
   // Mirror of api/_cors.js + server/cors.ts (see superset note above).
-  /^https:\/\/orion-[a-z0-9-]+-eliewm\.vercel\.app$/,
+  /^https:\/\/orion-[a-z0-9-]+-nishant-fots-projects\.vercel\.app$/,
+  /^https:\/\/orion-eight-beta\.vercel\.app$/,
+  /^tauri:\/\/localhost$/,
   /^asset:\/\/localhost$/,
+  /^http:\/\/(?:app\.)?tauri\.localhost$/,
+  /^https:\/\/tauri\.localhost:1420$/,
 ];
 
 // Keep in sync with api/_cors.js#getCorsHeaders Access-Control-Allow-Headers.

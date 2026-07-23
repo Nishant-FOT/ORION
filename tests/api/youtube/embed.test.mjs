@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import test from 'node:test';
-import handler from './embed.js';
+import handler from '../../../api/youtube/embed.js';
 
 function makeRequest(query = '') {
   return new Request(`https://orion.app/api/youtube/embed${query}`);

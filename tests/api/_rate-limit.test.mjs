@@ -12,7 +12,7 @@ import {
   UNKNOWN_CLIENT_IP,
   checkRateLimit,
   getClientIp,
-} from './_rate-limit.js';
+} from '../../api/_rate-limit.js';
 
 const originalFetch = globalThis.fetch;
 const originalEnv = { ...process.env };

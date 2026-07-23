@@ -5,7 +5,7 @@ const SECRET = 'test-secret-must-be-at-least-32-chars-long-xxx';
 process.env.ORION_SESSION_SECRET = SECRET;
 
 const { issueSessionToken, validateSessionToken, isSessionTokenShape } =
-  await import('./_session.js');
+  await import('../../api/_session.js');
 
 test('issueSessionToken returns ors_-prefixed token + future exp', async () => {
   const { token, exp } = await issueSessionToken();

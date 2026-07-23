@@ -1,5 +1,6 @@
 [phases.setup]
-# aptPkgs = ["curl"]  — same workaround as root nixpacks.toml; see comment there.
+# The relay uses curl for upstream fetches. Keep this workaround local to the
+# relay service because the root ORION web deployment does not need apt packages.
 cmds = ["sudo apt-get update -o Acquire::AllowInsecureRepositories=false || true", "sudo apt-get install -y --no-install-recommends --fix-missing curl || echo 'apt curl install failed; curl may already be present'"]
 
 [variables]

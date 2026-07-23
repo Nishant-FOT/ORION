@@ -1,5 +1,4 @@
 {
-  "ignoreCommand": "bash scripts/vercel-ignore.sh",
   "crons": [],
   "redirects": [
     {
@@ -25,6 +24,14 @@
   ],
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://orion-api-production-d435.up.railway.app/api/:path*"
+    },
+    {
+      "source": "/mcp",
+      "destination": "https://orion-api-production-d435.up.railway.app/api/mcp"
+    },
+    {
       "source": "/docs/:match*",
       "destination": "https://orion.mintlify.dev/docs/:match*"
     },
@@ -40,19 +47,19 @@
     },
     {
       "source": "/oauth/token",
-      "destination": "/api/oauth/token"
+      "destination": "https://orion-api-production-d435.up.railway.app/api/oauth/token"
     },
     {
       "source": "/oauth/register",
-      "destination": "/api/oauth/register"
+      "destination": "https://orion-api-production-d435.up.railway.app/api/oauth/register"
     },
     {
       "source": "/oauth/authorize",
-      "destination": "/api/oauth/authorize"
+      "destination": "https://orion-api-production-d435.up.railway.app/api/oauth/authorize"
     },
     {
       "source": "/.well-known/oauth-protected-resource",
-      "destination": "/api/oauth-protected-resource"
+      "destination": "https://orion-api-production-d435.up.railway.app/api/oauth-protected-resource"
     },
     {
       "source": "/embed",
@@ -220,7 +227,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; connect-src 'self' https: wss: blob: data: https://*.ingest.sentry.io https://*.ingest.us.sentry.io; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'sha256-2G77g8vokJEJXo85/VPUPDcG9AEQAxZA1aOVn0Of4m0=' 'sha256-2epMjQ2/oWFF6Y77amzs7FAw+ZaoyLG9Kp0KErmBNXs=' 'sha256-Du+OJKJSbdUgz5nrHeWWINvez6XKDDU/tyj/5c2uvwo=' 'sha256-L/vfLAds6K9fprudFxhfvZmKsZ82qTc+9yVGYY8K95o=' 'sha256-OyE1rAJUuo/4sXP9Y1LQUML6LGg5dehiUCgZZmkJ7Tk=' 'sha256-TEao6BhZI38PkONCcjC97OSFNPTcKauKMrmV71BrQvo=' 'sha256-Ui6DvM0hTh8CX3n025RqWD697qM5uzMdkEqUVp7vP9o=' 'sha256-XWhHc3KU8FltvfYE3gXngxuCI+00hwHI2xer0U/1zKI=' 'sha256-XsSfnJeoJYzlhuBF8lmmhxzSpSgSecVttS4CzI5UqnM=' 'sha256-hcXyAPNYUk/Tek/XR55IowxU4wU8Z0XzY6oIVzNvrsc=' 'sha256-iIlSpuuJyu9WKSepSKy1ugpajDNq8B9JsFHdczHlOn8=' 'sha256-j+bG7wC1PWan7RHpUEdV4VVa5LGS8bn9uExo/L+xMnc=' 'sha256-k19UB3MwwYik/h1gc1TC7z/vnfnTxZtIcPiOC6EhrFE=' 'sha256-nnQ2u6xvMCnN63YwKmMgoiVJNXTvZz47VRcLv76Zcds=' 'sha256-s/ufjsUvnP4EXBMS4wZtQDDDlCTmpO1CYNN6wHEP000=' 'sha256-t/NfrMa7Hy9sFgMnBrlMoDxKHZvhxruyETDmZmetubQ=' 'wasm-unsafe-eval' https://www.youtube.com https://static.cloudflareinsights.com https://vercel.live https://challenges.cloudflare.com https://abacus.orion.app; worker-src 'self' blob:; font-src 'self' data: https:; media-src 'self' data: blob: https:; frame-src 'self' https://www.orion.app https://orion.app https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com https://webcams.windy.com https://challenges.cloudflare.com https://vercel.live https://*.vercel.app https://pay.google.com https://hooks.stripe.com https://js.stripe.com; frame-ancestors 'self' https://www.orion.app https://orion.app https://vercel.live https://*.vercel.app; base-uri 'self'; object-src 'none'; form-action 'self' https://api.orion.app"
+          "value": "default-src 'self'; connect-src 'self' https: wss: blob: data: https://*.ingest.sentry.io https://*.ingest.us.sentry.io; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'sha256-2G77g8vokJEJXo85/VPUPDcG9AEQAxZA1aOVn0Of4m0=' 'sha256-2epMjQ2/oWFF6Y77amzs7FAw+ZaoyLG9Kp0KErmBNXs=' 'sha256-Du+OJKJSbdUgz5nrHeWWINvez6XKDDU/tyj/5c2uvwo=' 'sha256-L/vfLAds6K9fprudFxhfvZmKsZ82qTc+9yVGYY8K95o=' 'sha256-OyE1rAJUuo/4sXP9Y1LQUML6LGg5dehiUCgZZmkJ7Tk=' 'sha256-TEao6BhZI38PkONCcjC97OSFNPTcKauKMrmV71BrQvo=' 'sha256-Ui6DvM0hTh8CX3n025RqWD697qM5uzMdkEqUVp7vP9o=' 'sha256-XWhHc3KU8FltvfYE3gXngxuCI+00hwHI2xer0U/1zKI=' 'sha256-XsSfnJeoJYzlhuBF8lmmhxzSpSgSecVttS4CzI5UqnM=' 'sha256-hcXyAPNYUk/Tek/XR55IowxU4wU8Z0XzY6oIVzNvrsc=' 'sha256-iIlSpuuJyu9WKSepSKy1ugpajDNq8B9JsFHdczHlOn8=' 'sha256-j+bG7wC1PWan7RHpUEdV4VVa5LGS8bn9uExo/L+xMnc=' 'sha256-k19UB3MwwYik/h1gc1TC7z/vnfnTxZtIcPiOC6EhrFE=' 'sha256-nnQ2u6xvMCnN63YwKmMgoiVJNXTvZz47VRcLv76Zcds=' 'sha256-s/ufjsUvnP4EXBMS4wZtQDDDlCTmpO1CYNN6wHEP000=' 'sha256-t/NfrMa7Hy9sFgMnBrlMoDxKHZvhxruyETDmZmetubQ=' 'sha256-uzVrp00OhsELPORokKKyVRajqFTL5fN+KqebOLVUBTQ=' 'wasm-unsafe-eval' https://cdn.tailwindcss.com https://www.youtube.com https://static.cloudflareinsights.com https://vercel.live https://challenges.cloudflare.com https://abacus.orion.app; worker-src 'self' blob:; font-src 'self' data: https:; media-src 'self' data: blob: https:; frame-src 'self' https://www.orion.app https://orion.app https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com https://webcams.windy.com https://challenges.cloudflare.com https://vercel.live https://*.vercel.app https://pay.google.com https://hooks.stripe.com https://js.stripe.com; frame-ancestors 'self' https://www.orion.app https://orion.app https://vercel.live https://*.vercel.app; base-uri 'self'; object-src 'none'; form-action 'self' https://api.orion.app"
         }
       ]
     },

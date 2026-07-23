@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import test from 'node:test';
-import handler from './bootstrap.js';
-import { issueSessionToken } from './_session.js';
+import handler from '../../api/bootstrap.js';
+import { issueSessionToken } from '../../api/_session.js';
 
 function makePreflight(origin) {
   return new Request('https://api.orion.app/api/bootstrap?keys=techReadiness', {

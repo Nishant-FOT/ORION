@@ -25,7 +25,7 @@ const PUBLIC_BASE = 'https://orion.app';
 const SCHEMA = 'https://agentskills.io/schemas/v0.2.0/index.json';
 // Closing fence must be anchored to its own line so values that happen to
 // start with `---` in the body can't prematurely terminate frontmatter.
-const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---(?:\n|$)/;
+const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/;
 
 function sha256Hex(bytes) {
   return createHash('sha256').update(bytes).digest('hex');

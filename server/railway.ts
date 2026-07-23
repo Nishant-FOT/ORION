@@ -1,8 +1,8 @@
 /**
  * Railway deployment entry point.
  *
- * Serves the Vite-built frontend from dist/ and proxies /api/* requests
- * through the existing domain-gateway pipeline (createDomainGateway).
+ * Runs the ORION API as a long-lived Node service. Set
+ * ORION_SERVE_FRONTEND=true only for the legacy combined deployment.
  * Uses Node.js 18+ native fetch / Request / Response — no Express needed.
  *
  * Usage:
@@ -18,6 +18,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const DIST_DIR = resolve(__dirname, '..', 'dist');
 const APP_ENTRY = 'dashboard.html';
+const SERVE_FRONTEND = process.env.ORION_SERVE_FRONTEND === 'true';
 
 // ---------------------------------------------------------------------------
 // MIME types for static files
@@ -73,6 +74,12 @@ interface PrefixRoute {
 
 type Route = ExactRoute | PrefixRoute;
 
+// Legacy JavaScript handlers have no declaration files. Keeping their module
+// specifiers dynamic confines that untyped boundary to the Railway adapter.
+function loadJavaScriptRoute(path: string): Promise<{ default?: GatewayFn }> {
+  return import(path) as Promise<{ default?: GatewayFn }>;
+}
+
 /**
  * Route map — order matters.  Longer prefixes come first so
  * /api/v2/shipping/webhooks is tried before /api/v2/shipping.
@@ -111,6 +118,7 @@ const ROUTES: Route[] = [
   { kind: 'prefix', prefix: '/api/imagery/v1', load: () => import('../api/imagery/v1/[rpc]') },
   { kind: 'prefix', prefix: '/api/intelligence/v1', load: () => import('../api/intelligence/v1/[rpc]') },
   { kind: 'prefix', prefix: '/api/webcam/v1', load: () => import('../api/webcam/v1/[rpc]') },
+  { kind: 'prefix', prefix: '/api/unrest/v1', load: () => import('../api/unrest/v1/[rpc]') },
   { kind: 'prefix', prefix: '/api/consumer-prices/v1', load: () => import('../api/consumer-prices/v1/[rpc]') },
   { kind: 'prefix', prefix: '/api/positive-events/v1', load: () => import('../api/positive-events/v1/[rpc]') },
   { kind: 'prefix', prefix: '/api/maritime/v1', load: () => import('../api/maritime/v1/[rpc]') },
@@ -143,6 +151,8 @@ const ROUTES: Route[] = [
   // ── oauth ───────────────────────────────────────────────────────────
   { kind: 'exact', path: '/api/oauth/token', load: () => import('../api/oauth/token') },
   { kind: 'exact', path: '/api/oauth/authorize-pro', load: () => import('../api/oauth/authorize-pro') },
+  { kind: 'exact', path: '/api/oauth/register', load: () => loadJavaScriptRoute('../api/oauth/register.js') },
+  { kind: 'exact', path: '/api/oauth/authorize', load: () => loadJavaScriptRoute('../api/oauth/authorize.js') },
 
   // ── standalone endpoints ────────────────────────────────────────────
   { kind: 'exact', path: '/api/mcp', load: () => import('../api/mcp') },
@@ -159,6 +169,27 @@ const ROUTES: Route[] = [
   { kind: 'exact', path: '/api/widget-agent', load: () => import('../api/widget-agent') },
   { kind: 'exact', path: '/api/invalidate-user-api-key-cache', load: () => import('../api/invalidate-user-api-key-cache') },
   { kind: 'exact', path: '/api/skills/fetch-agentskills', load: () => import('../api/skills/fetch-agentskills') },
+  { kind: 'exact', path: '/api/bootstrap', load: () => loadJavaScriptRoute('../api/bootstrap.js') },
+  { kind: 'exact', path: '/api/cache-purge', load: () => loadJavaScriptRoute('../api/cache-purge.js') },
+  { kind: 'exact', path: '/api/download', load: () => loadJavaScriptRoute('../api/download.js') },
+  { kind: 'exact', path: '/api/fwdstart', load: () => loadJavaScriptRoute('../api/fwdstart.js') },
+  { kind: 'exact', path: '/api/geo', load: () => loadJavaScriptRoute('../api/geo.js') },
+  { kind: 'exact', path: '/api/gpsjam', load: () => loadJavaScriptRoute('../api/gpsjam.js') },
+  { kind: 'exact', path: '/api/health', load: () => loadJavaScriptRoute('../api/health.js') },
+  { kind: 'exact', path: '/api/og-story', load: () => loadJavaScriptRoute('../api/og-story.js') },
+  { kind: 'exact', path: '/api/opensky', load: () => loadJavaScriptRoute('../api/opensky.js') },
+  { kind: 'exact', path: '/api/oref-alerts', load: () => loadJavaScriptRoute('../api/oref-alerts.js') },
+  { kind: 'exact', path: '/api/orion-session', load: () => loadJavaScriptRoute('../api/orion-session.js') },
+  { kind: 'exact', path: '/api/polymarket', load: () => loadJavaScriptRoute('../api/polymarket.js') },
+  { kind: 'exact', path: '/api/reverse-geocode', load: () => loadJavaScriptRoute('../api/reverse-geocode.js') },
+  { kind: 'exact', path: '/api/rss-proxy', load: () => loadJavaScriptRoute('../api/rss-proxy.js') },
+  { kind: 'exact', path: '/api/security/report', load: () => loadJavaScriptRoute('../api/security/report.js') },
+  { kind: 'exact', path: '/api/seed-health', load: () => loadJavaScriptRoute('../api/seed-health.js') },
+  { kind: 'exact', path: '/api/story', load: () => loadJavaScriptRoute('../api/story.js') },
+  { kind: 'exact', path: '/api/telegram-feed', load: () => loadJavaScriptRoute('../api/telegram-feed.js') },
+  { kind: 'exact', path: '/api/version', load: () => loadJavaScriptRoute('../api/version.js') },
+  { kind: 'exact', path: '/api/youtube/embed', load: () => loadJavaScriptRoute('../api/youtube/embed.js') },
+  { kind: 'exact', path: '/api/youtube/live', load: () => loadJavaScriptRoute('../api/youtube/live.js') },
 ];
 
 // ---------------------------------------------------------------------------
@@ -189,6 +220,7 @@ async function resolveHandler(route: Route): Promise<GatewayFn | null> {
 // ---------------------------------------------------------------------------
 
 async function serveStatic(pathname: string): Promise<Response | null> {
+  if (!SERVE_FRONTEND) return null;
   let fp = join(DIST_DIR, pathname === '/' ? APP_ENTRY : pathname);
 
   try {
@@ -229,11 +261,16 @@ function toWebRequest(req: IncomingMessage, body?: ReadableStream<Uint8Array>): 
     }
   }
 
-  return new Request(url.toString(), {
+  const init: RequestInit & { duplex?: 'half' } = {
     method: req.method || 'GET',
     headers,
-    body: body ?? undefined,
-  });
+  };
+  if (body) {
+    init.body = body;
+    // Node requires duplex for streaming request bodies.
+    init.duplex = 'half';
+  }
+  return new Request(url.toString(), init);
 }
 
 // ---------------------------------------------------------------------------
@@ -291,7 +328,7 @@ async function handleRequest(nodeReq: IncomingMessage, nodeRes: ServerResponse):
 
   try {
     // 1. Try API routes (exact first, then prefix)
-    const body = (nodeReq.method !== 'GET' && nodeReq.method !== 'HEAD')
+    const body = (nodeReq.method !== 'GET' && nodeReq.method !== 'HEAD' && nodeReq.method !== 'OPTIONS')
       ? readBody(nodeReq)
       : undefined;
 
@@ -317,6 +354,12 @@ async function handleRequest(nodeReq: IncomingMessage, nodeRes: ServerResponse):
           return await sendWebResponse(nodeRes, webRes);
         }
       }
+    }
+
+    if (!SERVE_FRONTEND) {
+      nodeRes.writeHead(404, { 'Content-Type': 'application/json' });
+      nodeRes.end(JSON.stringify({ error: 'Not found' }));
+      return;
     }
 
     // 2. Static files
@@ -345,13 +388,14 @@ async function main(): Promise<void> {
   console.log(`[railway] NODE_ENV=${process.env.NODE_ENV || 'unset'}`);
   console.log(`[railway] DIST_DIR=${DIST_DIR}`);
 
-  // Verify dist/ exists
-  try {
-    await stat(DIST_DIR);
-    console.log(`[railway] dist/ found`);
-  } catch {
-    console.error(`[railway] ERROR: dist/ not found at ${DIST_DIR}. Run "npm run build" first.`);
-    process.exit(1);
+  if (SERVE_FRONTEND) {
+    try {
+      await stat(DIST_DIR);
+      console.log(`[railway] dist/ found`);
+    } catch {
+      console.error(`[railway] ERROR: dist/ not found at ${DIST_DIR}. Run "npm run build" first.`);
+      process.exit(1);
+    }
   }
 
   // Pre-warm a few critical handlers in the background

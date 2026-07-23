@@ -18,7 +18,7 @@ import type {
   TechEvent,
   TechEventCoords,
 } from '../../../../src/generated/server/orion/research/v1/service_server';
-import { CITY_COORDS } from '../../../../api/data/city-coords';
+import { CITY_COORDS } from '../../../_shared/city-coords';
 import { CHROME_UA, clampInt } from '../../../_shared/constants';
 import { cachedFetchJson } from '../../../_shared/redis';
 import { getRelayBaseUrl, getRelayHeaders } from '../../../_shared/relay';

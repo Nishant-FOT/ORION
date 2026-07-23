@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import test from 'node:test';
 
-import handler from './report.js';
+import handler from '../../../api/security/report.js';
 
 function makeReportRequest({ body, contentType = 'application/reports+json' } = {}) {
   return new Request('https://orion.app/api/security/report', {

@@ -7,8 +7,8 @@ const ENTERPRISE_KEY = 'enterprise-test-key-123';
 process.env.ORION_SESSION_SECRET = SECRET;
 process.env.ORION_VALID_KEYS = ENTERPRISE_KEY;
 
-const { validateApiKey } = await import('./_api-key.js');
-const { issueSessionToken } = await import('./_session.js');
+const { validateApiKey } = await import('../../api/_api-key.js');
+const { issueSessionToken } = await import('../../api/_session.js');
 
 function makeReq({ origin, referer, secFetchSite, key, cookie } = {}) {
   const headers = new Headers();

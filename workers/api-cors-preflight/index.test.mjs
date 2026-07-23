@@ -52,13 +52,14 @@ test('isAllowedOrigin accepts Vercel preview deploys under the eliewm team scope
   // The Worker MUST mirror api/_cors.js exactly — if it stays narrower, eliewm
   // preview preflights echo the canonical orion.app fallback and the
   // browser blocks them before the request ever reaches Vercel.
-  assert.equal(isAllowedOrigin('https://orion-git-feat-x-eliewm.vercel.app'), true);
-  assert.equal(isAllowedOrigin('https://orion-r6q9o-eliewm.vercel.app'), true);
+  assert.equal(isAllowedOrigin('https://orion-git-feat-x-nishant-fots-projects.vercel.app'), true);
+  assert.equal(isAllowedOrigin('https://orion-r6q9o-nishant-fots-projects.vercel.app'), true);
+  assert.equal(isAllowedOrigin('https://orion-eight-beta.vercel.app'), true);
   // Tight allowlist: a foreign team scope, a non-orion app, and the
   // retired personal scope (orion-*-elie-<hash>, migration complete)
   // must all stay rejected. Never a bare *.vercel.app.
   assert.equal(isAllowedOrigin('https://orion-feat-x-attacker.vercel.app'), false);
-  assert.equal(isAllowedOrigin('https://some-other-app-eliewm.vercel.app'), false);
+  assert.equal(isAllowedOrigin('https://some-other-app-nishant-fots-projects.vercel.app'), false);
   assert.equal(isAllowedOrigin('https://orion-abc-elie-habib.vercel.app'), false);
 });
 

@@ -200,7 +200,7 @@ async function renameDirs() {
 async function renameFiles() {
   const fileRenames = [
     ['src/services/orion-session.ts', 'src/services/orion-session.ts'],
-    ['api/orion-session.test.mjs', 'api/orion-session.test.mjs'],
+    ['tests/api/orion-session.test.mjs', 'tests/api/orion-session.test.mjs'],
     ['public/orion-widget-sandbox.html', 'public/orion-widget-sandbox.html'],
     ['docs/api/orion.openapi.yaml', 'docs/api/orion.openapi.yaml'],
     ['docs/api/orion.openapi.json', 'docs/api/orion.openapi.json'],

@@ -249,7 +249,6 @@ export function renderPreferences(host: PreferencesHost): PreferencesResult {
   // Per-panel active framework display
   const panelIds: Array<{ id: AnalysisPanelId; label: string }> = [
     { id: 'insights', label: 'Insights' },
-    { id: 'country-brief', label: 'Country Brief' },
     { id: 'daily-market-brief', label: 'Market Brief' },
     { id: 'deduction', label: 'Deduction' },
   ];

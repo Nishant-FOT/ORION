@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import test from 'node:test';
-import handler from './og-story.js';
+import handler from '../../api/og-story.js';
 
 function renderOgStory(query = '') {
   const req = {

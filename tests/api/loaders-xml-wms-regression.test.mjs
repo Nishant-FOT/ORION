@@ -1,4 +1,4 @@
-import { strict as assert } from 'node:assert';
+import { strict as assert } from "node:assert";
 import test from 'node:test';
 import { XMLLoader } from '@loaders.gl/xml';
 import { WMSCapabilitiesLoader, WMSErrorLoader, _WMSFeatureInfoLoader } from '@loaders.gl/wms';

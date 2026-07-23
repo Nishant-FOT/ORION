@@ -8,7 +8,6 @@ const MAX_INSTRUCTIONS_LEN = 2000;
 
 export type AnalysisPanelId =
   | 'insights'
-  | 'country-brief'
   | 'daily-market-brief'
   | 'deduction'
   | 'market-implications';

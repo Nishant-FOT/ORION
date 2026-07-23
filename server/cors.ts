@@ -7,14 +7,18 @@
 
 const PRODUCTION_PATTERNS: RegExp[] = [
   /^https:\/\/(.*\.)?orion\.app$/,
-  // Vercel preview deployments under the "eliewm" team scope, e.g.
-  //   orion-git-<branch>-eliewm.vercel.app  (git-branch alias)
-  //   orion-<hash>-eliewm.vercel.app        (deployment URL)
+  // Vercel deployments under the production team scope, e.g.
+  //   orion-git-<branch>-nishant-fots-projects.vercel.app
+  //   orion-<hash>-nishant-fots-projects.vercel.app
   // Tight on purpose: never a bare *.vercel.app (this is a security allowlist).
-  /^https:\/\/orion-[a-z0-9-]+-eliewm\.vercel\.app$/,
+  /^https:\/\/orion-[a-z0-9-]+-nishant-fots-projects\.vercel\.app$/,
+  /^https:\/\/orion-eight-beta\.vercel\.app$/,
   // Railway deployments — *.railway.app
   /^https:\/\/[a-z0-9-]+\.railway\.app$/,
+  /^tauri:\/\/localhost$/,
   /^asset:\/\/localhost$/,
+  /^http:\/\/(?:app\.)?tauri\.localhost$/,
+  /^https:\/\/tauri\.localhost:1420$/,
 ];
 
 const DEV_PATTERNS: RegExp[] = [

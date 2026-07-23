@@ -73,7 +73,7 @@ RPC endpoints defined in `.proto` files do **not** need manual CORS handling. Th
 To allow a new origin:
 
 1. Add a regex pattern to `ALLOWED_ORIGIN_PATTERNS` in **both** `api/_cors.js` and `server/cors.ts`.
-2. Update the test in `api/_cors.test.mjs`.
+2. Update the test in `tests/api/_cors.test.mjs`.
 3. If the origin is a new production subdomain, also add it to the Cloudflare R2 CORS rules (see MEMORY.md notes on R2 CORS in the repo root).
 
 ## Allowed Headers

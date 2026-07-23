@@ -11,7 +11,6 @@
     "lint:api-contract": "node scripts/enforce-sebuf-api-contract.mjs",
     "lint:safe-html": "node scripts/enforce-safe-html.mjs",
     "lint:rate-limit-policies": "tsx scripts/enforce-rate-limit-policies.mjs",
-
     "lint:mintlify-slugs": "node scripts/enforce-mintlify-reserved-slugs.mjs",
     "lint:unicode": "node scripts/check-unicode-safety.mjs",
     "lint:unicode:staged": "node scripts/check-unicode-safety.mjs --staged",
@@ -44,9 +43,8 @@
     "typecheck:api": "tsc --noEmit -p tsconfig.api.json && node scripts/audit-convex-string-calls.cjs",
     "typecheck:all": "tsc --noEmit && tsc --noEmit -p tsconfig.api.json && node scripts/audit-convex-string-calls.cjs",
     "audit:convex-string-calls": "node scripts/audit-convex-string-calls.cjs",
-
-
     "start": "tsx server/railway.ts",
+    "start:api": "tsx server/railway.ts",
     "preview": "vite preview",
     "test:e2e:full": "cross-env VITE_VARIANT=full playwright test",
     "test:e2e:tech": "cross-env VITE_VARIANT=tech playwright test",
@@ -63,7 +61,7 @@
     "test:e2e:variant-smoke:happy": "cross-env VITE_VARIANT=happy playwright test e2e/variant-live-smoke.spec.ts",
     "test:e2e:variant-smoke": "npm run test:e2e:variant-smoke:full && npm run test:e2e:variant-smoke:tech && npm run test:e2e:variant-smoke:finance && npm run test:e2e:variant-smoke:commodity && npm run test:e2e:variant-smoke:energy && npm run test:e2e:variant-smoke:happy",
     "test:e2e": "npm run test:e2e:runtime && npm run test:e2e:full && npm run test:e2e:tech && npm run test:e2e:finance && npm run test:e2e:energy",
-    "test:data": "tsx --test --test-concurrency=16 tests/*.test.mjs tests/*.test.mts api/security/report.test.mjs",
+    "test:data": "tsx --test --test-concurrency=16 tests/*.test.mjs tests/*.test.mts tests/api/security/report.test.mjs",
     "test:resilience-validation-smoke": "tsx --test tests/resilience-validation-artifacts-schema.test.mts tests/benchmark-resilience-external.test.mjs tests/backtest-resilience-outcomes.test.mjs tests/resilience-sensitivity-v2.test.mts tests/seed-bundle-resilience-validation.test.mjs",
     "dryrun:resilience": "node --import tsx/esm scripts/dry-run-resilience-rebalance.mjs",
     "test:feeds": "node scripts/validate-rss-feeds.mjs",
@@ -74,7 +72,6 @@
     "test:e2e:visual:update:full": "cross-env VITE_VARIANT=full playwright test -g \"matches golden screenshots per layer and zoom\" --update-snapshots",
     "test:e2e:visual:update:tech": "cross-env VITE_VARIANT=tech playwright test -g \"matches golden screenshots per layer and zoom\" --update-snapshots",
     "test:e2e:visual:update": "npm run test:e2e:visual:update:full && npm run test:e2e:visual:update:tech",
-
     "test:convex": "vitest run --config vitest.config.mts",
     "test:convex:watch": "vitest --config vitest.config.mts"
   },
@@ -83,7 +80,6 @@
     "@bufbuild/buf": "^1.66.0",
     "@edge-runtime/vm": "^5.0.0",
     "@playwright/test": "^1.52.0",
-
     "@types/canvas-confetti": "^1.9.0",
     "@types/d3": "^7.4.3",
     "@types/dompurify": "^3.0.5",
@@ -96,11 +92,15 @@
     "@types/three": "^0.183.1",
     "@types/topojson-client": "^3.1.5",
     "@types/topojson-specification": "^1.0.5",
+    "autoprefixer": "^10.4.21",
     "convex-test": "^0.0.43",
     "cross-env": "^10.1.0",
     "esbuild": "0.28.1",
     "exceljs": "^4.4.0",
+    "js-yaml": "^4.1.1",
     "markdownlint-cli2": "^0.21.0",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
     "tsx": "^4.21.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.7",
@@ -110,11 +110,9 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",
     "@aws-sdk/client-s3": "^3.1009.0",
-
     "@deck.gl/core": "^9.2.11",
     "@deck.gl/layers": "^9.2.11",
     "@deck.gl/mapbox": "^9.2.11",
-
     "@protomaps/basemaps": "^5.7.1",
     "@sentry/browser": "^10.39.0",
     "@upstash/ratelimit": "^2.0.8",
@@ -126,7 +124,6 @@
     "convex": "^1.32.0",
     "d3": "^7.9.0",
     "deck.gl": "^9.2.11",
-
     "dompurify": "^3.4.0",
     "fast-xml-parser": "^5.8.0",
     "globe.gl": "^2.45.0",
@@ -135,7 +132,6 @@
     "i18next": "^25.8.10",
     "i18next-browser-languagedetector": "^8.2.1",
     "jmespath": "^0.16.0",
-
     "maplibre-gl": "^5.16.0",
     "marked": "^17.0.3",
     "onnxruntime-web": "^1.26.0",
